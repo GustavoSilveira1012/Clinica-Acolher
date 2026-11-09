@@ -2,7 +2,7 @@
 
 **Clínica online para psicanalistas:** agenda, sessões por vídeo, financeiro e anotações em um só lugar, com sigilo em primeiro lugar.
 
-![CI](https://github.com/SEU-USUARIO/clinica-acolher/actions/workflows/quality.yml/badge.svg)
+![CI](https://github.com/GustavoSilveira1012/Clinica-Acolher/actions/workflows/quality.yml/badge.svg)
 
 > 🚧 **Em construção.** O projeto está na fase de descoberta e fundação técnica (milestones M0 e M1). Nenhuma funcionalidade está pronta para uso real ainda. Acompanhe pelo [Project no GitHub](https://github.com/users/SEU-USUARIO/projects/NUMERO).
 
