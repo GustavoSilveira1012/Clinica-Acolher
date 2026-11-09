@@ -1,0 +1,16 @@
+<h1>Conexão com a API</h1>
+
+@switch (estado()) {
+    @case ('carregando') {
+        <p>Verificando...</p>
+    }
+    @case ('ok') {
+        <p>API funcionando.</p>
+        <p>{{ resposta()?.service }} respondeu em {{ resposta()?.timestamp | date: 'dd/MM/yyyy  HH:mm:ss' }}</p>
+    }
+    @case ('erro') {
+        <p>Não foi possível conectar à API. Ela esta rodando?</p>
+    }
+}
+
+<button type="button" (click)="verificar()">Verificar de novo</button>
