@@ -8,7 +8,7 @@ As referências legais foram escritas de memória, sem consulta à internet. Con
 
 ## 1. Visão do produto
 
-A Clínica Acolher é uma **clínica online**: o paciente agenda, paga e faz a sessão por vídeo dentro da plataforma, e o profissional gerencia agenda, financeiro e anotações no mesmo lugar. Também atende sessões presenciais.
+A Clínica Acolher é uma **clínica online**: o paciente agenda, paga e faz a sessão por vídeo dentro da plataforma, e o profissional gerencia agenda, financeiro e anotações no mesmo lugar. Não há atendimento presencial: toda sessão acontece por vídeo.
 
 O produto evolui em três fases, e cada uma muda as responsabilidades legais:
 
@@ -91,7 +91,7 @@ A agenda gira em torno do **horário fixo semanal**, que é o padrão da psican�
 - `RN-AGD-01` O profissional define dias, horários, duração padrão da sessão (ex.: 50 min) e intervalo entre sessões.
 - `RN-AGD-02` Bloqueios pontuais (férias, feriados, congressos) suspendem a disponibilidade sem apagar as séries.
 - `RN-AGD-03` Dois atendimentos ativos do mesmo profissional nunca se sobrepõem. A regra é garantida pelo banco de dados, não só pela tela.
-- `RN-AGD-04` Não pode ter dois atendimentos ao mesmo tempo.
+- `RN-AGD-04` Um paciente também não pode ter duas sessões no mesmo horário, mesmo com profissionais diferentes. A regra é garantida pelo banco de dados.
 
 **Séries recorrentes**
 
@@ -112,7 +112,7 @@ A agenda gira em torno do **horário fixo semanal**, que é o padrão da psican�
 
 - `RN-AGD-08` Estados finais não voltam. Um erro de registro é corrigido por um novo evento com justificativa, preservando o original na auditoria.
 - `RN-AGD-09` Todos os horários são gravados em UTC e exibidos no fuso de quem está vendo. Paciente em outro fuso vê o horário convertido, com o fuso indicado.
-- `RN-AGD-10` A sessão pode ser apenas **online**.
+- `RN-AGD-10` **Toda sessão é online, por vídeo dentro da plataforma. Não existe sessão presencial, e a interface não oferece essa opção**.
 
 ## 6. Atendimento online
 
@@ -348,7 +348,7 @@ As respostas abaixo podem mudar regras marcadas como "padrão sugerido". Anote a
 - [ ] Vai atender menores de idade? A partir de que idade? (`RN-PAC-03`)
 - [ ] Pretende escrever anotações das sessões na plataforma ou fora dela? (`RN-PRT`)
 - [ ] Vai emitir recibo como pessoa física ou nota fiscal como empresa? (`RN-FIN-10` a `RN-FIN-13`)
-- [ ] Terá outros profissionais na clínica? Eles alugam sala, dividem receita ou são contratados? (`RN-PRO-05`)
+- [ ] Terá outros profissionais na clínica? Eles terão conta própria, dividirão receita com a clínica ou serão contratados? (`RN-PRO-05`)
 - [ ] Haverá secretaria? O que ela pode ver e fazer? (seção 2)
 - [ ] Atenderá pacientes que moram fora do Brasil? (`RN-ONL-12`)
 - [ ] O que mais a preocupa em atender online?
