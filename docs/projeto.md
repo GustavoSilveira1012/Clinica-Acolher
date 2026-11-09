@@ -1,6 +1,6 @@
 # PROJETO.md — Clínica Acolher
 
-> Documento técnico mestre. Versão 2.0 · 2026-11-09
+> Documento técnico mestre. Versão 2.1 · 2026-11-09 (atendimento somente online)
 > Substitui o PROJETO.md do PsicoGest (Java/React).
 
 ---
@@ -23,7 +23,7 @@ Este documento não repete as regras de negócio: ele cita os códigos (`RN-AGD-
 
 ## 2. Produto
 
-A **Clínica Acolher** é uma clínica online para psicanalistas e, depois, outros profissionais de saúde mental. O paciente agenda, paga e faz a sessão por vídeo dentro da plataforma. O profissional gerencia agenda, financeiro e anotações no mesmo lugar. Sessões presenciais também são suportadas.
+A **Clínica Acolher** é uma clínica online para psicanalistas e, depois, outros profissionais de saúde mental. O paciente agenda, paga e faz a sessão por vídeo dentro da plataforma. O profissional gerencia agenda, financeiro e anotações no mesmo lugar. Todo atendimento é online: não há sessões presenciais (`RN-AGD-10`).
 
 ### 2.1 Fases
 
@@ -249,7 +249,7 @@ Cada operação do sistema é um caso de uso na Application (ex.: `CreatePatient
 | Contexto | Entidades principais | Regras |
 |---|---|---|
 | Identidade e acesso | `User`, `UserSession`, `RefreshToken`, `SecurityEvent`, `SupportAccessGrant` | `RN-SEG`, `RN-PER-03` |
-| Organização | `Organization`, `OrganizationMembership`, `Clinic`, `Room` | Seção 2, `RN-AGD-04` |
+| Organização | `Organization`, `OrganizationMembership`, `Clinic` | Seção 2 |
 | Pessoas | `Patient`, `Guardian`, `EmergencyContact`, `Professional`, `ClinicMembership`, `ClinicMembershipPeriod` | `RN-PAC`, `RN-PRO` |
 | Vínculo | `TherapeuticRelationship` | `RN-PER-01`, `RN-PER-04` |
 | Agenda | `Availability`, `AvailabilityBlock`, `AppointmentSeries`, `Appointment`, `AttendancePolicy`, `AttendancePolicyAcceptance` | `RN-AGD`, `RN-CAN` |
@@ -267,6 +267,7 @@ Mudanças em relação ao PsicoGest:
 - `Psychoanalyst` passa a ser **`Professional`** com uma categoria (psicanalista, psicólogo, outra), porque a plataforma pode receber outros profissionais (`RN-PRO-02`).
 - `MedicalRecord` passa a ser **`ClinicalNote`**: psicanálise não é ato médico, e o nome deve refletir isso.
 - Entram `Guardian`, `EmergencyContact`, `VideoRoom`, `AttendancePolicy` e `DocumentAcceptance`, exigidos pela clínica online.
+- Não existe sala física nem sessão presencial: todo atendimento acontece na sala de vídeo (`RN-AGD-10`).
 
 ### 9.2 Máquinas de estado
 
@@ -332,7 +333,7 @@ Estados finais nunca voltam. Correções são novos registros.
 | Dinheiro | `decimal` no C#, `numeric(12,2)` no banco, moeda BRL |
 | Enums | Gravados como texto |
 | Concorrência | Controle otimista usando a coluna de sistema `xmin` |
-| Conflito de agenda | `EXCLUDE USING gist` com `btree_gist` por profissional e por sala (`RN-AGD-03`, `RN-AGD-04`) |
+| Conflito de agenda | `EXCLUDE USING gist` com `btree_gist` por profissional (`RN-AGD-03`) e por paciente (`RN-AGD-04`) |
 | Exclusão | Sem `DELETE` em entidades com histórico; desativação, bloqueio ou anonimização |
 | Campos cifrados | Guardados como `bytea`, com o identificador da chave usada |
 
@@ -559,7 +560,7 @@ Cada etapa só termina quando o critério de saída é cumprido.
 | M0 · Produto e descoberta | Entrevista, escopo do MVP, protótipo, decisões iniciais | Escopo do piloto aprovado pela cliente piloto |
 | M1 · Fundação técnica | Repositório, solução .NET, Angular, Docker, CI | `docker compose up` sobe tudo e o CI está verde |
 | M2 · Pacientes | Paciente de ponta a ponta, responsável legal, contato de emergência | CRUD testado com PostgreSQL real |
-| M3 · Profissionais e clínica | Clínica, profissional, vínculo terapêutico, salas | Vínculo terapêutico com testes de transição |
+| M3 · Profissionais e clínica | Clínica, profissional e vínculo terapêutico | Vínculo terapêutico com testes de transição |
 | M4 · Agenda e sessões | Disponibilidade, séries, estados, política de faltas | Sobreposição impossível, provada no banco |
 | M5 · Autenticação e permissões | Login, 2FA, perfis, autorização por vínculo, isolamento | Testes de acesso cruzado verdes no CI |
 | M6 · Atendimento online | Sala de vídeo, sala de espera, protocolo de emergência | Sessão completa entre dois dispositivos, sem gravação |
@@ -658,7 +659,6 @@ Sequência: piloto da família → 3 a 5 clínicas parceiras → 10 clientes →
 | Sessão | `Appointment` |
 | Série semanal | `AppointmentSeries` |
 | Disponibilidade / bloqueio | `Availability` / `AvailabilityBlock` |
-| Sala física | `Room` |
 | Sala de vídeo | `VideoRoom` |
 | Política de faltas | `AttendancePolicy` |
 | Cobrança | `Receivable` |
