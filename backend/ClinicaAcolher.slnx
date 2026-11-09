@@ -1,0 +1,12 @@
+<Solution>
+dotnet sln add src/ClinicaAcolher.Domain/ClinicaAcolher.Domain.csproj
+dotnet sln add src/ClinicaAcolher.Application/ClinicaAcolher.Application.csproj
+dotnet sln add src/ClinicaAcolher.Infrastructure/ClinicaAcolher.Infrastructure.csproj
+dotnet sln add src/ClinicaAcolher.Api/ClinicaAcolher.Api.csproj
+dotnet sln add tests/ClinicaAcolher.UnitTests/ClinicaAcolher.UnitTests.csproj
+
+dotnet add src/ClinicaAcolher.Application/ClinicaAcolher.Application.csproj reference src/ClinicaAcolher.Domain/ClinicaAcolher.Domain.csproj
+dotnet add src/ClinicaAcolher.Infrastructure/ClinicaAcolher.Infrastructure.csproj reference src/ClinicaAcolher.Application/ClinicaAcolher.Application.csproj
+dotnet add src/ClinicaAcolher.Api/ClinicaAcolher.Api.csproj reference src/ClinicaAcolher.Application/ClinicaAcolher.Application.csproj src/ClinicaAcolher.Infrastructure/ClinicaAcolher.Infrastructure.csproj
+dotnet add tests/ClinicaAcolher.UnitTests/ClinicaAcolher.UnitTests.csproj reference src/ClinicaAcolher.Domain/ClinicaAcolher.Domain.csproj
+</Solution>
