@@ -10,7 +10,7 @@
 
 ## O que é
 
-O paciente agenda, paga e faz a sessão por vídeo pela plataforma. O profissional organiza a agenda semanal, acompanha cobranças e faltas, emite recibos e registra anotações clínicas cifradas. Sessões presenciais também são suportadas.
+O paciente agenda, paga e faz a sessão por vídeo pela plataforma. O profissional organiza a agenda semanal, acompanha cobranças e faltas, emite recibos e registra anotações clínicas cifradas. Todo atendimento é online, sem sessões presenciais.
 
 O primeiro uso será um **piloto gratuito e controlado** com uma clínica de psicanálise. Depois, a plataforma será oferecida como SaaS para outras clínicas e profissionais.
 
