@@ -1,0 +1,57 @@
+<h1>Pacientes</h1>
+
+<form [formGroup]="form" (ngSubmit)="buscar()" role="search">
+    <label for="busca">Buscar por nome</label>
+    <input id="busca" type="search" formControlName="busca" />
+    <button type="submit">Buscar</button>
+</form>
+
+<div role="group" aria-label="Filtrar por situação" class="filtros">
+    @for (opcao of opcoesFiltro; track opcao.valor) {
+        <button type="button" [attr.aria-pressed]="filtro() === opcao.valor" (click)="mudarFiltro(opcao.valor)">
+            {{opcao.rotulo}}
+        </button>
+    }
+</div>
+
+@if (erro()) {
+    <p role="alert">
+        Não foi possível carregar os pacientes.
+        <button type="button" (click)="buscar()">Tentar de novo</button>
+    </p>
+} @else {
+    @if (resultado(); as r) {
+        @if (r.items.length === 0) {
+            <p>Nenhum paciente encontrado</p>
+        } @else {
+            <table>
+                <thead>
+                    <tr>
+                        <th scope="col">Nome</th>
+                        <th scope="col">E-mail</th>
+                        <th scope="col">Telefone</th>
+                        <th scope="col">Situação</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @for (p of r.items; track p.id) {
+                        <tr>
+                            <td>{{ p.displayName }}</td>
+                            <td>{{ p.email ?? '—' }}</td>
+                            <td>{{ p.phone ?? '—' }}</td>
+                            <td>{{ p.active ? 'Ativo' : 'Inativo' }}</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+
+            <nav aria-label="Paginação" class="paginacao">
+                <button type="button" [disabled]="pagina() === 1" (click)="irParaPagina(pagina() - 1)">Anterior</button>
+                <span>Página {{ pagina() }} de {{ totalPaginas() }} · {{ r.totalCount }} pacientes</span>
+                <button type="button" [disabled]="pagina() >= totalPaginas()" (click)="irParaPagina(pagina() + 1)">Próxima</button>
+            </nav>
+        }
+    } @else {
+        <p>Carregando...</p>
+    }
+}
