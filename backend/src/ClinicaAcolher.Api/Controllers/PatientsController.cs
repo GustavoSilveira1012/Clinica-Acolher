@@ -1,4 +1,5 @@
 using ClinicaAcolher.Application.Patients;
+using ClinicaAcolher.Application.Common;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ClinicaAcolher.Api.Controllers;
@@ -20,4 +21,8 @@ public sealed class PatientsController(PatientService service) : ControllerBase
         var patient = await service.GetByIdAsync(id, ct);
         return patient is null ? NotFound() : Ok(patient);
     }
+
+    [HttpPost("search")]
+    public async Task<ActionResult<PagedResult<PatientListItem>>> Search(PatientSearchRequest request, CancellationToken ct) =>
+        Ok(await service.SearchAsync(request, ct));
 }
