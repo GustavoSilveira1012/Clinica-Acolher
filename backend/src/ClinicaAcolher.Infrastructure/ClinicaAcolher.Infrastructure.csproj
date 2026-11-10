@@ -11,6 +11,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\ClinicaAcolher.Application\ClinicaAcolher.Application.csproj" />
     <ProjectReference Include="..\ClinicaAcolher.Domain\ClinicaAcolher.Domain.csproj" />
   </ItemGroup>
 

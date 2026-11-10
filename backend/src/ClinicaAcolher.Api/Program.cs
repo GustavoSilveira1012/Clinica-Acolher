@@ -1,9 +1,13 @@
 using ClinicaAcolher.Infrastructure;
+using ClinicaAcolher.Api.Errors;
+using ClinicaAcolher.Application.Patients;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-
+builder.Services.AddScoped<PatientService>();
+builder.Services.AddProblemDetails();
+builder.Services.AddExceptionHandler<DomainExceptionHandler>();
 builder.Services.AddControllers();
 builder.Services.AddSingleton(TimeProvider.System);
 
@@ -15,6 +19,7 @@ builder.Services.AddInfrastructure(connectionString);
 builder.Services.AddOpenApi();
 
 var app = builder.Build();
+app.UseExceptionHandler();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
