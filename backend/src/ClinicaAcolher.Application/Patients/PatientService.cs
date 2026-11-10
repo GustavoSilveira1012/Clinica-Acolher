@@ -35,4 +35,26 @@ public sealed class PatientService(IPatientRepository patients, TimeProvider clo
             items.Select(PatientListItem.From).ToList(), page, pageSize, total
         );
     }
+
+public Task<PatientResponse?> UpdateAsync(Guid id, UpdatePatientRequest r, CancellationToken ct) =>
+    ChangeAsync(id, (p, now) => p.UpdateData(r.FullName, r.BirthDate, now, r.SocialName, r.Email, r.Phone), ct);
+
+public Task<PatientResponse?> DeactivateAsync(Guid id, DeactivatePatientRequest r, CancellationToken ct) =>
+    ChangeAsync(id, (p, now) => p.Deactivate(r.Reason, now), ct);
+
+public Task<PatientResponse?> ReactivateAsync(Guid id, CancellationToken ct) =>
+    ChangeAsync(id, (p, now) => p.Reactivate(now), ct);
+
+private async Task<PatientResponse?> ChangeAsync(
+    Guid id, Action<Patient, DateTimeOffset> change, CancellationToken ct)
+{
+    var patient = await patients.GetByIdAsync(id, ct);
+    if (patient is null)
+        return null;
+
+    change(patient, clock.GetUtcNow());
+    await patients.SaveChangesAsync(ct);
+
+    return PatientResponse.From(patient);
+}
 }

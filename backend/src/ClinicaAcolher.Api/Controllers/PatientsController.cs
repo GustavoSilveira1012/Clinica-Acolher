@@ -25,4 +25,20 @@ public sealed class PatientsController(PatientService service) : ControllerBase
     [HttpPost("search")]
     public async Task<ActionResult<PagedResult<PatientListItem>>> Search(PatientSearchRequest request, CancellationToken ct) =>
         Ok(await service.SearchAsync(request, ct));
+
+
+    [HttpPut("{id:guid}")]
+public async Task<ActionResult<PatientResponse>> Update(Guid id, UpdatePatientRequest request, CancellationToken ct) =>
+    OkOrNotFound(await service.UpdateAsync(id, request, ct));
+
+[HttpPost("{id:guid}/deactivate")]
+public async Task<ActionResult<PatientResponse>> Deactivate(Guid id, DeactivatePatientRequest request, CancellationToken ct) =>
+    OkOrNotFound(await service.DeactivateAsync(id, request, ct));
+
+[HttpPost("{id:guid}/reactivate")]
+public async Task<ActionResult<PatientResponse>> Reactivate(Guid id, CancellationToken ct) =>
+    OkOrNotFound(await service.ReactivateAsync(id, ct));
+
+private ActionResult<PatientResponse> OkOrNotFound(PatientResponse? patient) =>
+    patient is null ? NotFound() : Ok(patient);
 }

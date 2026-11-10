@@ -31,3 +31,12 @@ public sealed record PatientListItem(Guid id, string DisplayName, string? Email,
 {
     public static PatientListItem From(Patient p) => new(p.Id, p.DisplayName, p.Email, p.Phone, p.Active);
 }
+
+public sealed record UpdatePatientRequest(
+    string FullName,
+    DateOnly BirthDate,
+    string? SocialName,
+    string? Email,
+    string? Phone);
+
+public sealed record DeactivatePatientRequest(string Reason);
