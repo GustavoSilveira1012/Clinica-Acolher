@@ -1,6 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
+import { provideRouter } from '@angular/router';
 import { PatientListPage } from './patient-list-page';
 
 describe('PatientListPage', () => {
@@ -9,7 +10,7 @@ describe('PatientListPage', () => {
   beforeEach(() => {
     TestBed.configureTestingModule({
       imports: [PatientListPage],
-      providers: [provideHttpClient(), provideHttpClientTesting()],
+      providers: [provideHttpClient(), provideHttpClientTesting(), provideRouter([])],
     });
     http = TestBed.inject(HttpTestingController);
   });

@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
-import { PagedResult, PatientListItem, PatientSearchRequest } from './patient.models';
+import { PagedResult, PatientListItem, PatientRequest, PatientResponse, PatientSearchRequest } from './patient.models';
 
 @Injectable({providedIn: 'root'})
 export class PatientsApi {
@@ -10,5 +10,18 @@ export class PatientsApi {
 
     search(request: PatientSearchRequest): Observable<PagedResult<PatientListItem>> {
         return this.http.post<PagedResult<PatientListItem>>(`${this.baseUrl}/search`, request);
+    }
+
+
+    getById(id: string): Observable<PatientResponse> {
+    return this.http.get<PatientResponse>(`${this.baseUrl}/${id}`);
+    }
+
+    create(request: PatientRequest): Observable<PatientResponse> {
+    return this.http.post<PatientResponse>(this.baseUrl, request);
+    }
+
+    update(id: string, request: PatientRequest): Observable<PatientResponse> {
+        return this.http.put<PatientResponse>(`${this.baseUrl}/${id}`, request);
     }
 }

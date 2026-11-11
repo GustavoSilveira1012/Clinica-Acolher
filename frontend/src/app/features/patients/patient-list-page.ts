@@ -1,5 +1,6 @@
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
+import { RouterLink } from '@angular/router';
 import { PatientsApi } from './patients-api';
 import { PagedResult, PatientListItem } from './patient.models';
 
@@ -7,7 +8,7 @@ type Filtro = 'ativos' | 'inativos' | 'todos';
 
 @Component({
   selector: 'app-patient-list-page',
-  imports: [ReactiveFormsModule],
+  imports: [ReactiveFormsModule, RouterLink],
   templateUrl: './patient-list-page.html',
   styleUrl: './patient-list-page.css',
 })

@@ -19,3 +19,23 @@ export interface PatientSearchRequest {
     page: number;
     pageSize: number;
 }
+
+export interface PatientResponse {
+    id: string;
+    displayName: string;
+    fullName: string;
+    socialName: string | null;
+    email: string | null;
+    phone: string | null;
+    birthDate: string;
+    active: boolean;
+    createdAt: string;
+}
+
+export interface PatientRequest {
+    fullName: string;
+    birthDate: string;
+    socialName: string | null;
+    email: string | null;
+    phone: string | null;
+}

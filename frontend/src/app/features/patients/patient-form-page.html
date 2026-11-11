@@ -1,0 +1,50 @@
+<h1>{{ editando() ? 'Editar paciente' : 'Novo paciente' }}</h1>
+
+@if (mensagemErro(); as msg) {
+  <p role="alert" class="alerta">{{ msg }}</p>
+}
+
+<form [formGroup]="form" (ngSubmit)="salvar()" novalidate>
+  <div class="campo">
+    <label for="fullName">Nome completo (obrigatório)</label>
+    <input id="fullName" formControlName="fullName" autocomplete="off"
+           [attr.aria-invalid]="mostrarErro('fullName')" aria-describedby="fullName-erro" />
+    @if (mostrarErro('fullName')) {
+      <p id="fullName-erro" class="erro-campo">Informe o nome completo, com 2 a 160 caracteres.</p>
+    }
+  </div>
+
+  <div class="campo">
+    <label for="socialName">Nome social</label>
+    <input id="socialName" formControlName="socialName" autocomplete="off" aria-describedby="socialName-ajuda" />
+    <p id="socialName-ajuda" class="ajuda">Se preenchido, é o nome usado nas telas e comunicações.</p>
+  </div>
+
+  <div class="campo">
+    <label for="birthDate">Data de nascimento (obrigatório)</label>
+    <input id="birthDate" type="date" formControlName="birthDate"
+           [attr.aria-invalid]="mostrarErro('birthDate')" aria-describedby="birthDate-erro" />
+    @if (mostrarErro('birthDate')) {
+      <p id="birthDate-erro" class="erro-campo">Informe a data de nascimento.</p>
+    }
+  </div>
+
+  <div class="campo">
+    <label for="email">E-mail</label>
+    <input id="email" type="email" formControlName="email" autocomplete="off"
+           [attr.aria-invalid]="mostrarErro('email')" aria-describedby="email-erro" />
+    @if (mostrarErro('email')) {
+      <p id="email-erro" class="erro-campo">Informe um e-mail válido.</p>
+    }
+  </div>
+
+  <div class="campo">
+    <label for="phone">Telefone</label>
+    <input id="phone" type="tel" formControlName="phone" autocomplete="off" />
+  </div>
+
+  <div class="acoes">
+    <button type="submit" [disabled]="salvando()">{{ salvando() ? 'Salvando…' : 'Salvar' }}</button>
+    <a routerLink="/pacientes">Cancelar</a>
+  </div>
+</form>
