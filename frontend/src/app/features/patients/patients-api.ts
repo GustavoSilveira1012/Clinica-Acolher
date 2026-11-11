@@ -24,4 +24,12 @@ export class PatientsApi {
     update(id: string, request: PatientRequest): Observable<PatientResponse> {
         return this.http.put<PatientResponse>(`${this.baseUrl}/${id}`, request);
     }
+
+    deactivate(id: string, reason: string): Observable<PatientResponse> {
+        return this.http.post<PatientResponse>(`${this.baseUrl}/${id}/deactivate`, { reason });
+    }
+
+    reactivate(id: string): Observable<PatientResponse> {
+        return this.http.post<PatientResponse>(`${this.baseUrl}/${id}/reactivate`, {});
+    }
 }

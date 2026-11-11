@@ -48,3 +48,33 @@
     <a routerLink="/pacientes">Cancelar</a>
   </div>
 </form>
+
+@if (editando()) {
+  <section aria-labelledby="situacao-titulo" class="situacao">
+    <h2 id="situacao-titulo">Situação do cadastro</h2>
+    <p>Este paciente está <strong>{{ ativo() ? 'ativo' : 'inativo' }}</strong>. Pacientes nunca são excluídos, apenas desativados.</p>
+
+    @if (ativo()) {
+      @if (confirmandoDesativacao()) {
+        <div class="campo">
+          <label for="motivo">Motivo da desativação (obrigatório)</label>
+          <textarea id="motivo" rows="3" [formControl]="motivo" aria-describedby="motivo-ajuda"></textarea>
+          <p id="motivo-ajuda" class="ajuda">
+            Use um motivo administrativo, como "encerrou o acompanhamento". Não registre informações clínicas aqui.
+          </p>
+          @if (motivo.touched && (motivo.invalid || !motivo.value.trim())) {
+            <p class="erro-campo">Informe o motivo da desativação</p>
+          }
+        </div>
+        <div class="acoes">
+          <button type="button" (click)="confirmarDesativacao()" [disabled]="salvando()">Confirmar desativação</button>
+          <button type="button" (click)="cancelarDesativacao()">Cancelar</button>
+        </div>
+      } @else {
+        <button type="button" (click)="iniciarDesativacao()">Desativar paciente</button>
+      }
+    } @else {
+      <button type="button" (click)="reativar()" [disabled]="salvando()">Reativar paciente</button>
+    }
+  </section>
+}

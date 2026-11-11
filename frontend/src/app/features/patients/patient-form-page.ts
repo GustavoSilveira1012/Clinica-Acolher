@@ -2,8 +2,9 @@ import { Component, OnInit, computed, inject, input, signal } from '@angular/cor
 import { HttpErrorResponse } from '@angular/common/http';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
+import { Observable } from 'rxjs';
 import { PatientsApi } from './patients-api';
-import { PatientRequest } from './patient.models';
+import { PatientRequest, PatientResponse } from './patient.models';
 
 type Campo = 'fullName' | 'socialName' | 'birthDate' | 'email' | 'phone';
 
@@ -22,6 +23,12 @@ export class PatientFormPage implements OnInit {
   protected readonly editando = computed(() => !!this.id());
   protected readonly salvando = signal(false);
   protected readonly mensagemErro = signal<string | null>(null);
+  protected readonly ativo = signal(true);
+  protected readonly confirmandoDesativacao = signal(false);
+  protected readonly motivo = new FormControl('', {
+    nonNullable: true,
+    validators: [Validators.required, Validators.maxLength(500)],
+  });
 
   protected readonly form = new FormGroup({
     fullName: new FormControl('', {
@@ -39,14 +46,16 @@ export class PatientFormPage implements OnInit {
     if (!id) return;
 
     this.api.getById(id).subscribe({
-      next: (p) =>
+      next: (p) => {
+        this.ativo.set(p.active);
         this.form.setValue({
           fullName: p.fullName,
           socialName: p.socialName ?? '',
           birthDate: p.birthDate,
           email: p.email ?? '',
           phone: p.phone ?? '',
-        }),
+        });
+      },
       error: () => this.mensagemErro.set('Não foi possível carregar o paciente.'),
     });
   }
@@ -79,6 +88,49 @@ export class PatientFormPage implements OnInit {
 
     chamada.subscribe({
       next: () => this.router.navigate(['/pacientes']),
+      error: (erro: HttpErrorResponse) => {
+        this.salvando.set(false);
+        this.mensagemErro.set(this.traduzirErro(erro));
+      },
+    });
+  }
+
+  protected iniciarDesativacao(): void {
+    this.motivo.reset();
+    this.confirmandoDesativacao.set(true);
+  }
+
+  protected cancelarDesativacao(): void {
+    this.confirmandoDesativacao.set(false);
+  }
+
+  protected confirmarDesativacao(): void {
+    const id = this.id();
+    const motivo = this.motivo.value.trim();
+    if (!id) return;
+    if (!motivo || this.motivo.invalid) {
+      this.motivo.markAsTouched();
+      return;
+    }
+
+    this.executar(this.api.deactivate(id, motivo));
+  }
+
+  protected reativar(): void {
+    const id = this.id();
+    if (id) this.executar(this.api.reactivate(id));
+  }
+
+  private executar(chamada: Observable<PatientResponse>): void {
+    this.salvando.set(true);
+    this.mensagemErro.set(null);
+
+    chamada.subscribe({
+      next: (p) => {
+        this.ativo.set(p.active);
+        this.confirmandoDesativacao.set(false);
+        this.salvando.set(false);
+      },
       error: (erro: HttpErrorResponse) => {
         this.salvando.set(false);
         this.mensagemErro.set(this.traduzirErro(erro));
