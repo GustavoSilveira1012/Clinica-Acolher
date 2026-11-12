@@ -17,7 +17,7 @@ jobs:
         working-directory: frontend
     steps:
       - name: Baixar o código
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
       - name: Verificar vulnerabilidades
         run: npm audit --audit-level=high --omit=dev
 
@@ -44,7 +44,7 @@ jobs:
         working-directory: backend
     steps:
       - name: Baixar o código
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Instalar o .NET
         uses: actions/setup-dotnet@v4
