@@ -1,5 +1,5 @@
 # Etapa 1: compilar, com o SDK completo
-FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
+FROM mcr.microsoft.com/dotnet/sdk:11.0 AS build
 WORKDIR /src
 
 COPY global.json Directory.Build.props ClinicaAcolher.slnx ./
