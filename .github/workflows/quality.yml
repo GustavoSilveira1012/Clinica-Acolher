@@ -18,6 +18,8 @@ jobs:
     steps:
       - name: Baixar o código
         uses: actions/checkout@v4
+      - name: Verificar vulnerabilidades
+        run: npm audit --audit-level=high --omit=dev
 
       - name: Instalar o Node.js
         uses: actions/setup-node@v4

@@ -1,0 +1,25 @@
+version: 2
+updates:
+  - package-ecosystem: "nuget"
+    directory: "/backend"
+    target-branch: "developer"
+    schedule:
+      interval: "weekly"
+    groups:
+      dotnet:
+        patterns: ["*"]
+
+  - package-ecosystem: "npm"
+    directory: "/frontend"
+    target-branch: "developer"
+    schedule:
+      interval: "weekly"
+    groups:
+      angular:
+        patterns: ["@angular/*", "@angular-devkit/*"]
+
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    target-branch: "developer"
+    schedule:
+      interval: "weekly"
