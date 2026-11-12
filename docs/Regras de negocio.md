@@ -62,6 +62,15 @@ Todo profissional passa por verificação antes de atender, e a plataforma exibe
 - `RN-PRO-06` Desativar profissional nunca apaga histórico de sessões, financeiro ou anotações. Sessões futuras devem ser remanejadas ou canceladas antes da desativação, com aviso aos pacientes.
 - `RN-PRO-07` Autenticação em dois fatores é obrigatória para profissionais, secretaria e administradores.
 
+**Vínculo terapêutico**
+
+O vínculo liga um paciente a um profissional e é a base de toda permissão clínica (`RN-PER-01`).
+
+- `RN-VIN-01` Um vínculo só começa com paciente ativo e profissional aprovado. Paciente menor de idade só inicia vínculo com responsável legal cadastrado (`RN-PAC-03`).
+- `RN-VIN-02` Um paciente não pode ter dois vínculos não encerrados com o mesmo profissional ao mesmo tempo.
+- `RN-VIN-03` Estados: ativo, suspenso e encerrado. Ativo pode ser suspenso ou encerrado; suspenso pode voltar a ativo ou ser encerrado; encerrado é final. Se o paciente voltar, nasce um novo vínculo.
+- `RN-VIN-04` Encerrar exige motivo administrativo e registra a data. Só um vínculo ativo permite agendar novas sessões.
+
 ## 4. Pacientes
 
 Coletamos o mínimo de dados necessário para cada finalidade, e pedimos mais só quando a finalidade surge (minimização, LGPD art. 6º, III).
