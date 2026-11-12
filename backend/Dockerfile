@@ -13,7 +13,7 @@ COPY src/ src/
 RUN dotnet publish src/ClinicaAcolher.Api/ClinicaAcolher.Api.csproj -c Release -o /app --no-restore
 
 # Etapa 2: rodar, só com o necessário
-FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS runtime
+FROM mcr.microsoft.com/dotnet/aspnet:11.0 AS runtime
 WORKDIR /app
 COPY --from=build /app .
 USER $APP_UID
