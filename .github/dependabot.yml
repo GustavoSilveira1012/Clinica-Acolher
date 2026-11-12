@@ -23,3 +23,15 @@ updates:
     target-branch: "developer"
     schedule:
       interval: "weekly"
+
+  - package-ecosystem: "docker"
+    directory: "/backend"
+    target-branch: "developer"
+    schedule:
+      interval: "weekly"
+
+  - package-ecosystem: "docker"
+    directory: "/frontend"
+    target-branch: "developer"
+    schedule:
+      interval: "weekly"
