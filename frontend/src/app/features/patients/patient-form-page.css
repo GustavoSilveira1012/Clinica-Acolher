@@ -1,0 +1,6 @@
+form { display: grid; gap: 1rem; max-width: 32rem; }
+.campo { display: grid; gap: 0.25rem; }
+.erro-campo, .alerta { color: #b3261e; margin: 0; }
+.ajuda { color: #555; font-size: 0.9rem; margin: 0; }
+.acoes { display: flex; gap: 1rem; align-items: center; }
+.situacao { margin-top: 2rem; padding-top: 1rem; border-top: 1px solid #ddd; max-width: 32rem; }

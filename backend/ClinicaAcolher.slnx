@@ -1,0 +1,20 @@
+<Solution>
+dotnet sln add src/ClinicaAcolher.Domain/ClinicaAcolher.Domain.csproj
+dotnet sln add src/ClinicaAcolher.Application/ClinicaAcolher.Application.csproj
+dotnet sln add src/ClinicaAcolher.Infrastructure/ClinicaAcolher.Infrastructure.csproj
+dotnet sln add src/ClinicaAcolher.Api/ClinicaAcolher.Api.csproj
+dotnet sln add tests/ClinicaAcolher.UnitTests/ClinicaAcolher.UnitTests.csproj
+
+dotnet add src/ClinicaAcolher.Application/ClinicaAcolher.Application.csproj reference src/ClinicaAcolher.Domain/ClinicaAcolher.Domain.csproj
+dotnet add src/ClinicaAcolher.Infrastructure/ClinicaAcolher.Infrastructure.csproj reference src/ClinicaAcolher.Application/ClinicaAcolher.Application.csproj
+dotnet add src/ClinicaAcolher.Api/ClinicaAcolher.Api.csproj reference src/ClinicaAcolher.Application/ClinicaAcolher.Application.csproj src/ClinicaAcolher.Infrastructure/ClinicaAcolher.Infrastructure.csproj
+dotnet add tests/ClinicaAcolher.UnitTests/ClinicaAcolher.UnitTests.csproj reference src/ClinicaAcolher.Domain/ClinicaAcolher.Domain.csproj
+
+  <Folder Name="/src/">  <Project Path="src/ClinicaAcolher.Api/ClinicaAcolher.Api.csproj" />  <Project Path="src/ClinicaAcolher.Application/ClinicaAcolher.Application.csproj" />
+    <Project Path="src/ClinicaAcolher.Domain/ClinicaAcolher.Domain.csproj" />  <Project Path="src/ClinicaAcolher.Infrastructure/ClinicaAcolher.Infrastructure.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/ClinicaAcolher.IntegrationTests/ClinicaAcolher.IntegrationTests.csproj" />
+    <Project Path="tests/ClinicaAcolher.UnitTests/ClinicaAcolher.UnitTests.csproj" />
+  </Folder>
+</Solution>

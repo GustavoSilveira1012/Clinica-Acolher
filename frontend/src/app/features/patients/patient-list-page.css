@@ -1,0 +1,4 @@
+form, .filtros, .paginacao { display: flex; gap: 0.5rem; align-items: center; margin-block: 1rem; }
+table { width: 100%; border-collapse: collapse; }
+th, td { text-align: left; padding: 0.5rem; border-bottom: 1px solid #ddd; }
+button[aria-pressed="true"] { font-weight: bold; }
