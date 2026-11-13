@@ -17,6 +17,17 @@ public class ProfessionalsApiTests(ApiFactory factory) : IClassFixture<ApiFactor
     private readonly HttpClient _client = factory.CreateClient();
 
     [Fact]
+    public async Task Lista_os_profissionais_cadastrados()
+    {
+        var criado = await CriarAsync(EmailUnico());
+
+        var lista = await _client.GetFromJsonAsync<List<ProfessionalResponse>>(
+            "/api/v1/professionals", Json);
+
+        Assert.Contains(lista!, p => p.Id == criado.Id);
+    }
+
+    [Fact]
     public async Task RN_PRO_04_profissional_fica_pendente_ate_ser_aprovado()
     {
         var criado = await CriarAsync(EmailUnico());

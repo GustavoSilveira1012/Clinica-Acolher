@@ -14,6 +14,10 @@ public sealed class ProfessionalsController(ProfessionalService service) : Contr
         return CreatedAtAction(nameof(GetById), new { id = professional.Id }, professional);
     }
 
+    [HttpGet]
+    public async Task<ActionResult<IReadOnlyList<ProfessionalResponse>>> List(CancellationToken ct) =>
+        Ok(await service.ListAsync(ct));
+
     [HttpGet("{id:guid}")]
     public async Task<ActionResult<ProfessionalResponse>> GetById(Guid id, CancellationToken ct) =>
         OkOrNotFound(await service.GetByIdAsync(id, ct));

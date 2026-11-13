@@ -27,6 +27,9 @@ public sealed class ProfessionalService(
         return professional is null ? null : ProfessionalResponse.From(professional);
     }
 
+    public async Task<IReadOnlyList<ProfessionalResponse>> ListAsync(CancellationToken ct) =>
+        (await professionals.ListAsync(ct)).Select(ProfessionalResponse.From).ToList();
+
     public Task<ProfessionalResponse?> ApproveAsync(Guid id, CancellationToken ct) =>
         ChangeAsync(id, (p, now) => p.Approve(now), ct);
 
