@@ -20,6 +20,7 @@
       <button type="button" (click)="irParaHoje()">Esta semana</button>
       <button type="button" (click)="mudarSemana(1)">Próxima semana →</button>
     </nav>
+    <button type="button" class="principal" (click)="abrirAgendamento()">Nova sessão</button>
   </div>
 
   <p class="periodo" aria-live="polite">
@@ -29,8 +30,68 @@
     }
   </p>
 
+  @if (agendando()) {
+    <section class="painel" aria-labelledby="agendamento-titulo">
+      <h2 id="agendamento-titulo">Nova sessão</h2>
+
+      @if (vinculos().length === 0) {
+        <p>Este profissional ainda não tem pacientes com vínculo ativo.</p>
+        <button type="button" (click)="fecharPaineis()">Voltar</button>
+      } @else {
+        <form class="agendamento" [formGroup]="formAgendamento" (ngSubmit)="confirmarAgendamento()">
+          <label for="vinculo">Paciente</label>
+          <select id="vinculo" formControlName="vinculoId">
+            <option value="" disabled>Escolha o paciente</option>
+            @for (v of vinculos(); track v.relationshipId) {
+              <option [value]="v.relationshipId">{{ v.patientDisplayName }}</option>
+            }
+          </select>
+
+          <label for="inicio">Data e hora</label>
+          <input id="inicio" type="datetime-local" formControlName="inicio" />
+
+          <label for="duracao">Duração (minutos)</label>
+          <input id="duracao" type="number" min="15" max="180" step="5" formControlName="duracao" />
+
+          @if (formAgendamento.invalid && formAgendamento.touched) {
+            <p class="alerta">Escolha o paciente, a data e a hora, e uma duração entre 15 e 180 minutos.</p>
+          }
+
+          <div class="acoes">
+            <button type="submit">Agendar</button>
+            <button type="button" (click)="fecharPaineis()">Voltar</button>
+          </div>
+        </form>
+      }
+    </section>
+  }
+
+  @if (remarcando(); as alvo) {
+    <section class="painel" aria-labelledby="remarcacao-titulo">
+      <h2 id="remarcacao-titulo">
+        Remarcar a sessão de {{ alvo.patientDisplayName }}, hoje em {{ alvo.startsAt | date: "dd/MM 'às' HH:mm" }}
+      </h2>
+      <form class="remarcacao" [formGroup]="formRemarcacao" (ngSubmit)="confirmarRemarcacao()">
+        <label for="nova-data">Nova data e hora</label>
+        <input id="nova-data" type="datetime-local" formControlName="inicio" />
+
+        <label for="nova-duracao">Duração (minutos)</label>
+        <input id="nova-duracao" type="number" min="15" max="180" step="5" formControlName="duracao" />
+
+        @if (formRemarcacao.invalid && formRemarcacao.touched) {
+          <p class="alerta">Informe a nova data e hora, e uma duração entre 15 e 180 minutos.</p>
+        }
+
+        <div class="acoes">
+          <button type="submit">Remarcar</button>
+          <button type="button" (click)="fecharPaineis()">Voltar</button>
+        </div>
+      </form>
+    </section>
+  }
+
   @if (cancelando(); as alvo) {
-    <section class="cancelamento" aria-labelledby="cancelamento-titulo">
+    <section class="painel" aria-labelledby="cancelamento-titulo">
       <h2 id="cancelamento-titulo">
         Cancelar a sessão de {{ alvo.patientDisplayName }}, {{ alvo.startsAt | date: "dd/MM 'às' HH:mm" }}
       </h2>
@@ -80,6 +141,8 @@
                   <button type="button" (click)="registrarFalta(item)"
                           [attr.aria-label]="'Registrar falta de ' + item.patientDisplayName">Falta</button>
                 }
+                <button type="button" (click)="abrirRemarcacao(item)"
+                        [attr.aria-label]="'Remarcar a sessão de ' + item.patientDisplayName">Remarcar</button>
                 <button type="button" (click)="iniciarCancelamento(item)"
                         [attr.aria-label]="'Cancelar a sessão de ' + item.patientDisplayName">Cancelar</button>
               </div>

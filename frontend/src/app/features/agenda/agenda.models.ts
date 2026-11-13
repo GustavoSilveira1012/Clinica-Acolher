@@ -18,3 +18,9 @@ export interface ProfessionalSummary {
   professionalName: string;
   canAttend: boolean;
 }
+
+export interface ActiveRelationship {
+  relationshipId: string;
+  patientId: string;
+  patientDisplayName: string;
+}

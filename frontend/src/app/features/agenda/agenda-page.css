@@ -9,6 +9,8 @@
 .horario { font-weight: bold; }
 .cobranca { color: #8a4b00; font-size: 0.9rem; }
 .acoes { display: flex; flex-wrap: wrap; gap: 0.25rem; margin-top: 0.5rem; }
-.cancelamento { border: 1px solid #ccc; border-radius: 6px; padding: 1rem; margin-block: 1rem; max-width: 32rem; }
+.painel { border: 1px solid #ccc; border-radius: 6px; padding: 1rem; margin-block: 1rem; max-width: 32rem; }
+.painel form { display: grid; gap: 0.5rem; }
+.principal { font-weight: bold; }
 .alerta { color: #b3261e; }
 .ajuda, .vazio { color: #555; font-size: 0.9rem; }

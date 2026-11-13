@@ -1,7 +1,7 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
-import { AgendaItem, CancellationSource, ProfessionalSummary } from './agenda.models';
+import { ActiveRelationship, AgendaItem, CancellationSource, ProfessionalSummary } from './agenda.models';
 
 @Injectable({ providedIn: 'root' })
 export class AgendaApi {
@@ -14,6 +14,25 @@ export class AgendaApi {
   getAgenda(professionalId: string, from: Date, to: Date): Observable<AgendaItem[]> {
     const params = new HttpParams().set('from', from.toISOString()).set('to', to.toISOString());
     return this.http.get<AgendaItem[]>(`/api/v1/professionals/${professionalId}/agenda`, { params });
+  }
+
+  listActiveRelationships(professionalId: string): Observable<ActiveRelationship[]> {
+    return this.http.get<ActiveRelationship[]>(`/api/v1/professionals/${professionalId}/relationships/active`);
+  }
+
+  schedule(relationshipId: string, startsAt: Date, durationMinutes: number): Observable<unknown> {
+    return this.http.post('/api/v1/appointments', {
+      relationshipId,
+      startsAt: startsAt.toISOString(),
+      durationMinutes,
+    });
+  }
+
+  reschedule(id: string, startsAt: Date, durationMinutes: number): Observable<unknown> {
+    return this.http.post(`/api/v1/appointments/${id}/reschedule`, {
+      startsAt: startsAt.toISOString(),
+      durationMinutes,
+    });
   }
 
   confirm(id: string): Observable<unknown> {

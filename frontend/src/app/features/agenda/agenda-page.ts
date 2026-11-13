@@ -4,8 +4,8 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Observable } from 'rxjs';
 import { AgendaApi } from './agenda-api';
-import { AgendaItem, AppointmentStatus, CancellationSource, ChargeReason, ProfessionalSummary } from './agenda.models';
-import { addDays, dateKey, startOfWeek } from './week';
+import { ActiveRelationship, AgendaItem, AppointmentStatus, CancellationSource, ChargeReason, ProfessionalSummary } from './agenda.models';
+import { addDays, dateKey, nextFullHour, startOfWeek, toLocalInputValue } from './week';
 
 const ROTULO_STATUS: Record<AppointmentStatus, string> = {
   Scheduled: 'Agendada',
@@ -37,7 +37,27 @@ export class AgendaPage implements OnInit {
   protected readonly itens = signal<AgendaItem[]>([]);
   protected readonly carregando = signal(false);
   protected readonly mensagemErro = signal<string | null>(null);
+  protected readonly agendando = signal(false);
+  protected readonly remarcando = signal<AgendaItem | null>(null);
+  protected readonly vinculos = signal<ActiveRelationship[]>([]);
   protected readonly cancelando = signal<AgendaItem | null>(null);
+
+  protected readonly formAgendamento = new FormGroup({
+    vinculoId: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
+    inicio: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
+    duracao: new FormControl(50, {
+      nonNullable: true,
+      validators: [Validators.required, Validators.min(15), Validators.max(180)],
+    }),
+  });
+
+  protected readonly formRemarcacao = new FormGroup({
+    inicio: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
+    duracao: new FormControl(50, {
+      nonNullable: true,
+      validators: [Validators.required, Validators.min(15), Validators.max(180)],
+    }),
+  });
 
   protected readonly formCancelamento = new FormGroup({
     quem: new FormControl<CancellationSource>('Patient', { nonNullable: true }),
@@ -113,13 +133,66 @@ export class AgendaPage implements OnInit {
     this.executar(this.api.noShow(item.id));
   }
 
+  protected abrirAgendamento(): void {
+    const id = this.profissionalId();
+    if (!id) return;
+
+    this.fecharPaineis();
+    this.formAgendamento.reset({
+      vinculoId: '',
+      inicio: toLocalInputValue(nextFullHour(new Date())),
+      duracao: 50,
+    });
+    this.agendando.set(true);
+
+    this.api.listActiveRelationships(id).subscribe({
+      next: (lista) => this.vinculos.set(lista),
+      error: () => this.mensagemErro.set('Não foi possível carregar os pacientes do profissional.'),
+    });
+  }
+
+  protected confirmarAgendamento(): void {
+    if (this.formAgendamento.invalid) {
+      this.formAgendamento.markAllAsTouched();
+      return;
+    }
+    const { vinculoId, inicio, duracao } = this.formAgendamento.getRawValue();
+    this.executar(this.api.schedule(vinculoId, new Date(inicio), duracao), () => this.fecharPaineis());
+  }
+
+  protected abrirRemarcacao(item: AgendaItem): void {
+    this.fecharPaineis();
+    const inicio = new Date(item.startsAt);
+    const duracao = Math.round((new Date(item.endsAt).getTime() - inicio.getTime()) / 60_000);
+    this.formRemarcacao.reset({ inicio: toLocalInputValue(inicio), duracao });
+    this.remarcando.set(item);
+  }
+
+  protected confirmarRemarcacao(): void {
+    const item = this.remarcando();
+    if (!item) return;
+    if (this.formRemarcacao.invalid) {
+      this.formRemarcacao.markAllAsTouched();
+      return;
+    }
+    const { inicio, duracao } = this.formRemarcacao.getRawValue();
+    this.executar(this.api.reschedule(item.id, new Date(inicio), duracao), () => this.fecharPaineis());
+  }
+
+  protected fecharPaineis(): void {
+    this.agendando.set(false);
+    this.remarcando.set(null);
+    this.cancelando.set(null);
+  }
+
   protected iniciarCancelamento(item: AgendaItem): void {
+    this.fecharPaineis();
     this.formCancelamento.reset();
     this.cancelando.set(item);
   }
 
   protected desistirCancelamento(): void {
-    this.cancelando.set(null);
+    this.fecharPaineis();
   }
 
   protected confirmarCancelamento(): void {
@@ -130,7 +203,7 @@ export class AgendaPage implements OnInit {
       this.formCancelamento.markAllAsTouched();
       return;
     }
-    this.executar(this.api.cancel(item.id, quem, motivo.trim()), () => this.cancelando.set(null));
+    this.executar(this.api.cancel(item.id, quem, motivo.trim()), () => this.fecharPaineis());
   }
 
   private carregar(): void {
