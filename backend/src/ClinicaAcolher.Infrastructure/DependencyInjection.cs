@@ -5,6 +5,7 @@ using ClinicaAcolher.Application.Patients;
 using ClinicaAcolher.Application.Common;
 using ClinicaAcolher.Application.Professionals;
 using ClinicaAcolher.Application.Relationships;
+using ClinicaAcolher.Application.Appointments;
 using ClinicaAcolher.Infrastructure.Persistence.Repositories;
 
 namespace ClinicaAcolher.Infrastructure;
@@ -18,6 +19,7 @@ public static class DependencyInjection
         services.AddScoped<IUnitOfWork, UnitOfWork>();
         services.AddScoped<IProfessionalRepository, ProfessionalRepository>();
         services.AddScoped<IRelationshipRepository, RelationshipRepository>();
+        services.AddScoped<IAppointmentRepository, AppointmentRepository>();
         return services;
     }
 }

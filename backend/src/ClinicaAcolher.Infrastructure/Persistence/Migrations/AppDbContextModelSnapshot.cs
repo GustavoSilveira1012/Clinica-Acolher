@@ -20,7 +20,66 @@ namespace ClinicaAcolher.Infrastructure.Persistence.Migrations
                 .HasAnnotation("ProductVersion", "10.0.14")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
+            NpgsqlModelBuilderExtensions.HasPostgresExtension(modelBuilder, "btree_gist");
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
+
+            modelBuilder.Entity("ClinicaAcolher.Domain.Appointments.Appointment", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("CancellationReason")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<string>("CancelledBy")
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTimeOffset>("EndsAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("PatientId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("ProfessionalId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("RelationshipId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid?>("RescheduledToId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset>("StartsAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.Property<DateTimeOffset?>("StatusChangedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PatientId");
+
+                    b.HasIndex("RelationshipId");
+
+                    b.HasIndex("RescheduledToId");
+
+                    b.HasIndex("ProfessionalId", "StartsAt");
+
+                    b.ToTable("appointments", null, t =>
+                        {
+                            t.HasCheckConstraint("ck_appointments_period", "\"EndsAt\" > \"StartsAt\"");
+                        });
+                });
 
             modelBuilder.Entity("ClinicaAcolher.Domain.Patients.Patient", b =>
                 {
@@ -151,6 +210,32 @@ namespace ClinicaAcolher.Infrastructure.Persistence.Migrations
                         .HasFilter("\"Status\" <> 'Ended'");
 
                     b.ToTable("therapeutic_relationships", (string)null);
+                });
+
+            modelBuilder.Entity("ClinicaAcolher.Domain.Appointments.Appointment", b =>
+                {
+                    b.HasOne("ClinicaAcolher.Domain.Patients.Patient", null)
+                        .WithMany()
+                        .HasForeignKey("PatientId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("ClinicaAcolher.Domain.Professionals.Professional", null)
+                        .WithMany()
+                        .HasForeignKey("ProfessionalId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("ClinicaAcolher.Domain.Relationships.TherapeuticRelationship", null)
+                        .WithMany()
+                        .HasForeignKey("RelationshipId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("ClinicaAcolher.Domain.Appointments.Appointment", null)
+                        .WithMany()
+                        .HasForeignKey("RescheduledToId")
+                        .OnDelete(DeleteBehavior.Restrict);
                 });
 
             modelBuilder.Entity("ClinicaAcolher.Domain.Relationships.TherapeuticRelationship", b =>

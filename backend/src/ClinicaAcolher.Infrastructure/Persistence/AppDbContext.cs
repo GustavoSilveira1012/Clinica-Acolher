@@ -1,3 +1,4 @@
+using ClinicaAcolher.Domain.Appointments;
 using ClinicaAcolher.Domain.Patients;
 using ClinicaAcolher.Domain.Professionals;
 using ClinicaAcolher.Domain.Relationships;
@@ -10,9 +11,11 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options) : DbCon
     public DbSet<Patient> Patients => Set<Patient>();
     public DbSet<Professional> Professionals => Set<Professional>();
     public DbSet<TherapeuticRelationship> TherapeuticRelationships => Set<TherapeuticRelationship>();
+    public DbSet<Appointment> Appointments => Set<Appointment>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        modelBuilder.HasPostgresExtension("btree_gist");
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(AppDbContext).Assembly);
     }
 }
