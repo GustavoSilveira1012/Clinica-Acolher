@@ -121,7 +121,8 @@ A agenda gira em torno do **horário fixo semanal**, que é o padrão da psican�
 
 - `RN-AGD-08` Estados finais não voltam. Um erro de registro é corrigido por um novo evento com justificativa, preservando o original na auditoria.
 - `RN-AGD-09` Todos os horários são gravados em UTC e exibidos no fuso de quem está vendo. Paciente em outro fuso vê o horário convertido, com o fuso indicado.
-- `RN-AGD-10` **Toda sessão é online, por vídeo dentro da plataforma. Não existe sessão presencial, e a interface não oferece essa opção**.
+- `RN-AGD-10` Toda sessão é online, por vídeo dentro da plataforma. Não existe sessão presencial, e a interface não oferece essa opção.
+- `RN-AGD-11` Uma sessão só pode ser registrada como realizada ou como falta a partir do horário de início dela.
 
 ## 6. Atendimento online
 
@@ -163,6 +164,7 @@ Cada profissional define sua política, mas ela precisa estar escrita e aceita p
 - `RN-CAN-04` O profissional pode isentar uma cobrança de falta, registrando o motivo.
 - `RN-CAN-05` Uma falha técnica comprovada pelos registros de conexão (`RN-ONL-06`) nunca vira falta do paciente.
 - `RN-CAN-06` Todo cancelamento registra quem cancelou, quando, com quanta antecedência e o motivo informado.
+- `RN-CAN-07` Sem aceite registrado de uma política, nenhuma falta ou cancelamento é cobrado do paciente.
 
 ## 8. Financeiro
 
