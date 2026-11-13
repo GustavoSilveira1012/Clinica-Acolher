@@ -4,5 +4,5 @@ public enum CancellationSource
 {
     Patient,
     Professional,
-    Plataform,
+    Platform,
 }
