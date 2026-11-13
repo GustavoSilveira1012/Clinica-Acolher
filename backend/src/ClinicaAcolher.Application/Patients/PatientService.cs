@@ -3,7 +3,7 @@ using ClinicaAcolher.Application.Common;
 
 namespace ClinicaAcolher.Application.Patients;
 
-public sealed class PatientService(IPatientRepository patients, TimeProvider clock)
+public sealed class PatientService(IPatientRepository patients, IUnitOfWork unitOfWork, TimeProvider clock)
 {
     public async Task<PatientResponse> CreateAsync(CreatePatientRequest request, CancellationToken ct)
     {
@@ -12,7 +12,7 @@ public sealed class PatientService(IPatientRepository patients, TimeProvider clo
             request.SocialName, request.Email, request.Phone);
 
             patients.Add(patient);
-            await patients.SaveChangesAsync(ct);
+            await unitOfWork.SaveChangesAsync(ct);
 
         return PatientResponse.From(patient);
     }
@@ -53,7 +53,7 @@ private async Task<PatientResponse?> ChangeAsync(
         return null;
 
     change(patient, clock.GetUtcNow());
-    await patients.SaveChangesAsync(ct);
+    await unitOfWork.SaveChangesAsync(ct);
 
     return PatientResponse.From(patient);
 }

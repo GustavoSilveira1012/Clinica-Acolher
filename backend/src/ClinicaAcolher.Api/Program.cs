@@ -1,14 +1,18 @@
 using ClinicaAcolher.Infrastructure;
 using ClinicaAcolher.Api.Errors;
 using ClinicaAcolher.Application.Patients;
+using System.Text.Json.Serialization;
+using ClinicaAcolher.Application.Professionals;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddScoped<PatientService>();
+builder.Services.AddScoped<ProfessionalService>();
 builder.Services.AddProblemDetails();
 builder.Services.AddExceptionHandler<DomainExceptionHandler>();
-builder.Services.AddControllers();
+builder.Services.AddControllers()
+    .AddJsonOptions(o => o.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()));
 builder.Services.AddSingleton(TimeProvider.System);
 
 var connectionString = builder.Configuration.GetConnectionString("Default")

@@ -12,8 +12,6 @@ internal sealed class PatientRepository(AppDbContext db) : IPatientRepository
 
     public void Add(Patient patient) => db.Patients.Add(patient);
 
-    public Task SaveChangesAsync(CancellationToken ct) => db.SaveChangesAsync(ct);
-
     public async Task<(IReadOnlyList<Patient> Items, int Total)> SearchAsync(
     string? search, bool? active, int skip, int take, CancellationToken ct)
 {
