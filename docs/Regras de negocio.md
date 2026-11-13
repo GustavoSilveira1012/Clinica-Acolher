@@ -29,8 +29,13 @@ O produto evolui em três fases, e cada uma muda as responsabilidades legais:
 
 - [ ] Nome e marca: "Acolher" é muito comum entre clínicas. Fazer busca no INPI (classes 9, 42 e 44) antes de investir na marca.
 - [ ] Provedor de vídeo: próprio (WebRTC) ou terceiro. Terceiro com servidor fora do Brasil implica transferência internacional de dados.
-- [ ] Se a plataforma vai guardar anotações clínicas de psicanalistas ou só agenda e financeiro na fase 1.
-- [ ] Se psicólogos serão aceitos desde a fase 2 (traz exigências do CFP, ver seção 12).
+- [x] Anotações clínicas: a cliente piloto vai registrá-las na plataforma depois das sessões, para acompanhar a evolução do paciente. Entram no escopo, mas só depois da criptografia e da auditoria estarem prontas (seção 10).
+- [x] Psicólogos entram no escopo da fase 2, com liberação condicionada ao cumprimento dos requisitos aplicáveis. Decisão do responsável pelo projeto em 13/11/2026; não amplia automaticamente o piloto. Ver [decisão e impactos](decisoes/001-psicologos-na-fase-2.md).
+- [ ] Atendimento presencial: hoje fora do escopo (`RN-AGD-10`). A cliente piloto avalia atender menores presencialmente; se decidir que sim, a regra volta para discussão.
+- [ ] Política de faltas da clínica piloto: a definir. Até lá, nada é cobrado (`RN-CAN-07`).
+- [ ] Idade mínima para atendimento online de menores: a definir pela cliente piloto (`RN-PAC-03`).
+- [ ] Recebimento como MEI: confirmar com um contador se a atividade de psicanálise é permitida no MEI antes de planejar a emissão de notas.
+- [x] Secretaria: fora da fase 1. A profissional faz a própria gestão da agenda e do financeiro.
 
 ## 2. Perfis e permissões
 
@@ -85,7 +90,7 @@ Coletamos o mínimo de dados necessário para cada finalidade, e pedimos mais s�
 
 - `RN-PAC-01` O paciente pode se cadastrar sozinho ou ser cadastrado pela clínica. No segundo caso, recebe convite para criar a própria senha e aceitar os termos.
 - `RN-PAC-02` Paciente nunca é apagado enquanto houver obrigação de guarda. O pedido de exclusão segue a seção 11.
-- `RN-PAC-03` **Menores de 18 anos** só são atendidos com um responsável legal cadastrado e consentimento registrado do responsável (LGPD art. 14).
+- `RN-PAC-03` **Menores de 18 anos** só são atendidos com um responsável legal cadastrado e consentimento registrado do responsável (LGPD art. 14). A idade mínima para atendimento online será definida pela clínica piloto.
 - `RN-PAC-04` Para menores de 12 anos (criança, pelo ECA), o responsável faz o agendamento e os pagamentos. Adolescentes de 12 a 17 podem entrar na sessão com o próprio acesso, vinculado ao responsável.
 - `RN-PAC-05` A clínica decide, caso a caso, o que o responsável pode ver de um adolescente (agenda e financeiro, sim; anotações, nunca).
 - `RN-PAC-06` Ao completar 18 anos, o paciente passa a controlar a própria conta e o responsável perde o acesso automaticamente, com aviso a ambos.
@@ -97,14 +102,14 @@ A agenda gira em torno do **horário fixo semanal**, que é o padrão da psican�
 
 **Disponibilidade**
 
-- `RN-AGD-01` O profissional define dias, horários, duração padrão da sessão (ex.: 50 min) e intervalo entre sessões.
+- `RN-AGD-01` O profissional define dias, horários, duração padrão da sessão (na clínica piloto, de 50 a 60 minutos) e intervalo entre sessões.
 - `RN-AGD-02` Bloqueios pontuais (férias, feriados, congressos) suspendem a disponibilidade sem apagar as séries.
 - `RN-AGD-03` Dois atendimentos ativos do mesmo profissional nunca se sobrepõem. A regra é garantida pelo banco de dados, não só pela tela.
 - `RN-AGD-04` Um paciente também não pode ter duas sessões no mesmo horário, mesmo com profissionais diferentes. A regra é garantida pelo banco de dados.
 
 **Séries recorrentes**
 
-- `RN-AGD-05` Uma série semanal gera as sessões futuras até uma data final ou por tempo indeterminado (gerando sempre as próximas 12 semanas).
+- `RN-AGD-05` Uma série semanal gera as sessões futuras até uma data final ou por tempo indeterminado (gerando sempre as próximas 12 semanas). Um vínculo pode ter mais de uma série, como duas sessões por semana, embora o padrão seja uma.
 - `RN-AGD-06` Alterar uma série pede o alcance: só esta sessão, esta e as próximas, ou a série inteira. Sessões passadas nunca são alteradas.
 - `RN-AGD-07` Quando um feriado cai num horário fixo, a sessão é marcada para revisão em vez de ser cancelada automaticamente.
 
@@ -144,7 +149,7 @@ A sala de vídeo é o coração da clínica online: ela precisa ser tão sigilos
 - `RN-ONL-09` No início de cada sessão online, o paciente confirma a cidade onde está. Em situação de risco, o profissional sabe qual serviço local acionar.
 - `RN-ONL-10` O profissional tem, dentro da sala, um acesso rápido aos dados de emergência daquele paciente, registrado em auditoria.
 - `RN-ONL-11` A tela da sessão mostra ao paciente, de forma discreta, os contatos do CVV (188) e do SAMU (192).
-- `RN-ONL-12` Sessão com paciente fora do Brasil exige confirmação do profissional, pois pode envolver regras de outro país.
+- `RN-ONL-12` Sessão com paciente fora do Brasil exige confirmação do profissional, pois pode envolver regras de outro país. A clínica piloto atenderá pacientes no exterior: verificar as leis de proteção de dados do país do paciente (por exemplo, o GDPR para quem mora na União Europeia) e como receber pagamentos internacionais.
 
 ## 7. Faltas, cancelamentos e reagendamentos
 
@@ -174,7 +179,7 @@ Cobrança, pagamento e documento fiscal são três coisas separadas: o paciente 
 
 - `RN-FIN-01` Cada sessão realizada (ou falta cobrável) gera uma **cobrança** com valor, vencimento e recebedor (clínica ou profissional).
 - `RN-FIN-02` Modelos de cobrança suportados: por sessão, mensal (soma das sessões do mês) e pacote pré-pago (seção 9).
-- `RN-FIN-03` Formas de pagamento: Pix, cartão de crédito e boleto, por meio de um provedor de pagamentos. **A plataforma nunca armazena número de cartão.**
+- `RN-FIN-03` Formas de pagamento: Pix e cartão de crédito (boleto fica fora do início, por escolha da clínica piloto), por meio de um provedor de pagamentos. **A plataforma nunca armazena número de cartão.**
 - `RN-FIN-04` Um pagamento pode quitar várias cobranças, e uma cobrança pode ser paga em partes.
 - `RN-FIN-05` Valores são guardados em centavos ou tipo decimal, nunca em número de ponto flutuante.
 - `RN-FIN-06` Nada é apagado no financeiro. Estorno, desconto e correção são novos lançamentos que referenciam o original.
@@ -291,12 +296,14 @@ Além da LGPD, pelo menos oito normas afetam regras da plataforma. Todas precisa
 | Estatuto da Criança e do Adolescente (Lei 8.069/1990) | Proteção integral; papel dos responsáveis | `RN-PAC-03` a `RN-PAC-06` |
 | Lei Brasileira de Inclusão (Lei 13.146/2015, art. 63) | Site e aplicativo acessíveis a pessoas com deficiência | Seção 13 |
 | Lei da Telessaúde (Lei 14.510/2022) | Regras para atendimento remoto por profissionais de saúde regulamentados | Seção 6 |
-| CFP, Resolução nº 11/2018 (se houver psicólogos) | Atendimento psicológico online; conferir exigência de cadastro do profissional na plataforma do CFP | `RN-PRO-02` |
+| CFP, Resolução nº 9/2024 (se houver psicólogos) | Atendimento psicológico mediado por tecnologias digitais; substitui as normas anteriores e dispensa cadastro no e-Psi. Ver [orientação oficial](https://transparencia.cfp.org.br/crp12/pergunta-frequente/atendimentopsicologicoonline/) e validar requisitos aplicáveis ao produto | `RN-PRO-02` |
 | CFP, Resolução nº 1/2009 (se houver psicólogos) | Registro documental e guarda mínima de 5 anos | `RN-PRT-08` |
 | Legislação tributária e reforma (LC 214/2025) | Emissão e guarda de documentos fiscais | `RN-FIN-13` a `RN-FIN-15` |
 
 - `RN-LEG-01` Psicanálise não tem conselho profissional nem lei de regulamentação. A plataforma segue, por boa prática, os padrões de sigilo e guarda exigidos dos psicólogos.
 - `RN-LEG-02` Termos de uso e política de privacidade são revisados por advogado antes do piloto com pacientes reais e a cada mudança relevante.
+
+**Revisão pendente para psicólogos:** antes da liberação na fase 2, revisar as regras de acesso ao prontuário e de guarda nas seções 2, 10 e 11. As formulações atuais de acesso negado ao paciente e de guarda de cinco anos não devem ser usadas isoladamente para definir permissões ou descarte de prontuários psicológicos. Os impactos e as referências estão na [decisão 001](decisoes/001-psicologos-na-fase-2.md).
 
 ## 13. Segurança obrigatória
 
@@ -352,14 +359,14 @@ Oito documentos precisam existir, revisados por advogado, antes do primeiro paci
 
 As respostas abaixo podem mudar regras marcadas como "padrão sugerido". Anote as respostas como ela falar e atualize a regra correspondente.
 
-- [ ] Quanto dura a sessão e qual o intervalo entre uma e outra? (`RN-AGD-01`)
-- [ ] Atende mais de uma vez por semana o mesmo paciente? (`RN-AGD-05`)
-- [ ] Qual será a política de faltas e de cancelamento? Cobra falta sem aviso? (`RN-CAN`)
-- [ ] Cobra por sessão, por mês ou vende pacotes? Aceita Pix, cartão, boleto? (`RN-FIN-02`, `RN-FIN-03`)
-- [ ] Vai atender menores de idade? A partir de que idade? (`RN-PAC-03`)
-- [ ] Pretende escrever anotações das sessões na plataforma ou fora dela? (`RN-PRT`)
-- [ ] Vai emitir recibo como pessoa física ou nota fiscal como empresa? (`RN-FIN-10` a `RN-FIN-13`)
-- [ ] Terá outros profissionais na clínica? Eles terão conta própria, dividirão receita com a clínica ou serão contratados? (`RN-PRO-05`)
-- [ ] Haverá secretaria? O que ela pode ver e fazer? (seção 2)
-- [ ] Atenderá pacientes que moram fora do Brasil? (`RN-ONL-12`)
-- [ ] O que mais a preocupa em atender online?
+- [x] Quanto dura a sessão? **De 50 minutos a 1 hora.** O intervalo entre sessões ainda não foi informado. (`RN-AGD-01`)
+- [x] Atende mais de uma vez por semana o mesmo paciente? **O ideal é uma vez por semana; mais vezes quando necessário.** (`RN-AGD-05`)
+- [ ] Qual será a política de faltas e de cancelamento? **Ainda a definir.** (`RN-CAN`)
+- [x] Cobra por sessão, por mês ou vende pacotes? **Os três.** Formas de pagamento: **Pix e cartão**, sem boleto. (`RN-FIN-02`, `RN-FIN-03`)
+- [ ] Vai atender menores de idade? **Sim. A idade mínima e a possibilidade de atendimento presencial ainda serão definidas.** (`RN-PAC-03`, `RN-AGD-10`)
+- [x] Anotações na plataforma? **Durante a sessão, fora dela; depois, registradas na plataforma para acompanhar a evolução.** (`RN-PRT`)
+- [x] Recibo ou nota fiscal? **De início, recibo como pessoa física; depois, abrir MEI.** (`RN-FIN-10` a `RN-FIN-13`)
+- [x] Outros profissionais na clínica? **Não por enquanto; talvez no futuro.** (`RN-PRO-05`)
+- [x] Haverá secretaria? **Não. A própria profissional cuida da gestão.** (seção 2)
+- [x] Pacientes fora do Brasil? **Sim.** (`RN-ONL-12`)
+- [x] O que mais a preocupa em atender online? **O comprometimento do paciente e a captação de novos pacientes.**

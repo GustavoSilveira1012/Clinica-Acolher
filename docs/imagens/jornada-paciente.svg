@@ -1,0 +1,104 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1080" height="1480" viewBox="0 0 1080 1480" role="img" aria-labelledby="title desc">
+  <title id="title">Jornada do paciente — Clínica Acolher</title>
+  <desc id="desc">Proposta de fluxo: primeiro contato, informações, cadastro e agendamento. Depois, comparecer à sessão, pedir alteração ou registrar ausência, distinguindo falha técnica de falta. A remarcação retorna ao agendamento. Ao verificar o financeiro, pagamento confirmado leva ao recibo; pagamento pendente aguarda confirmação; sem cobrança nem pagamento, encerra sem recibo. D1 a D6 correspondem aos pontos de dor do documento.</desc>
+  <defs>
+    <marker id="arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0 0 L8 4 L0 8 Z" fill="#64748b"/></marker>
+    <style>
+      text { font-family: 'Segoe UI', Arial, sans-serif; fill: #172b3a; text-anchor: middle; }
+      .box { fill: #fff; stroke: #b5c9d0; stroke-width: 1.5; }
+      .main { fill: #e7f3f1; stroke: #31786e; stroke-width: 1.5; }
+      .end { fill: #e7f3f1; stroke: #31786e; stroke-width: 1.5; }
+      .label { font-size: 19px; font-weight: 600; }
+      .small { font-size: 16px; fill: #40586a; }
+      .line { fill: none; stroke: #64748b; stroke-width: 2; marker-end: url(#arrow); }
+      .tag { fill: #fff2dc; stroke: #b97716; }
+      .tagtext { font-size: 13px; font-weight: 700; fill: #80500c; }
+    </style>
+  </defs>
+  <rect width="1080" height="1480" fill="#f5f8fa"/>
+  <text x="540" y="48" font-size="29" font-weight="700">Jornada do paciente</text>
+  <text x="540" y="78" class="small">Clínica Acolher · proposta para validar com a cliente piloto</text>
+
+  <rect class="main" x="345" y="110" width="390" height="64" rx="14"/>
+  <text class="label" x="540" y="149">Primeiro contato</text>
+  <rect class="tag" x="748" y="129" width="42" height="26" rx="13"/><text class="tagtext" x="769" y="147">D1</text>
+  <path class="line" d="M540 174 V202"/>
+  <rect class="box" x="345" y="204" width="390" height="76" rx="12"/>
+  <text class="label" x="540" y="234">Conhecer o atendimento</text>
+  <text class="small" x="540" y="260">Valores, duração e condições</text>
+  <path class="line" d="M540 280 V308"/>
+  <rect class="box" x="345" y="310" width="390" height="76" rx="12"/>
+  <text class="label" x="540" y="340">Cadastro e aceites aplicáveis</text>
+  <text class="small" x="540" y="366">Política de faltas, quando definida</text>
+  <path class="line" d="M540 386 V414"/>
+  <rect class="main" x="345" y="416" width="390" height="76" rx="12"/>
+  <text class="label" x="540" y="446">Agendar e confirmar horário</text>
+  <text class="small" x="540" y="472">Informar data, hora e fuso</text>
+  <rect class="tag" x="748" y="441" width="64" height="26" rx="13"/><text class="tagtext" x="780" y="459">D2 / D3</text>
+
+  <path class="line" d="M540 492 V560"/>
+  <path class="line" d="M540 526 H195 V560"/>
+  <path class="line" d="M540 526 H885 V560"/>
+  <text class="small" x="195" y="551">Pede alteração</text>
+  <text class="small" x="540" y="551">Comparece</text>
+  <text class="small" x="885" y="551">Não comparece</text>
+
+  <rect class="box" x="40" y="566" width="310" height="90" rx="12"/>
+  <text class="label" x="195" y="600">Cancelar ou remarcar</text>
+  <text class="small" x="195" y="628">Quem, quando e motivo · D5</text>
+  <rect class="box" x="385" y="566" width="310" height="90" rx="12"/>
+  <text class="label" x="540" y="600">Entrar na sessão online</text>
+  <text class="small" x="540" y="628">Acesso e conexão · D4</text>
+  <rect class="box" x="730" y="566" width="310" height="90" rx="12"/>
+  <text class="label" x="885" y="600">Verificar a ausência</text>
+  <text class="small" x="885" y="628">Distinguir falha técnica de falta</text>
+
+  <path class="line" d="M195 656 V690"/>
+  <path class="line" d="M540 656 V690"/>
+  <path class="line" d="M885 656 V690"/>
+  <rect class="box" x="40" y="696" width="310" height="90" rx="12"/>
+  <text class="label" x="195" y="731">Consultar a política aceita</text>
+  <text class="small" x="195" y="759">Avaliar prazo e eventual cobrança</text>
+  <rect class="box" x="385" y="696" width="310" height="90" rx="12"/>
+  <text class="label" x="540" y="731">Registrar sessão realizada</text>
+  <text class="small" x="540" y="759">Após o atendimento</text>
+  <rect class="box" x="730" y="696" width="310" height="90" rx="12"/>
+  <text class="label" x="885" y="731">Registrar falta, se aplicável</text>
+  <text class="small" x="885" y="759">Avaliar a política aceita · D2</text>
+
+  <path class="line" d="M195 786 V820"/>
+  <rect class="box" x="40" y="826" width="310" height="90" rx="12"/>
+  <text class="label" x="195" y="860">Se remarcar: nova sessão</text>
+  <text class="small" x="195" y="887">Retornar ao agendamento</text>
+
+  <path class="line" d="M540 786 V980"/>
+  <path class="line" d="M195 916 V950 H460 V980"/>
+  <path class="line" d="M885 786 V950 H620 V980"/>
+  <text class="small" x="195" y="940">Verificar situação financeira</text>
+  <rect class="main" x="310" y="986" width="460" height="102" rx="12"/>
+  <text class="label" x="540" y="1018">Existe cobrança ou pagamento? · D6</text>
+  <text class="small" x="540" y="1045">Conferir o que foi combinado e já foi pago</text>
+  <text class="small" x="540" y="1070">Sem aceite: não cobrar falta ou cancelamento</text>
+
+  <path class="line" d="M400 1088 V1130 H195 V1175"/>
+  <path class="line" d="M540 1088 V1175"/>
+  <path class="line" d="M680 1088 V1130 H885 V1175"/>
+  <text class="small" x="195" y="1154">Pagamento confirmado</text>
+  <text class="small" x="540" y="1154">Cobrança ainda pendente</text>
+  <text class="small" x="885" y="1154">Sem cobrança nem pagamento</text>
+  <rect class="end" x="40" y="1181" width="310" height="86" rx="12"/>
+  <text class="label" x="195" y="1216">Receber recibo</text>
+  <text class="small" x="195" y="1243">Referente ao pagamento</text>
+  <rect class="box" x="385" y="1181" width="310" height="86" rx="12"/>
+  <text class="label" x="540" y="1216">Pagar e aguardar confirmação</text>
+  <text class="small" x="540" y="1243">Após confirmação, receber recibo</text>
+  <rect class="end" x="730" y="1181" width="310" height="86" rx="12"/>
+  <text class="label" x="885" y="1216">Encerrar sem cobrança</text>
+  <text class="small" x="885" y="1243">Sem recibo de pagamento</text>
+
+  <path class="line" d="M540 1267 V1300 H195 V1269"/>
+  <rect x="40" y="1340" width="1000" height="100" rx="12" fill="#e9eef3"/>
+  <text class="small" x="540" y="1370">D1–D6: pontos de dor detalhados no documento; alguns ainda são hipóteses.</text>
+  <text class="small" x="540" y="1397">Pagamento: antes, depois ou por fechamento — a definir com a cliente piloto.</text>
+  <text class="small" x="540" y="1424">Fluxo proposto · sem dados reais de pacientes · não comprova implementação</text>
+</svg>
