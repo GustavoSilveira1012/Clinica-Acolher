@@ -1,4 +1,5 @@
 using ClinicaAcolher.Domain.Appointments;
+using ClinicaAcolher.Domain.Attendance;
 using ClinicaAcolher.Domain.Patients;
 using ClinicaAcolher.Domain.Professionals;
 using ClinicaAcolher.Domain.Relationships;
@@ -12,6 +13,8 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options) : DbCon
     public DbSet<Professional> Professionals => Set<Professional>();
     public DbSet<TherapeuticRelationship> TherapeuticRelationships => Set<TherapeuticRelationship>();
     public DbSet<Appointment> Appointments => Set<Appointment>();
+    public DbSet<AttendancePolicy> AttendancePolicies => Set<AttendancePolicy>();
+    public DbSet<AttendancePolicyAcceptance> AttendancePolicyAcceptances => Set<AttendancePolicyAcceptance>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

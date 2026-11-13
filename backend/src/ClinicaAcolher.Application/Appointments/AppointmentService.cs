@@ -1,12 +1,15 @@
 using ClinicaAcolher.Application.Common;
 using ClinicaAcolher.Application.Relationships;
 using ClinicaAcolher.Domain.Appointments;
+using ClinicaAcolher.Application.Attendance;
+using ClinicaAcolher.Domain.Attendance;
 
 namespace ClinicaAcolher.Application.Appointments;
 
 public sealed class AppointmentService(
     IRelationshipRepository relationships,
     IAppointmentRepository appointments,
+    IAttendancePolicyRepository policies,
     IUnitOfWork unitOfWork,
     TimeProvider clock)
 {
@@ -27,9 +30,33 @@ public sealed class AppointmentService(
     public async Task<AppointmentResponse> GetByIdAsync(Guid id, CancellationToken ct) =>
         AppointmentResponse.From(await LoadAsync(id, ct));
 
-    public Task<IReadOnlyList<AgendaItemResponse>> GetAgendaAsync(
-        Guid professionalId, DateTimeOffset from, DateTimeOffset to, CancellationToken ct) =>
-        appointments.ListAgendaAsync(professionalId, from.ToUniversalTime(), to.ToUniversalTime(), ct);
+    public async Task<IReadOnlyList<AgendaItemResponse>> GetAgendaAsync(
+    Guid professionalId, DateTimeOffset from, DateTimeOffset to, CancellationToken ct)
+{
+    // 1. As sessões do período
+    var entries = await appointments.ListAgendaAsync(
+        professionalId, from.ToUniversalTime(), to.ToUniversalTime(), ct);
+
+    // 2. Os aceites de todos os pacientes da agenda, numa consulta só
+    var patientIds = entries.Select(e => e.Appointment.PatientId).Distinct().ToList();
+    var acceptances = await policies.ListAcceptancesAsync(professionalId, patientIds, ct);
+
+    // 3. As políticas desses aceites, numa consulta só
+    var policyIds = acceptances.Select(a => a.PolicyId).Distinct().ToList();
+    var policyById = (await policies.ListByIdsAsync(policyIds, ct)).ToDictionary(p => p.Id);
+
+    // 4. O cálculo, em memória, sem nenhuma consulta a mais
+    return entries
+        .Select(e =>
+        {
+            var acceptance = AttendancePolicyAcceptance.ApplicableTo(acceptances, e.Appointment);
+            var charge = acceptance is null
+                ? ChargeDecision.NoCharge
+                : policyById[acceptance.PolicyId].Evaluate(e.Appointment);
+            return AgendaItemResponse.From(e, charge);
+        })
+        .ToList();
+}
 
     public Task<AppointmentResponse> ConfirmAsync(Guid id, CancellationToken ct) =>
         ChangeAsync(id, (a, now) => a.Confirm(now), ct);

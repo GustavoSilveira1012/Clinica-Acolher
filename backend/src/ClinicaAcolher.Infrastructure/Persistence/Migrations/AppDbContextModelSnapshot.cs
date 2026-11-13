@@ -81,6 +81,74 @@ namespace ClinicaAcolher.Infrastructure.Persistence.Migrations
                         });
                 });
 
+            modelBuilder.Entity("ClinicaAcolher.Domain.Attendance.AttendancePolicy", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("LateCancellationChargePercent")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("MinimumNoticeHours")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("NoShowChargePercent")
+                        .HasColumnType("integer");
+
+                    b.Property<Guid>("ProfessionalId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset>("PublishedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("Version")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ProfessionalId", "Version")
+                        .IsUnique();
+
+                    b.ToTable("attendance_policies", null, t =>
+                        {
+                            t.HasCheckConstraint("ck_attendance_policies_late_percent", "\"LateCancellationChargePercent\" BETWEEN 0 AND 100");
+
+                            t.HasCheckConstraint("ck_attendance_policies_no_show_percent", "\"NoShowChargePercent\" BETWEEN 0 AND 100");
+                        });
+                });
+
+            modelBuilder.Entity("ClinicaAcolher.Domain.Attendance.AttendancePolicyAcceptance", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset>("AcceptedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("PatientId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("PolicyId")
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("PolicyVersion")
+                        .HasColumnType("integer");
+
+                    b.Property<Guid>("ProfessionalId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PolicyId");
+
+                    b.HasIndex("PatientId", "PolicyId")
+                        .IsUnique();
+
+                    b.HasIndex("ProfessionalId", "PatientId");
+
+                    b.ToTable("attendance_policy_acceptances", (string)null);
+                });
+
             modelBuilder.Entity("ClinicaAcolher.Domain.Patients.Patient", b =>
                 {
                     b.Property<Guid>("Id")
@@ -236,6 +304,36 @@ namespace ClinicaAcolher.Infrastructure.Persistence.Migrations
                         .WithMany()
                         .HasForeignKey("RescheduledToId")
                         .OnDelete(DeleteBehavior.Restrict);
+                });
+
+            modelBuilder.Entity("ClinicaAcolher.Domain.Attendance.AttendancePolicy", b =>
+                {
+                    b.HasOne("ClinicaAcolher.Domain.Professionals.Professional", null)
+                        .WithMany()
+                        .HasForeignKey("ProfessionalId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("ClinicaAcolher.Domain.Attendance.AttendancePolicyAcceptance", b =>
+                {
+                    b.HasOne("ClinicaAcolher.Domain.Patients.Patient", null)
+                        .WithMany()
+                        .HasForeignKey("PatientId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("ClinicaAcolher.Domain.Attendance.AttendancePolicy", null)
+                        .WithMany()
+                        .HasForeignKey("PolicyId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("ClinicaAcolher.Domain.Professionals.Professional", null)
+                        .WithMany()
+                        .HasForeignKey("ProfessionalId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("ClinicaAcolher.Domain.Relationships.TherapeuticRelationship", b =>

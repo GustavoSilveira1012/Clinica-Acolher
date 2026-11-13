@@ -5,6 +5,7 @@ using System.Text.Json.Serialization;
 using ClinicaAcolher.Application.Professionals;
 using ClinicaAcolher.Application.Relationships;
 using ClinicaAcolher.Application.Appointments;
+using ClinicaAcolher.Application.Attendance;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -13,6 +14,7 @@ builder.Services.AddScoped<PatientService>();
 builder.Services.AddScoped<ProfessionalService>();
 builder.Services.AddScoped<RelationshipService>();
 builder.Services.AddScoped<AppointmentService>();
+builder.Services.AddScoped<AttendancePolicyService>();
 builder.Services.AddProblemDetails();
 builder.Services.AddExceptionHandler<ProblemExceptionHandler>();
 builder.Services.AddControllers()
