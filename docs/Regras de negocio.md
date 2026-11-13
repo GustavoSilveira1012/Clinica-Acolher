@@ -164,6 +164,7 @@ Cada profissional define sua política, mas ela precisa estar escrita e aceita p
 - `RN-CAN-04` O profissional pode isentar uma cobrança de falta, registrando o motivo.
 - `RN-CAN-05` Uma falha técnica comprovada pelos registros de conexão (`RN-ONL-06`) nunca vira falta do paciente.
 - `RN-CAN-06` Todo cancelamento registra quem cancelou, quando, com quanta antecedência e o motivo informado.
+- `RN-CAN-07` Sem aceite registrado de uma política, nenhuma falta ou cancelamento é cobrado do paciente.
 
 ## 8. Financeiro
 
