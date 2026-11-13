@@ -54,6 +54,9 @@ namespace ClinicaAcolher.Infrastructure.Persistence.Migrations
                     b.Property<Guid?>("RescheduledToId")
                         .HasColumnType("uuid");
 
+                    b.Property<Guid?>("SeriesId")
+                        .HasColumnType("uuid");
+
                     b.Property<DateTimeOffset>("StartsAt")
                         .HasColumnType("timestamp with time zone");
 
