@@ -1,0 +1,94 @@
+<h1>Agenda</h1>
+
+@if (mensagemErro(); as msg) {
+  <p role="alert" class="alerta">{{ msg }}</p>
+}
+
+@if (profissionais().length === 0) {
+  <p>Nenhum profissional aprovado ainda.</p>
+} @else {
+  <div class="barra">
+    <label for="profissional">Profissional</label>
+    <select id="profissional" #seletor (change)="escolherProfissional(seletor.value)">
+      @for (p of profissionais(); track p.id) {
+        <option [value]="p.id" [selected]="p.id === profissionalId()">{{ p.professionalName }}</option>
+      }
+    </select>
+
+    <nav aria-label="Navegação entre semanas" class="navegacao">
+      <button type="button" (click)="mudarSemana(-1)">← Semana anterior</button>
+      <button type="button" (click)="irParaHoje()">Esta semana</button>
+      <button type="button" (click)="mudarSemana(1)">Próxima semana →</button>
+    </nav>
+  </div>
+
+  <p class="periodo" aria-live="polite">
+    Semana de {{ inicioSemana() | date: 'dd/MM' }} a {{ fimSemana() | date: 'dd/MM/yyyy' }}
+    @if (carregando()) {
+      · carregando…
+    }
+  </p>
+
+  @if (cancelando(); as alvo) {
+    <section class="cancelamento" aria-labelledby="cancelamento-titulo">
+      <h2 id="cancelamento-titulo">
+        Cancelar a sessão de {{ alvo.patientDisplayName }}, {{ alvo.startsAt | date: "dd/MM 'às' HH:mm" }}
+      </h2>
+      <form [formGroup]="formCancelamento" (ngSubmit)="confirmarCancelamento()">
+        <fieldset>
+          <legend>Quem pediu o cancelamento?</legend>
+          <label><input type="radio" formControlName="quem" value="Patient" /> O paciente</label>
+          <label><input type="radio" formControlName="quem" value="Professional" /> O profissional</label>
+        </fieldset>
+
+        <label for="motivo">Motivo (obrigatório)</label>
+        <textarea id="motivo" rows="2" formControlName="motivo" aria-describedby="motivo-ajuda"></textarea>
+        <p id="motivo-ajuda" class="ajuda">Use um motivo administrativo. Não registre informações clínicas aqui.</p>
+
+        <div class="acoes">
+          <button type="submit">Confirmar cancelamento</button>
+          <button type="button" (click)="desistirCancelamento()">Voltar</button>
+        </div>
+      </form>
+    </section>
+  }
+
+  <div class="semana">
+    @for (dia of dias(); track dia.chave) {
+      <section class="dia" [attr.aria-labelledby]="'dia-' + dia.chave">
+        <h2 [id]="'dia-' + dia.chave">{{ dia.data | date: 'EEEE, dd/MM' }}</h2>
+
+        @for (item of dia.itens; track item.id) {
+          <article class="sessao" [class.inativa]="!ativa(item)">
+            <p class="horario">{{ item.startsAt | date: 'HH:mm' }}–{{ item.endsAt | date: 'HH:mm' }}</p>
+            <p class="paciente">{{ item.patientDisplayName }}</p>
+            <p class="status">{{ rotuloStatus(item) }}</p>
+
+            @if (item.chargePercent > 0) {
+              <p class="cobranca">Cobrança prevista: {{ item.chargePercent }}% ({{ rotuloCobranca(item) }})</p>
+            }
+
+            @if (ativa(item)) {
+              <div class="acoes">
+                @if (item.status === 'Scheduled') {
+                  <button type="button" (click)="confirmar(item)"
+                          [attr.aria-label]="'Confirmar a sessão de ' + item.patientDisplayName">Confirmar</button>
+                }
+                @if (jaComecou(item)) {
+                  <button type="button" (click)="registrarRealizada(item)"
+                          [attr.aria-label]="'Registrar a sessão de ' + item.patientDisplayName + ' como realizada'">Realizada</button>
+                  <button type="button" (click)="registrarFalta(item)"
+                          [attr.aria-label]="'Registrar falta de ' + item.patientDisplayName">Falta</button>
+                }
+                <button type="button" (click)="iniciarCancelamento(item)"
+                        [attr.aria-label]="'Cancelar a sessão de ' + item.patientDisplayName">Cancelar</button>
+              </div>
+            }
+          </article>
+        } @empty {
+          <p class="vazio">Sem sessões.</p>
+        }
+      </section>
+    }
+  </div>
+}

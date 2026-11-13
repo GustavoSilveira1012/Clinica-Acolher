@@ -7,6 +7,11 @@ export const routes: Routes = [
   },
 
   {
+    path: 'agenda',
+    title: 'Agenda',
+    loadComponent: () => import('./features/agenda/agenda-page').then((m) => m.AgendaPage),
+  },
+  {
     path: 'pacientes/novo',
     title: 'Novo paciente',
     loadComponent: () => import('./features/patients/patient-form-page').then((m) => m.PatientFormPage),
