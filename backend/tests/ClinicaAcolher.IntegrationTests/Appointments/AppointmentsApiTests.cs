@@ -2,6 +2,7 @@ using System.Net;
 using System.Net.Http.Json;
 using System.Text.Json;
 using ClinicaAcolher.Application.Appointments;
+using ClinicaAcolher.Domain.Appointments;
 
 namespace ClinicaAcolher.IntegrationTests.Appointments;
 
@@ -72,6 +73,86 @@ public class AppointmentsApiTests(ApiFactory factory) : IClassFixture<ApiFactory
 
         Assert.Equal(HttpStatusCode.BadRequest, resposta.StatusCode);
     }
+
+    [Fact]
+    public async Task RN_CAN_03_remarcar_para_horario_sobreposto_ao_original_funciona()
+    {
+        var vinculo = await _client.IniciarVinculoAsync(
+            await _client.CriarPacienteAsync(), await _client.CriarProfissionalAprovadoAsync());
+        var original = await LerAsync(await AgendarAsync(vinculo, Segunda15h));
+
+        var resposta = await _client.PostAsJsonAsync($"/api/v1/appointments/{original.Id}/reschedule",
+            new RescheduleAppointmentRequest(Segunda15h.AddMinutes(30), null), TestApi.Json);
+
+        Assert.Equal(HttpStatusCode.Created, resposta.StatusCode);
+        var nova = await LerAsync(resposta);
+        var antiga = await BuscarAsync(original.Id);
+        Assert.Equal(AppointmentStatus.Rescheduled, antiga.Status);
+        Assert.Equal(nova.Id, antiga.RescheduledToId);
+        Assert.Equal(TimeSpan.FromMinutes(50), nova.EndsAt - nova.StartsAt);
+    }
+
+    [Fact]
+    public async Task RN_CAN_03_remarcacao_para_horario_ocupado_desfaz_tudo()
+    {
+        var profissional = await _client.CriarProfissionalAprovadoAsync();
+        var vinculoA = await _client.IniciarVinculoAsync(await _client.CriarPacienteAsync(), profissional);
+        var vinculoB = await _client.IniciarVinculoAsync(await _client.CriarPacienteAsync(), profissional);
+        var sessaoA = await LerAsync(await AgendarAsync(vinculoA, Segunda15h));
+        await AgendarAsync(vinculoB, Segunda15h.AddHours(2));
+
+        var resposta = await _client.PostAsJsonAsync($"/api/v1/appointments/{sessaoA.Id}/reschedule",
+            new RescheduleAppointmentRequest(Segunda15h.AddHours(2).AddMinutes(10), null), TestApi.Json);
+
+        await AssertConflitoAsync(resposta, "RN-AGD-03");
+        Assert.Equal(AppointmentStatus.Scheduled, (await BuscarAsync(sessaoA.Id)).Status);
+    }
+
+    [Fact]
+    public async Task RN_CAN_06_cancelar_libera_o_horario()
+    {
+        var profissional = await _client.CriarProfissionalAprovadoAsync();
+        var vinculoA = await _client.IniciarVinculoAsync(await _client.CriarPacienteAsync(), profissional);
+        var vinculoB = await _client.IniciarVinculoAsync(await _client.CriarPacienteAsync(), profissional);
+        var sessaoA = await LerAsync(await AgendarAsync(vinculoA, Segunda15h));
+
+        await _client.PostAsJsonAsync($"/api/v1/appointments/{sessaoA.Id}/cancel",
+            new CancelAppointmentRequest(CancellationSource.Patient, "Imprevisto"), TestApi.Json);
+        var nova = await AgendarAsync(vinculoB, Segunda15h);
+
+        Assert.Equal(HttpStatusCode.Created, nova.StatusCode);
+    }
+
+    [Fact]
+    public async Task RN_AGD_11_falta_antes_do_horario_retorna_422()
+    {
+        var vinculo = await _client.IniciarVinculoAsync(
+            await _client.CriarPacienteAsync(), await _client.CriarProfissionalAprovadoAsync());
+        var sessao = await LerAsync(await AgendarAsync(vinculo, Segunda15h));
+
+        var resposta = await _client.PostAsync($"/api/v1/appointments/{sessao.Id}/no-show", null);
+
+        Assert.Equal(HttpStatusCode.UnprocessableEntity, resposta.StatusCode);
+    }
+
+    [Fact]
+    public async Task Sessao_passada_pode_ser_registrada_como_realizada()
+    {
+        var vinculo = await _client.IniciarVinculoAsync(
+            await _client.CriarPacienteAsync(), await _client.CriarProfissionalAprovadoAsync());
+        var sessao = await LerAsync(await AgendarAsync(vinculo, new DateTimeOffset(2024, 3, 4, 15, 0, 0, TimeSpan.Zero)));
+
+        var resposta = await _client.PostAsync($"/api/v1/appointments/{sessao.Id}/complete", null);
+
+        Assert.Equal(HttpStatusCode.OK, resposta.StatusCode);
+        Assert.Equal(AppointmentStatus.Completed, (await LerAsync(resposta)).Status);
+    }
+
+    private static async Task<AppointmentResponse> LerAsync(HttpResponseMessage resposta) =>
+        (await resposta.Content.ReadFromJsonAsync<AppointmentResponse>(TestApi.Json))!;
+
+    private async Task<AppointmentResponse> BuscarAsync(Guid id) =>
+        (await _client.GetFromJsonAsync<AppointmentResponse>($"/api/v1/appointments/{id}", TestApi.Json))!;
 
     private Task<HttpResponseMessage> AgendarAsync(Guid vinculo, DateTimeOffset inicio) =>
         _client.PostAsJsonAsync("/api/v1/appointments", new ScheduleAppointmentRequest(vinculo, inicio, 50), TestApi.Json);

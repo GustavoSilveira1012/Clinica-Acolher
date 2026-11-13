@@ -19,6 +19,13 @@ internal sealed class UnitOfWork(AppDbContext db) : IUnitOfWork
             ("RN-AGD-04", "O paciente já tem uma sessão neste horário."),
     };
 
+    public async Task ExecuteInTransactionAsync(Func<Task> work, CancellationToken ct)
+    {
+        await using var transaction = await db.Database.BeginTransactionAsync(ct);
+        await work();
+        await transaction.CommitAsync(ct);
+    }
+
     public async Task SaveChangesAsync(CancellationToken ct)
     {
         try

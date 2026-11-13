@@ -28,3 +28,7 @@ public sealed record AgendaItemResponse(
     DateTimeOffset StartsAt,
     DateTimeOffset EndsAt,
     AppointmentStatus Status);
+
+public sealed record CancelAppointmentRequest(CancellationSource By, string Reason);
+
+public sealed record RescheduleAppointmentRequest(DateTimeOffset StartsAt, int? DurationMinutes);
