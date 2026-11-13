@@ -40,6 +40,10 @@ public sealed class RelationshipService(
         return list.Select(RelationshipResponse.From).ToList();
     }
 
+    public Task<IReadOnlyList<ActiveRelationshipResponse>> ListActiveByProfessionalAsync(
+        Guid professionalId, CancellationToken ct) =>
+        relationships.ListActiveByProfessionalAsync(professionalId, ct);
+
     public Task<RelationshipResponse> SuspendAsync(Guid id, CancellationToken ct) =>
         ChangeAsync(id, (r, _) => r.Suspend(), ct);
 

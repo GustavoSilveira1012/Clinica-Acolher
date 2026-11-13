@@ -6,6 +6,8 @@ public sealed record StartRelationshipRequest(Guid PatientId, Guid ProfessionalI
 
 public sealed record EndRelationshipRequest(string Reason);
 
+public sealed record ActiveRelationshipResponse(Guid RelationshipId, Guid PatientId, string PatientDisplayName);
+
 public sealed record RelationshipResponse(
     Guid Id,
     Guid PatientId,

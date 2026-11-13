@@ -22,5 +22,15 @@ internal sealed class RelationshipRepository(AppDbContext db) : IRelationshipRep
             .OrderByDescending(r => r.StartedAt)
             .ToListAsync(ct);
 
+    public async Task<IReadOnlyList<ActiveRelationshipResponse>> ListActiveByProfessionalAsync(
+        Guid professionalId, CancellationToken ct) =>
+        await (
+            from r in db.TherapeuticRelationships
+            join p in db.Patients on r.PatientId equals p.Id
+            where r.ProfessionalId == professionalId && r.Status == RelationshipStatus.Active && p.Active
+            orderby p.SocialName ?? p.FullName
+            select new ActiveRelationshipResponse(r.Id, p.Id, p.SocialName ?? p.FullName)
+        ).ToListAsync(ct);
+
     public void Add(TherapeuticRelationship relationship) => db.TherapeuticRelationships.Add(relationship);
 }

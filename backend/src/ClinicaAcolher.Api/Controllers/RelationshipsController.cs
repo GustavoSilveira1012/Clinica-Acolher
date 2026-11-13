@@ -22,6 +22,11 @@ public sealed class RelationshipsController(RelationshipService service) : Contr
     public async Task<ActionResult<IReadOnlyList<RelationshipResponse>>> ListByPatient(Guid patientId, CancellationToken ct) =>
         Ok(await service.ListByPatientAsync(patientId, ct));
 
+    [HttpGet("/api/v1/professionals/{professionalId:guid}/relationships/active")]
+    public async Task<ActionResult<IReadOnlyList<ActiveRelationshipResponse>>> ListActiveByProfessional(
+        Guid professionalId, CancellationToken ct) =>
+        Ok(await service.ListActiveByProfessionalAsync(professionalId, ct));
+
     [HttpPost("{id:guid}/suspend")]
     public async Task<ActionResult<RelationshipResponse>> Suspend(Guid id, CancellationToken ct) =>
         Ok(await service.SuspendAsync(id, ct));

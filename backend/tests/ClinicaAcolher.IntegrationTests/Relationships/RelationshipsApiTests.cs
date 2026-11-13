@@ -20,6 +20,25 @@ public class RelationshipsApiTests(ApiFactory factory) : IClassFixture<ApiFactor
     private readonly HttpClient _client = factory.CreateClient();
 
     [Fact]
+    public async Task Lista_so_os_vinculos_ativos_do_profissional()
+    {
+        var profissional = await _client.CriarProfissionalAprovadoAsync();
+        var ativo = await _client.IniciarVinculoAsync(
+            await _client.CriarPacienteAsync("Paciente Ativo"), profissional);
+        var encerrado = await _client.IniciarVinculoAsync(
+            await _client.CriarPacienteAsync("Paciente Encerrado"), profissional);
+        await _client.PostAsJsonAsync($"/api/v1/relationships/{encerrado}/end",
+            new EndRelationshipRequest("Encerrou o acompanhamento"), Json);
+
+        var lista = await _client.GetFromJsonAsync<List<ActiveRelationshipResponse>>(
+            $"/api/v1/professionals/{profissional}/relationships/active", Json);
+
+        var item = Assert.Single(lista!);
+        Assert.Equal(ativo, item.RelationshipId);
+        Assert.Equal("Paciente Ativo", item.PatientDisplayName);
+    }
+
+    [Fact]
     public async Task RN_VIN_01_inicia_vinculo_ativo()
     {
         var resposta = await IniciarAsync(await CriarPacienteAsync(), await CriarProfissionalAsync(aprovar: true));
