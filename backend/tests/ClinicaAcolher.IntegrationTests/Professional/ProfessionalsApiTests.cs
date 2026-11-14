@@ -14,7 +14,7 @@ public class ProfessionalsApiTests(ApiFactory factory) : IClassFixture<ApiFactor
         Converters = { new JsonStringEnumConverter() },
     };
 
-    private readonly HttpClient _client = factory.CreateClient();
+    private readonly HttpClient _client = factory.AdminClient;
 
     [Fact]
     public async Task Lista_os_profissionais_cadastrados()

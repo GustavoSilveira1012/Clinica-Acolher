@@ -7,6 +7,11 @@ using ClinicaAcolher.Application.Relationships;
 using ClinicaAcolher.Application.Appointments;
 using ClinicaAcolher.Application.Attendance;
 using ClinicaAcolher.Api.Workers;
+using ClinicaAcolher.Infrastructure.Identity;
+using ClinicaAcolher.Infrastructure.Persistence;
+using ClinicaAcolher.Api.Setup;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -24,6 +29,58 @@ builder.Services.AddExceptionHandler<ProblemExceptionHandler>();
 builder.Services.AddControllers()
     .AddJsonOptions(o => o.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()));
 builder.Services.AddSingleton(TimeProvider.System);
+builder.Services
+    .AddIdentityCore<ApplicationUser>(o =>
+    {
+        // RN-SEG-02: tamanho mínimo pesa mais que exigir símbolos e maiúsculas
+        o.Password.RequiredLength = 10;
+        o.Password.RequireDigit = false;
+        o.Password.RequireLowercase = false;
+        o.Password.RequireUppercase = false;
+        o.Password.RequireNonAlphanumeric = false;
+
+        o.User.RequireUniqueEmail = true;
+
+        o.Lockout.MaxFailedAccessAttempts = 5;
+        o.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(15);
+        o.Lockout.AllowedForNewUsers = true;
+    })
+    .AddRoles<IdentityRole<Guid>>()
+    .AddEntityFrameworkStores<AppDbContext>()
+    .AddSignInManager()
+    .AddDefaultTokenProviders();
+
+builder.Services.AddAuthentication(IdentityConstants.ApplicationScheme).AddIdentityCookies();
+
+builder.Services.ConfigureApplicationCookie(o =>
+{
+    o.Cookie.Name = "acolher.sessao";
+    o.Cookie.HttpOnly = true;
+    o.Cookie.SameSite = SameSiteMode.Strict;
+    o.Cookie.SecurePolicy = builder.Environment.IsDevelopment()
+        ? CookieSecurePolicy.SameAsRequest
+        : CookieSecurePolicy.Always;
+
+    // RN-SEG-04: a sessão expira depois de 30 minutos sem uso
+    o.ExpireTimeSpan = TimeSpan.FromMinutes(30);
+    o.SlidingExpiration = true;
+
+    // Uma API responde 401 e 403; quem decide para onde ir é o frontend
+    o.Events.OnRedirectToLogin = ctx =>
+    {
+        ctx.Response.StatusCode = StatusCodes.Status401Unauthorized;
+        return Task.CompletedTask;
+    };
+    o.Events.OnRedirectToAccessDenied = ctx =>
+    {
+        ctx.Response.StatusCode = StatusCodes.Status403Forbidden;
+        return Task.CompletedTask;
+    };
+});
+
+// Seguro por padrão: toda rota exige login, a não ser que diga o contrário
+builder.Services.AddAuthorizationBuilder()
+    .SetFallbackPolicy(new AuthorizationPolicyBuilder().RequireAuthenticatedUser().Build());
 
 var connectionString = builder.Configuration.GetConnectionString("Default")
     ?? throw new InvalidOperationException("A connection string 'Default' não foi configurada.");
@@ -33,6 +90,13 @@ builder.Services.AddInfrastructure(connectionString);
 builder.Services.AddOpenApi();
 
 var app = builder.Build();
+
+if (args.Length > 0 && args[0] == "criar-usuario")
+{
+    await UserSetup.CreateUserAsync(app.Services, args);
+    return;
+}
+
 app.UseExceptionHandler();
 
 // Configure the HTTP request pipeline.
@@ -46,6 +110,7 @@ else
     app.UseHttpsRedirection();
 }
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();

@@ -9,7 +9,7 @@ namespace ClinicaAcolher.IntegrationTests.Appointments;
 public class SeriesApiTests(ApiFactory factory) : IClassFixture<ApiFactory>
 {
     private static readonly DateOnly Segunda16 = new(2026, 11, 16);
-    private readonly HttpClient _client = factory.CreateClient();
+    private readonly HttpClient _client = factory.AdminClient;
 
     [Fact]
     public async Task RN_AGD_05_criar_serie_gera_as_proximas_12_semanas()

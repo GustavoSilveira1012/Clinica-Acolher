@@ -6,7 +6,7 @@ namespace ClinicaAcolher.IntegrationTests.Appointments;
 
 public class SeriesGenerationTests(ApiFactory factory) : IClassFixture<ApiFactory>
 {
-    private readonly HttpClient _client = factory.CreateClient();
+    private readonly HttpClient _client = factory.AdminClient;
 
     [Fact]
     public async Task Rotina_gera_a_proxima_semana_quando_o_tempo_passa()

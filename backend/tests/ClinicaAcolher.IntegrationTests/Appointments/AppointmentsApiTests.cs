@@ -9,7 +9,7 @@ namespace ClinicaAcolher.IntegrationTests.Appointments;
 public class AppointmentsApiTests(ApiFactory factory) : IClassFixture<ApiFactory>
 {
     private static readonly DateTimeOffset Segunda15h = new(2030, 1, 7, 15, 0, 0, TimeSpan.Zero);
-    private readonly HttpClient _client = factory.CreateClient();
+    private readonly HttpClient _client = factory.AdminClient;
 
     [Fact]
     public async Task Agenda_mostra_a_sessao_com_o_nome_do_paciente()
