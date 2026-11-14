@@ -1,0 +1,4 @@
+.login { max-width: 22rem; margin: 3rem auto; }
+form { display: grid; gap: 0.5rem; }
+.alerta { color: #b3261e; }
+.aviso { color: #8a4b00; }

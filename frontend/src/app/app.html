@@ -1,10 +1,16 @@
-<header>
-  <nav aria-label="Principal">
-    <a routerLink="/agenda">Agenda</a> ·
-    <a routerLink="/pacientes">Pacientes</a>
-    <a routerLink="/">Status da API</a>
-  </nav>
-</header>
+@if (auth.user(); as usuario) {
+  <header class="topo">
+    <nav aria-label="Principal">
+      <a routerLink="/agenda">Agenda</a> ·
+      <a routerLink="/pacientes">Pacientes</a> ·
+      <a routerLink="/status">Status da API</a>
+    </nav>
+    <div class="usuario">
+      <span>{{ usuario.email }}</span>
+      <button type="button" (click)="sair()">Sair</button>
+    </div>
+  </header>
+}
 <main>
   <router-outlet />
 </main>

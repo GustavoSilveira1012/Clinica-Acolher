@@ -1,0 +1,2 @@
+.topo { display: flex; justify-content: space-between; align-items: center; gap: 1rem; flex-wrap: wrap; }
+.usuario { display: flex; gap: 0.5rem; align-items: center; }
