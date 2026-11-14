@@ -49,14 +49,35 @@ public sealed class ApiFactory : WebApplicationFactory<Program>, IAsyncLifetime
         {
             await scope.ServiceProvider.GetRequiredService<AppDbContext>().Database.MigrateAsync();
 
-            var users = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
-            var created = await users.CreateAsync(
-                new ApplicationUser { UserName = AdminEmail, Email = AdminEmail, EmailConfirmed = true }, AdminPassword);
-            if (!created.Succeeded)
-                throw new InvalidOperationException(string.Join("; ", created.Errors.Select(e => e.Description)));
+            var roles = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole<Guid>>>();
+            foreach (var role in Roles.All)
+            {
+                var created = await roles.CreateAsync(new IdentityRole<Guid>(role));
+                if (!created.Succeeded)
+                    throw new InvalidOperationException(string.Join("; ", created.Errors.Select(e => e.Description)));
+            }
         }
 
+        await CreateUserAsync(AdminEmail, AdminPassword);
         AdminClient = await CreateLoggedInClientAsync(AdminEmail, AdminPassword);
+    }
+
+    public async Task CreateUserAsync(string email, string password, string? role = null)
+    {
+        using var scope = Services.CreateScope();
+        var users = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
+
+        var user = new ApplicationUser { UserName = email, Email = email, EmailConfirmed = true };
+        var created = await users.CreateAsync(user, password);
+        if (!created.Succeeded)
+            throw new InvalidOperationException(string.Join("; ", created.Errors.Select(e => e.Description)));
+
+        if (role is not null)
+        {
+            var assigned = await users.AddToRoleAsync(user, role);
+            if (!assigned.Succeeded)
+                throw new InvalidOperationException(string.Join("; ", assigned.Errors.Select(e => e.Description)));
+        }
     }
 
     public async Task<HttpClient> CreateLoggedInClientAsync(string email, string password)

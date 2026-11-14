@@ -10,7 +10,9 @@ using ClinicaAcolher.Api.Workers;
 using ClinicaAcolher.Infrastructure.Identity;
 using ClinicaAcolher.Infrastructure.Persistence;
 using ClinicaAcolher.Api.Setup;
+using ClinicaAcolher.Api.Auth;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Identity;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -78,9 +80,25 @@ builder.Services.ConfigureApplicationCookie(o =>
     };
 });
 
+builder.Services.Configure<CookieAuthenticationOptions>(IdentityConstants.TwoFactorUserIdScheme, o =>
+{
+    o.Cookie.HttpOnly = true;
+    o.Cookie.SameSite = SameSiteMode.Strict;
+    o.Cookie.SecurePolicy = builder.Environment.IsDevelopment()
+        ? CookieSecurePolicy.SameAsRequest
+        : CookieSecurePolicy.Always;
+    o.ExpireTimeSpan = TimeSpan.FromMinutes(5);
+});
+
 // Seguro por padrão: toda rota exige login, a não ser que diga o contrário
+builder.Services.AddSingleton<IAuthorizationHandler, StaffMfaHandler>();
+
 builder.Services.AddAuthorizationBuilder()
-    .SetFallbackPolicy(new AuthorizationPolicyBuilder().RequireAuthenticatedUser().Build());
+    .SetFallbackPolicy(new AuthorizationPolicyBuilder()
+        .RequireAuthenticatedUser()
+        .AddRequirements(new StaffMfaRequirement())
+        .Build())
+    .AddPolicy(Policies.LoggedIn, policy => policy.RequireAuthenticatedUser());
 
 var connectionString = builder.Configuration.GetConnectionString("Default")
     ?? throw new InvalidOperationException("A connection string 'Default' não foi configurada.");
