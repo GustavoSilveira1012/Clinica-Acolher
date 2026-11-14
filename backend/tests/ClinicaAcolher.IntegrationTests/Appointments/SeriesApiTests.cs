@@ -23,6 +23,7 @@ public class SeriesApiTests(ApiFactory factory) : IClassFixture<ApiFactory>
         Assert.Equal(new DateOnly(2027, 2, 5), serie.GeneratedUntil);
         var sessao = Assert.Single(semana);
         Assert.Equal(new DateTimeOffset(2026, 11, 17, 18, 0, 0, TimeSpan.Zero), sessao.StartsAt);
+        Assert.Equal(serie.Id, sessao.SeriesId);
     }
 
     [Fact]
