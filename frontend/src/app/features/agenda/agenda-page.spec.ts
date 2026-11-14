@@ -41,6 +41,13 @@ describe('AgendaPage', () => {
     select.dispatchEvent(new Event('change'));
   }
 
+  function marcar(fixture: ComponentFixture<AgendaPage>, seletor: string): void {
+    const caixa = fixture.nativeElement.querySelector(seletor) as HTMLInputElement | null;
+    if (!caixa) throw new Error(`Caixa de seleção "${seletor}" não encontrada.`);
+    caixa.checked = true;
+    caixa.dispatchEvent(new Event('change'));
+  }
+
   it('abre a agenda do primeiro profissional aprovado e mostra a cobrança prevista', async () => {
     const fixture = TestBed.createComponent(AgendaPage);
     fixture.detectChanges();
@@ -62,6 +69,7 @@ describe('AgendaPage', () => {
         status: 'NoShow',
         chargePercent: 100,
         chargeReason: 'NoShow',
+        seriesId: null,
       },
     ]);
     await fixture.whenStable();
@@ -99,6 +107,43 @@ describe('AgendaPage', () => {
       relationshipId: 'v1',
       startsAt: new Date('2026-11-20T15:00').toISOString(),
       durationMinutes: 50,
+    });
+
+    req.flush({});
+    http.expectOne((r) => r.url === '/api/v1/professionals/p1/agenda').flush([]);
+  });
+
+  it('cria uma série semanal com o dia da semana e o fuso do navegador', async () => {
+    const fixture = TestBed.createComponent(AgendaPage);
+    fixture.detectChanges();
+
+    http.expectOne('/api/v1/professionals').flush([
+      { id: 'p1', professionalName: 'Profissional Teste', canAttend: true },
+    ]);
+    http.expectOne((r) => r.url === '/api/v1/professionals/p1/agenda').flush([]);
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    clicar(fixture, 'Nova sessão');
+    http.expectOne('/api/v1/professionals/p1/relationships/active').flush([
+      { relationshipId: 'v1', patientId: 'x', patientDisplayName: 'Paciente Teste' },
+    ]);
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    escolher(fixture, '#vinculo', 'v1');
+    preencher(fixture, '#inicio', '2026-11-17T15:00');
+    marcar(fixture, '#repetir');
+    fixture.debugElement.query(By.css('form.agendamento')).triggerEventHandler('ngSubmit', null);
+
+    const req = http.expectOne('/api/v1/series');
+    expect(req.request.body).toEqual({
+      relationshipId: 'v1',
+      weekday: 'Tuesday',
+      localStartTime: '15:00:00',
+      startsOn: '2026-11-17',
+      durationMinutes: 50,
+      timeZoneId: Intl.DateTimeFormat().resolvedOptions().timeZone,
     });
 
     req.flush({});

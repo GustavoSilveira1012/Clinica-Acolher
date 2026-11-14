@@ -27,3 +27,17 @@ export function toLocalInputValue(date: Date): string {
 export function nextFullHour(date: Date): Date {
   return new Date(date.getFullYear(), date.getMonth(), date.getDate(), date.getHours() + 1);
 }
+
+const DIAS_DA_SEMANA = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'] as const;
+export type Weekday = (typeof DIAS_DA_SEMANA)[number];
+
+/** O dia da semana, a hora local e a data de início de uma série, a partir de um horário local. */
+export function toSeriesSchedule(date: Date): { weekday: Weekday; localStartTime: string; startsOn: string } {
+  const hora = String(date.getHours()).padStart(2, '0');
+  const minuto = String(date.getMinutes()).padStart(2, '0');
+  return {
+    weekday: DIAS_DA_SEMANA[date.getDay()],
+    localStartTime: `${hora}:${minuto}:00`,
+    startsOn: dateKey(date),
+  };
+}

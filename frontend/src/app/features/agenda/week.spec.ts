@@ -1,4 +1,4 @@
-import { addDays, dateKey, nextFullHour, startOfWeek, toLocalInputValue } from './week';
+import { addDays, dateKey, nextFullHour, startOfWeek, toLocalInputValue, toSeriesSchedule } from './week';
 
 describe('week', () => {
   // Atenção: no construtor de Date, o mês começa em 0. new Date(2026, 10, 18) é 18 de NOVEMBRO
@@ -28,5 +28,13 @@ describe('week', () => {
 
   it('a próxima hora cheia vira o dia quando necessário', () => {
     expect(toLocalInputValue(nextFullHour(new Date(2026, 10, 20, 23, 40)))).toBe('2026-11-21T00:00');
+  });
+
+  it('monta o dia da semana, a hora local e a data de início de uma série', () => {
+    expect(toSeriesSchedule(new Date(2026, 10, 17, 15, 0))).toEqual({
+      weekday: 'Tuesday',
+      localStartTime: '15:00:00',
+      startsOn: '2026-11-17',
+    });
   });
 });

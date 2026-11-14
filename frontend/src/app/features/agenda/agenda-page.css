@@ -14,3 +14,5 @@
 .principal { font-weight: bold; }
 .alerta { color: #b3261e; }
 .ajuda, .vazio { color: #555; font-size: 0.9rem; }
+.serie { font-size: 0.8rem; color: #2b5f8a; }
+.opcao { display: flex; gap: 0.5rem; align-items: center; }

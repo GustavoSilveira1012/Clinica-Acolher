@@ -11,6 +11,7 @@ export interface AgendaItem {
   status: AppointmentStatus;
   chargePercent: number;
   chargeReason: ChargeReason;
+  seriesId: string | null;
 }
 
 export interface ProfessionalSummary {

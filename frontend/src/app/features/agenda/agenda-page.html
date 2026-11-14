@@ -53,6 +53,14 @@
           <label for="duracao">Duração (minutos)</label>
           <input id="duracao" type="number" min="15" max="180" step="5" formControlName="duracao" />
 
+          <label class="opcao">
+            <input id="repetir" type="checkbox" formControlName="repetir" />
+            Repetir toda semana neste dia e horário
+          </label>
+          @if (formAgendamento.controls.repetir.value) {
+            <p class="ajuda">As sessões das próximas 12 semanas são criadas agora, e as seguintes, automaticamente.</p>
+          }
+
           @if (formAgendamento.invalid && formAgendamento.touched) {
             <p class="alerta">Escolha o paciente, a data e a hora, e uma duração entre 15 e 180 minutos.</p>
           }
@@ -114,6 +122,20 @@
     </section>
   }
 
+  @if (encerrandoSerie(); as alvo) {
+    <section class="painel" aria-labelledby="encerramento-titulo">
+      <h2 id="encerramento-titulo">Encerrar a série semanal de {{ alvo.patientDisplayName }}</h2>
+      <p>
+        As sessões desta série a partir de {{ alvo.startsAt | date: 'dd/MM' }}, inclusive, serão canceladas,
+        sem cobrança para o paciente.
+      </p>
+      <div class="acoes">
+        <button type="button" (click)="confirmarEncerramentoSerie()">Encerrar a série</button>
+        <button type="button" (click)="fecharPaineis()">Voltar</button>
+      </div>
+    </section>
+  }
+
   <div class="semana">
     @for (dia of dias(); track dia.chave) {
       <section class="dia" [attr.aria-labelledby]="'dia-' + dia.chave">
@@ -124,6 +146,9 @@
             <p class="horario">{{ item.startsAt | date: 'HH:mm' }}–{{ item.endsAt | date: 'HH:mm' }}</p>
             <p class="paciente">{{ item.patientDisplayName }}</p>
             <p class="status">{{ rotuloStatus(item) }}</p>
+            @if (item.seriesId) {
+              <p class="serie">Semanal</p>
+            }
 
             @if (item.chargePercent > 0) {
               <p class="cobranca">Cobrança prevista: {{ item.chargePercent }}% ({{ rotuloCobranca(item) }})</p>
@@ -143,6 +168,10 @@
                 }
                 <button type="button" (click)="abrirRemarcacao(item)"
                         [attr.aria-label]="'Remarcar a sessão de ' + item.patientDisplayName">Remarcar</button>
+                @if (item.seriesId) {
+                  <button type="button" (click)="abrirEncerramentoSerie(item)"
+                          [attr.aria-label]="'Encerrar a série semanal de ' + item.patientDisplayName">Encerrar série</button>
+                }
                 <button type="button" (click)="iniciarCancelamento(item)"
                         [attr.aria-label]="'Cancelar a sessão de ' + item.patientDisplayName">Cancelar</button>
               </div>

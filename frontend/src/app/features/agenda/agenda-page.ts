@@ -30,6 +30,7 @@ const ROTULO_COBRANCA: Record<ChargeReason, string> = {
 })
 export class AgendaPage implements OnInit {
   private readonly api = inject(AgendaApi);
+  private readonly fusoHorario = Intl.DateTimeFormat().resolvedOptions().timeZone;
 
   protected readonly profissionais = signal<ProfessionalSummary[]>([]);
   protected readonly profissionalId = signal<string | null>(null);
@@ -41,6 +42,7 @@ export class AgendaPage implements OnInit {
   protected readonly remarcando = signal<AgendaItem | null>(null);
   protected readonly vinculos = signal<ActiveRelationship[]>([]);
   protected readonly cancelando = signal<AgendaItem | null>(null);
+  protected readonly encerrandoSerie = signal<AgendaItem | null>(null);
 
   protected readonly formAgendamento = new FormGroup({
     vinculoId: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
@@ -49,6 +51,7 @@ export class AgendaPage implements OnInit {
       nonNullable: true,
       validators: [Validators.required, Validators.min(15), Validators.max(180)],
     }),
+    repetir: new FormControl(false, { nonNullable: true }),
   });
 
   protected readonly formRemarcacao = new FormGroup({
@@ -142,6 +145,7 @@ export class AgendaPage implements OnInit {
       vinculoId: '',
       inicio: toLocalInputValue(nextFullHour(new Date())),
       duracao: 50,
+      repetir: false,
     });
     this.agendando.set(true);
 
@@ -156,8 +160,14 @@ export class AgendaPage implements OnInit {
       this.formAgendamento.markAllAsTouched();
       return;
     }
-    const { vinculoId, inicio, duracao } = this.formAgendamento.getRawValue();
-    this.executar(this.api.schedule(vinculoId, new Date(inicio), duracao), () => this.fecharPaineis());
+    const { vinculoId, inicio, duracao, repetir } = this.formAgendamento.getRawValue();
+    const data = new Date(inicio);
+
+    const chamada = repetir
+      ? this.api.createSeries(vinculoId, data, duracao, this.fusoHorario)
+      : this.api.schedule(vinculoId, data, duracao);
+
+    this.executar(chamada, () => this.fecharPaineis());
   }
 
   protected abrirRemarcacao(item: AgendaItem): void {
@@ -183,6 +193,21 @@ export class AgendaPage implements OnInit {
     this.agendando.set(false);
     this.remarcando.set(null);
     this.cancelando.set(null);
+    this.encerrandoSerie.set(null);
+  }
+
+  protected abrirEncerramentoSerie(item: AgendaItem): void {
+    this.fecharPaineis();
+    this.encerrandoSerie.set(item);
+  }
+
+  protected confirmarEncerramentoSerie(): void {
+    const item = this.encerrandoSerie();
+    if (!item?.seriesId) return;
+
+    // O último dia da série é a véspera desta sessão, no fuso de quem vê
+    const ultimoDia = dateKey(addDays(new Date(item.startsAt), -1));
+    this.executar(this.api.endSeries(item.seriesId, ultimoDia), () => this.fecharPaineis());
   }
 
   protected iniciarCancelamento(item: AgendaItem): void {
