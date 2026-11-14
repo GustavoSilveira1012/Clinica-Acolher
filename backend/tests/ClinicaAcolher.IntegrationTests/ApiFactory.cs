@@ -22,6 +22,7 @@ public sealed class ApiFactory : WebApplicationFactory<Program>, IAsyncLifetime
     {
         builder.UseEnvironment("Testing");
         builder.UseSetting("ConnectionStrings:Default", _database.GetConnectionString());
+        builder.UseSetting("Workers:SeriesGeneration", "false");
 
         builder.ConfigureTestServices(services =>
         {

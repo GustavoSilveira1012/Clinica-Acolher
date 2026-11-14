@@ -17,6 +17,8 @@ internal sealed class UnitOfWork(AppDbContext db) : IUnitOfWork
             ("RN-AGD-03", "O profissional já tem uma sessão neste horário."),
         ["ex_appointments_patient_overlap"] =
             ("RN-AGD-04", "O paciente já tem uma sessão neste horário."),
+        ["IX_appointments_SeriesId_StartsAt"] =
+            ("RN-AGD-05", "Esta sessão da série já foi gerada."),
         ["IX_attendance_policies_ProfessionalId_Version"] =
             ("RN-CAN-01", "Outra versão da política foi publicada ao mesmo tempo. Tente de novo."),
         ["IX_attendance_policy_acceptances_PatientId_PolicyId"] =

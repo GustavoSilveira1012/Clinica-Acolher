@@ -28,7 +28,11 @@ internal sealed class AppointmentConfiguration : IEntityTypeConfiguration<Appoin
         builder.HasOne<Patient>().WithMany().HasForeignKey(a => a.PatientId).OnDelete(DeleteBehavior.Restrict);
         builder.HasOne<Professional>().WithMany().HasForeignKey(a => a.ProfessionalId).OnDelete(DeleteBehavior.Restrict);
         builder.HasOne<Appointment>().WithMany().HasForeignKey(a => a.RescheduledToId).OnDelete(DeleteBehavior.Restrict);
+        builder.HasOne<AppointmentSeries>().WithMany().HasForeignKey(a => a.SeriesId).OnDelete(DeleteBehavior.Restrict);
 
         builder.HasIndex(a => new { a.ProfessionalId, a.StartsAt });
+
+        // RN-AGD-05: uma série nunca gera duas sessões no mesmo horário
+        builder.HasIndex(a => new { a.SeriesId, a.StartsAt }).IsUnique();
     }
 }

@@ -43,3 +43,32 @@ public sealed record AgendaItemResponse(
 public sealed record CancelAppointmentRequest(CancellationSource By, string Reason);
 
 public sealed record RescheduleAppointmentRequest(DateTimeOffset StartsAt, int? DurationMinutes);
+
+public sealed record CreateSeriesRequest(
+    Guid RelationshipId,
+    DayOfWeek Weekday,
+    TimeOnly LocalStartTime,
+    int DurationMinutes,
+    string TimeZoneId,
+    DateOnly StartsOn);
+
+public sealed record EndSeriesRequest(DateOnly LastDay);
+
+public sealed record SeriesResponse(
+    Guid Id,
+    Guid RelationshipId,
+    Guid PatientId,
+    Guid ProfessionalId,
+    DayOfWeek Weekday,
+    TimeOnly LocalStartTime,
+    int DurationMinutes,
+    string TimeZoneId,
+    DateOnly StartsOn,
+    DateOnly? EndsOn,
+    DateOnly? GeneratedUntil,
+    bool IsActive)
+{
+    public static SeriesResponse From(AppointmentSeries s) => new(
+        s.Id, s.RelationshipId, s.PatientId, s.ProfessionalId, s.Weekday, s.LocalStartTime,
+        s.DurationMinutes, s.TimeZoneId, s.StartsOn, s.EndsOn, s.GeneratedUntil, s.IsActive);
+}

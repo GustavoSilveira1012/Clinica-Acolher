@@ -78,10 +78,68 @@ namespace ClinicaAcolher.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("ProfessionalId", "StartsAt");
 
+                    b.HasIndex("SeriesId", "StartsAt")
+                        .IsUnique();
+
                     b.ToTable("appointments", null, t =>
                         {
                             t.HasCheckConstraint("ck_appointments_period", "\"EndsAt\" > \"StartsAt\"");
                         });
+                });
+
+            modelBuilder.Entity("ClinicaAcolher.Domain.Appointments.AppointmentSeries", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("DurationMinutes")
+                        .HasColumnType("integer");
+
+                    b.Property<DateOnly?>("EndsOn")
+                        .HasColumnType("date");
+
+                    b.Property<DateOnly?>("GeneratedUntil")
+                        .HasColumnType("date");
+
+                    b.Property<TimeOnly>("LocalStartTime")
+                        .HasColumnType("time without time zone");
+
+                    b.Property<Guid>("PatientId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("ProfessionalId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("RelationshipId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateOnly>("StartsOn")
+                        .HasColumnType("date");
+
+                    b.Property<string>("TimeZoneId")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
+
+                    b.Property<string>("Weekday")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("character varying(10)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("GeneratedUntil");
+
+                    b.HasIndex("PatientId");
+
+                    b.HasIndex("ProfessionalId");
+
+                    b.HasIndex("RelationshipId");
+
+                    b.ToTable("appointment_series", (string)null);
                 });
 
             modelBuilder.Entity("ClinicaAcolher.Domain.Attendance.AttendancePolicy", b =>
@@ -307,6 +365,32 @@ namespace ClinicaAcolher.Infrastructure.Persistence.Migrations
                         .WithMany()
                         .HasForeignKey("RescheduledToId")
                         .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("ClinicaAcolher.Domain.Appointments.AppointmentSeries", null)
+                        .WithMany()
+                        .HasForeignKey("SeriesId")
+                        .OnDelete(DeleteBehavior.Restrict);
+                });
+
+            modelBuilder.Entity("ClinicaAcolher.Domain.Appointments.AppointmentSeries", b =>
+                {
+                    b.HasOne("ClinicaAcolher.Domain.Patients.Patient", null)
+                        .WithMany()
+                        .HasForeignKey("PatientId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("ClinicaAcolher.Domain.Professionals.Professional", null)
+                        .WithMany()
+                        .HasForeignKey("ProfessionalId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("ClinicaAcolher.Domain.Relationships.TherapeuticRelationship", null)
+                        .WithMany()
+                        .HasForeignKey("RelationshipId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("ClinicaAcolher.Domain.Attendance.AttendancePolicy", b =>

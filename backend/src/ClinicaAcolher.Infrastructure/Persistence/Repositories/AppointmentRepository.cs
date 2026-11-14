@@ -26,5 +26,13 @@ internal sealed class AppointmentRepository(AppDbContext db) : IAppointmentRepos
         ).ToListAsync(ct);
     }
 
+    public async Task<IReadOnlyList<Appointment>> ListActiveBySeriesAfterAsync(
+        Guid seriesId, DateTimeOffset after, CancellationToken ct) =>
+        await db.Appointments
+            .Where(a => a.SeriesId == seriesId
+                     && a.StartsAt > after
+                     && (a.Status == AppointmentStatus.Scheduled || a.Status == AppointmentStatus.Confirmed))
+            .ToListAsync(ct);
+
     public void Add(Appointment appointment) => db.Appointments.Add(appointment);
 }

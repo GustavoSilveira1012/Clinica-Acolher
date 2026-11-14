@@ -100,6 +100,31 @@ public class AppointmentSeriesTests
     }
 
     [Fact]
+    public void Nao_gera_sessoes_em_datas_que_ja_passaram()
+    {
+        var vinculo = Vinculo();
+        var serie = TercasAs15(vinculo, new DateOnly(2026, 11, 2));
+
+        var geradas = serie.GenerateUntil(vinculo, new DateOnly(2026, 12, 7), Agora);
+
+        Assert.All(geradas, s => Assert.True(s.StartsAt > Agora));
+        Assert.Equal(3, geradas.Count);
+    }
+
+    [Fact]
+    public void Sessao_das_22h_de_terca_em_Brasilia_ainda_pertence_a_terca()
+    {
+        var serie = AppointmentSeries.Create(Vinculo(), DayOfWeek.Tuesday, new TimeOnly(22, 0), 50,
+            SaoPaulo, Segunda16, Agora);
+        serie.End(new DateOnly(2026, 11, 17));
+
+        var tercaAs22EmBrasilia = new DateTimeOffset(2026, 11, 18, 1, 0, 0, TimeSpan.Zero); // já é quarta em UTC
+
+        Assert.False(serie.IsAfterEnd(tercaAs22EmBrasilia));
+        Assert.True(serie.IsAfterEnd(tercaAs22EmBrasilia.AddDays(7)));
+    }
+
+    [Fact]
     public void Serie_encerrada_nao_gera_sessoes_depois_do_ultimo_dia()
     {
         var serie = TercasAs15(Vinculo(), Segunda16);

@@ -13,6 +13,7 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options) : DbCon
     public DbSet<Professional> Professionals => Set<Professional>();
     public DbSet<TherapeuticRelationship> TherapeuticRelationships => Set<TherapeuticRelationship>();
     public DbSet<Appointment> Appointments => Set<Appointment>();
+    public DbSet<AppointmentSeries> AppointmentSeries => Set<AppointmentSeries>();
     public DbSet<AttendancePolicy> AttendancePolicies => Set<AttendancePolicy>();
     public DbSet<AttendancePolicyAcceptance> AttendancePolicyAcceptances => Set<AttendancePolicyAcceptance>();
 

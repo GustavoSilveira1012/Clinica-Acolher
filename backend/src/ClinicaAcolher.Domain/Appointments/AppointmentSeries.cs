@@ -78,7 +78,11 @@ public sealed class AppointmentSeries : Entity
         if (!relationship.AllowsScheduling)
             return [];
 
+        var today = DateOnly.FromDateTime(now.UtcDateTime);
         var from = GeneratedUntil is { } generated ? generated.AddDays(1) : StartsOn;
+        if (from < today)
+            from = today;
+
         if (from > until)
             return [];
 
@@ -96,6 +100,15 @@ public sealed class AppointmentSeries : Entity
             throw new DomainException("RN-AGD-06", "Esta série já foi encerrada.");
 
         EndsOn = lastDay;
+    }
+
+    public bool IsAfterEnd(DateTimeOffset startsAt)
+    {
+        if (EndsOn is not { } end)
+            return false;
+
+        var local = TimeZoneInfo.ConvertTime(startsAt, FindTimeZone(TimeZoneId));
+        return DateOnly.FromDateTime(local.DateTime) > end;
     }
 
     private static TimeZoneInfo FindTimeZone(string timeZoneId)
