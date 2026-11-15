@@ -8,7 +8,9 @@ As referências legais foram escritas de memória, sem consulta à internet. Con
 
 ## 1. Visão do produto
 
-A Clínica Acolher é uma **clínica online**: o paciente agenda, paga e faz a sessão por vídeo dentro da plataforma, e o profissional gerencia agenda, financeiro e anotações no mesmo lugar. Não há atendimento presencial: toda sessão acontece por vídeo.
+A Clínica Acolher é uma **clínica online**: o paciente agenda, paga e faz a sessão por vídeo dentro da plataforma ou por ferramenta externa definida. O profissional gerencia agenda, financeiro e anotações no sistema, com possibilidade de manter sua rotina de anotações fora dele conforme procedimento acordado. Não há atendimento presencial: toda sessão acontece por vídeo.
+
+O [escopo do piloto](escopo-piloto.md) registra as listas de entrada e adiamento, as decisões de produto de 14/11/2026 e a aprovação ainda pendente da cliente piloto. Vídeo e anotações internos/externos, além de Pix e cartão, foram incluídos pelo responsável pelo projeto; ver [decisão 002](decisoes/002-formatos-do-piloto.md).
 
 O produto evolui em três fases, e cada uma muda as responsabilidades legais:
 
@@ -29,7 +31,7 @@ O produto evolui em três fases, e cada uma muda as responsabilidades legais:
 
 - [ ] Nome e marca: "Acolher" é muito comum entre clínicas. Fazer busca no INPI (classes 9, 42 e 44) antes de investir na marca.
 - [ ] Provedor de vídeo: próprio (WebRTC) ou terceiro. Terceiro com servidor fora do Brasil implica transferência internacional de dados.
-- [x] Anotações clínicas: a cliente piloto vai registrá-las na plataforma depois das sessões, para acompanhar a evolução do paciente. Entram no escopo, mas só depois da criptografia e da auditoria estarem prontas (seção 10).
+- [x] Anotações clínicas: entram no piloto dentro da plataforma, com possibilidade de manter a rotina externa. O uso interno com dados reais depende da criptografia, do controle de acesso e da auditoria validados (seção 10). Decisão de produto registrada na [decisão 003](decisoes/003-anotacoes-clinicas-no-piloto.md); procedimentos externos e aprovação do escopo completo pela cliente piloto ainda pendentes.
 - [x] Psicólogos entram no escopo da fase 2, com liberação condicionada ao cumprimento dos requisitos aplicáveis. Decisão do responsável pelo projeto em 13/11/2026; não amplia automaticamente o piloto. Ver [decisão e impactos](decisoes/001-psicologos-na-fase-2.md).
 - [ ] Atendimento presencial: hoje fora do escopo (`RN-AGD-10`). A cliente piloto avalia atender menores presencialmente; se decidir que sim, a regra volta para discussão.
 - [ ] Política de faltas da clínica piloto: a definir. Até lá, nada é cobrado (`RN-CAN-07`).
@@ -126,7 +128,7 @@ A agenda gira em torno do **horário fixo semanal**, que é o padrão da psican�
 
 - `RN-AGD-08` Estados finais não voltam. Um erro de registro é corrigido por um novo evento com justificativa, preservando o original na auditoria.
 - `RN-AGD-09` Todos os horários são gravados em UTC e exibidos no fuso de quem está vendo. Paciente em outro fuso vê o horário convertido, com o fuso indicado.
-- `RN-AGD-10` Toda sessão é online, por vídeo dentro da plataforma. Não existe sessão presencial, e a interface não oferece essa opção.
+- `RN-AGD-10` Toda sessão é online, por vídeo integrado à plataforma ou por ferramenta externa definida e validada para o piloto. Não existe sessão presencial, e a interface não oferece essa opção.
 - `RN-AGD-11` Uma sessão só pode ser registrada como realizada ou como falta a partir do horário de início dela.
 
 ## 6. Atendimento online
@@ -134,6 +136,8 @@ A agenda gira em torno do **horário fixo semanal**, que é o padrão da psican�
 A sala de vídeo é o coração da clínica online: ela precisa ser tão sigilosa quanto um consultório com a porta fechada.
 
 **Sala de vídeo**
+
+O piloto prevê caminhos integrado e externo. As regras abaixo devem ser verificadas para cada caminho; uma ferramenta externa não herda automaticamente os controles da plataforma. A escolha do fornecedor, os controles equivalentes, os metadados disponíveis e os procedimentos operacionais precisam ser definidos antes da liberação, conforme a [decisão 002](decisoes/002-formatos-do-piloto.md).
 
 - `RN-ONL-01` Cada sessão tem uma sala exclusiva, criada para aquele atendimento. O link não é reutilizável nem adivinhável.
 - `RN-ONL-02` Só entram o profissional e os participantes daquela sessão, autenticados. Ninguém entra apenas com o link.

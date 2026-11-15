@@ -1,0 +1,53 @@
+name: Propor uma funcionalidade
+description: Descreva um problema de produto e como saberemos que foi resolvido.
+title: "[Funcionalidade]: "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use exemplos fictícios. Não inclua dados reais de pacientes, credenciais, tokens ou segredos. Diferencie necessidades confirmadas de hipóteses.
+  - type: textarea
+    id: problema
+    attributes:
+      label: Problema ou necessidade
+      description: Quem enfrenta qual dificuldade? Evite prescrever a solução antes de explicar o problema.
+    validations:
+      required: true
+  - type: textarea
+    id: proposta
+    attributes:
+      label: Solução proposta
+      description: Explique a mudança desejada e para quem.
+    validations:
+      required: true
+  - type: textarea
+    id: criterios
+    attributes:
+      label: Critérios de aceite
+      description: Liste resultados observáveis e verificáveis.
+      placeholder: |
+        - [ ] ...
+        - [ ] ...
+    validations:
+      required: true
+  - type: textarea
+    id: regras
+    attributes:
+      label: Regras e decisões relacionadas
+      description: Referencie regras RN-... ou decisões em docs/decisoes/. Se não souber, escreva "A identificar".
+    validations:
+      required: false
+  - type: textarea
+    id: privacidade
+    attributes:
+      label: Impacto em privacidade, segurança e acessibilidade
+      description: Considere dados acessados, permissões, retenção, logs, acessibilidade e estados de erro.
+    validations:
+      required: true
+  - type: checkboxes
+    id: dados
+    attributes:
+      label: Uso de dados
+      options:
+        - label: Não incluí dados pessoais ou clínicos reais, capturas identificáveis, credenciais ou segredos.
+          required: true
