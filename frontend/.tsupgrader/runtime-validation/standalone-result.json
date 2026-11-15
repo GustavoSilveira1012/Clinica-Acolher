@@ -1,18 +1,157 @@
 {
   "planHash": "9f0081bc2c86649ab541f23e7a5f72f7aeaed901df99c079bc2f84dddf0eb109",
   "phase": "standalone",
-  "recordedAtUtc": "2026-11-14T01:10:02.9422868Z",
-  "retryCount": 6,
+  "recordedAtUtc": "2026-11-14T23:32:28.8731969Z",
+  "retryCount": 3,
   "resetBaseline": false,
-  "complete": false,
-  "runningStep": "setup[0]:npm",
-  "partialOutput": "",
-  "cleanupCompleted": true,
+  "complete": true,
   "result": {
-    "setupSucceeded": false,
-    "setupDurationMs": 0,
+    "setupSucceeded": true,
+    "setupDurationMs": 89656,
     "setupFailureOutput": null,
-    "assertions": [],
-    "executions": []
+    "assertions": [
+      {
+        "name": "build",
+        "kind": "process",
+        "verificationMethod": "exit-code",
+        "passed": true,
+        "timedOut": false,
+        "skipped": false,
+        "skippedReason": null,
+        "exitCode": 0,
+        "outputSample": "\r\n\u003E clinica-acolher-web@0.0.0 build\r\n\u003E ng build\r\n\r\n\u003E Building...\r\n\u221A Building...\r\nInitial chunk files | Names                 |  Raw size | Estimated transfer size\r\nmain-MQRKNAID.js    | main                  | 274.97 kB |                75.11 kB\r\nstyles-5INURTSO.css | styles                |   0 bytes |                 0 bytes\r\n\r\n                    | Initial total         | 274.97 kB |                75.11 kB\r\n\r\nLazy chunk files    | Names                 |  Raw size | Estimated transfer size\r\nchunk-DXLj-joM.js   | -                     |  48.98 kB |                10.29 kB\r\nchunk-CSC48wn8.js   | agenda-page           |  19.42 kB |                 5.29 kB\r\nchunk-BBPo3Ux2.js   | patient-form-page     |   7.97 kB |                 2.65 kB\r\nchunk-qlB6ozlk.js   | two-factor-setup-page |   6.19 kB |                 2.53 kB\r\nchunk-BonO4V7t.js   | login-page            |   5.71 kB |                 2.06 kB\r\nchunk-D56gRfFP.js   | patient-list-page     |   4.61 kB |                 1.86 kB\r\nchunk-v3N1f2wv.js   | status-page           |   1.49 kB |               763 bytes\r\nchunk-bmF4b0JB.js   | -                     | 607 bytes |               607 bytes\r\n\r\nApplication bundle generation complete. [3.564 seconds] - 2026-11-14T23:32:09.548Z\r\n\r\nOutput location: C:\\Users\\gusta\\OneDrive\\\u00C1rea de Trabalho\\meus-projetos\\Clinica-Acolher\\Clinica-Acolher\\frontend\\dist\\clinica-acolher-web\r\n\r\n",
+        "durationMs": 6066
+      },
+      {
+        "name": "tests-pass",
+        "kind": "process",
+        "verificationMethod": "test-results",
+        "passed": true,
+        "timedOut": false,
+        "skipped": false,
+        "skippedReason": null,
+        "exitCode": 0,
+        "outputSample": "\r\n\u003E clinica-acolher-web@0.0.0 test\r\n\u003E ng test --watch=false\r\n\r\n\u003E Building...\r\n\u221A Building...\r\nApplication bundle generation complete. [3.040 seconds] - 2026-11-14T23:32:14.484Z\r\n\r\n\r\n\u001B[1m\u001B[30m\u001B[46m RUN \u001B[49m\u001B[39m\u001B[22m \u001B[36mv5.1.0 \u001B[39m\u001B[90mC:/Users/gusta/OneDrive/\u00C1rea de Trabalho/meus-projetos/Clinica-Acolher/Clinica-Acolher/frontend\u001B[39m\r\n\r\n\r\n\u001B[2m Test Files \u001B[22m \u001B[1m\u001B[32m12 passed\u001B[39m\u001B[22m\u001B[90m (12)\u001B[39m\r\n\u001B[2m      Tests \u001B[22m \u001B[1m\u001B[32m32 passed\u001B[39m\u001B[22m\u001B[90m (32)\u001B[39m\r\n\u001B[2m   Start at \u001B[22m 20:32:15\r\n\u001B[2m   Duration \u001B[22m 8.51s\u001B[2m (environment 74%, setup 18%, tests 2%, import 2%, transform 2%, worker 1%)\u001B[22m\r\n\r\n",
+        "durationMs": 14066,
+        "testResults": {
+          "testFramework": "vitest",
+          "runnerDetectedFrom": "package_json",
+          "testsTotal": 32,
+          "testsPassed": 32,
+          "testsFailed": 0,
+          "testsSkipped": 0,
+          "parseFailed": false
+        }
+      },
+      {
+        "name": "home-page-200",
+        "kind": "http-probe",
+        "verificationMethod": "http-status",
+        "passed": true,
+        "timedOut": false,
+        "skipped": false,
+        "skippedReason": null,
+        "exitCode": null,
+        "outputSample": "HTTP 200\n\u003C!doctype html\u003E\r\n\u003Chtml lang=\u0022en\u0022\u003E\r\n\u003Chead\u003E\n  \u003Cscript type=\u0022module\u0022 src=\u0022/@vite/client\u0022\u003E\u003C/script\u003E\n\r\n  \u003Cmeta charset=\u0022utf-8\u0022\u003E\r\n  \u003Ctitle\u003EClinicaAcolherWeb\u003C/title\u003E\r\n  \u003Cbase href=\u0022/\u0022\u003E\r\n  \u003Cmeta name=\u0022viewport\u0022 content=\u0022width=device-width, initial-scale=1\u0022\u003E\r\n  \u003Clink rel=\u0022icon\u0022 type=\u0022image/x-icon\u0022 href=\u0022favicon.ico\u0022\u003E\r\n\u003Clink rel=\u0022stylesheet\u0022 href=\u0022styles.css\u0022\u003E\u003C/head\u003E\r\n\u003Cbody\u003E\r\n  \u003Capp-root\u003E\u003C/app-root\u003E\r\n\u003Cscript src=\u0022main.js\u0022 type=\u0022module\u0022\u003E\u003C/script\u003E\u003C/body\u003E\r\n\u003C/html\u003E\r\n\n--- server output ---\n\r\n\u003E clinica-acolher-web@0.0.0 start\r\n\u003E ng serve --proxy-config proxy.conf.json\r\n\r\n\u003E Building...\r\n\u221A Building...\r\nInitial chunk files | Names                 |  Raw size\r\nmain.js             | main                  |   8.13 kB | \r\nchunk-HSIBEORK.js   | -                     |   2.70 kB | \r\nchunk-VUJOFXKG.js   | -                     | 987 bytes | \r\nstyles.css          | styles                |  95 bytes | \r\n\r\n                    | Initial total         |  11.92 kB\r\n\r\nLazy chunk files    | Names                 |  Raw size\r\nchunk-SFAZOTBT.js   | agenda-page           |  56.97 kB | \r\nchunk-4YOHTYZT.js   | patient-form-page     |  23.59 kB | \r\nchunk-BJCNQ2MH.js   | two-factor-setup-page |  18.76 kB | \r\nchunk-BMYVTYWJ.js   | login-page            |  16.58 kB | \r\nchunk-76S6322N.js   | patient-list-page     |  16.51 kB | \r\nchunk-WSUEWLPW.js   | status-page           |   5.84 kB | \r\nchunk-3ZZVRA3M.js   | -                     |   1.39 kB | \r\n\r\nApplication bundle generation complete. [2.822 seconds] - 2026-11-14T23:32:28.599Z\r\n\r\nWatch mode enabled. Watching for file changes...\r\nNOTE: Raw file sizes do not reflect development server per-request transformations.\r\n  \u001B[32m\u279C\u001B[39m  \u001B[1mLocal\u001B[22m:   \u001B[36mhttp://localhost:\u001B[1m4200\u001B[22m/\u001B[39m\r\n",
+        "durationMs": 4969
+      }
+    ],
+    "executions": [
+      {
+        "source": "setup[0]",
+        "resolvedExecutable": "C:\\nvm4w\\nodejs\\npm.cmd",
+        "args": [
+          "ci"
+        ],
+        "cwd": "C:\\Users\\gusta\\OneDrive\\\u00C1rea de Trabalho\\meus-projetos\\Clinica-Acolher\\Clinica-Acolher\\frontend",
+        "env": {},
+        "prependPath": [],
+        "platform": "win32",
+        "nodeExecutable": "C:\\nvm4w\\nodejs\\node.EXE",
+        "nodeVersion": "v22.23.2",
+        "packageManager": "npm",
+        "packageManagerExecutable": "C:\\nvm4w\\nodejs\\npm.cmd",
+        "packageManagerVersion": "10.9.8",
+        "cleanup": {
+          "RootProcessId": 25308,
+          "Completed": true,
+          "ProcessesObserved": 19,
+          "ProcessesTerminated": 1,
+          "Failure": null
+        }
+      },
+      {
+        "source": "build",
+        "resolvedExecutable": "C:\\nvm4w\\nodejs\\npm.cmd",
+        "args": [
+          "run",
+          "build"
+        ],
+        "cwd": "C:\\Users\\gusta\\OneDrive\\\u00C1rea de Trabalho\\meus-projetos\\Clinica-Acolher\\Clinica-Acolher\\frontend",
+        "env": {},
+        "prependPath": [],
+        "platform": "win32",
+        "nodeExecutable": "C:\\nvm4w\\nodejs\\node.EXE",
+        "nodeVersion": "v22.23.2",
+        "packageManager": "npm",
+        "packageManagerExecutable": "C:\\nvm4w\\nodejs\\npm.cmd",
+        "packageManagerVersion": "10.9.8",
+        "cleanup": {
+          "RootProcessId": 26896,
+          "Completed": true,
+          "ProcessesObserved": 8,
+          "ProcessesTerminated": 1,
+          "Failure": null
+        }
+      },
+      {
+        "source": "tests-pass",
+        "resolvedExecutable": "C:\\nvm4w\\nodejs\\npm.cmd",
+        "args": [
+          "test",
+          "--",
+          "--watch=false"
+        ],
+        "cwd": "C:\\Users\\gusta\\OneDrive\\\u00C1rea de Trabalho\\meus-projetos\\Clinica-Acolher\\Clinica-Acolher\\frontend",
+        "env": {},
+        "prependPath": [],
+        "platform": "win32",
+        "nodeExecutable": "C:\\nvm4w\\nodejs\\node.EXE",
+        "nodeVersion": "v22.23.2",
+        "packageManager": "npm",
+        "packageManagerExecutable": "C:\\nvm4w\\nodejs\\npm.cmd",
+        "packageManagerVersion": "10.9.8",
+        "cleanup": {
+          "RootProcessId": 27440,
+          "Completed": true,
+          "ProcessesObserved": 22,
+          "ProcessesTerminated": 1,
+          "Failure": null
+        }
+      },
+      {
+        "source": "home-page-200",
+        "resolvedExecutable": "C:\\nvm4w\\nodejs\\npm.cmd",
+        "args": [
+          "start"
+        ],
+        "cwd": "C:\\Users\\gusta\\OneDrive\\\u00C1rea de Trabalho\\meus-projetos\\Clinica-Acolher\\Clinica-Acolher\\frontend",
+        "env": {},
+        "prependPath": [],
+        "platform": "win32",
+        "nodeExecutable": "C:\\nvm4w\\nodejs\\node.EXE",
+        "nodeVersion": "v22.23.2",
+        "packageManager": "npm",
+        "packageManagerExecutable": "C:\\nvm4w\\nodejs\\npm.cmd",
+        "packageManagerVersion": "10.9.8",
+        "cleanup": {
+          "RootProcessId": 18672,
+          "Completed": true,
+          "ProcessesObserved": 12,
+          "ProcessesTerminated": 6,
+          "Failure": null
+        }
+      }
+    ]
   }
 }

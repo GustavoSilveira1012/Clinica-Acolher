@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable, computed, inject, signal } from '@angular/core';
-import { Observable, catchError, finalize, of, tap } from 'rxjs';
+import { Observable, catchError, finalize, map, of, tap } from 'rxjs';
 
 export interface CurrentUser {
   id: string;
@@ -8,6 +8,18 @@ export interface CurrentUser {
   roles: string[];
   professionalId: string | null;
   patientId: string | null;
+  twoFactorEnabled: boolean;
+  mustSetupTwoFactor: boolean;
+}
+
+export interface LoginResponse {
+  requiresTwoFactor: boolean;
+  user: CurrentUser | null;
+}
+
+export interface TwoFactorSetup {
+  manualKey: string;
+  qrCodeDataUri: string;
 }
 
 @Injectable({ providedIn: 'root' })
@@ -29,10 +41,38 @@ export class AuthService {
     );
   }
 
-  login(email: string, password: string): Observable<CurrentUser> {
+  login(email: string, password: string): Observable<LoginResponse> {
     return this.http
-      .post<CurrentUser>('/api/v1/auth/login', { email, password })
-      .pipe(tap((usuario) => this.definir(usuario)));
+      .post<LoginResponse>('/api/v1/auth/login', { email, password })
+      .pipe(tap((resposta) => resposta.user && this.definir(resposta.user)));
+  }
+
+  loginWithCode(code: string): Observable<LoginResponse> {
+    return this.http
+      .post<LoginResponse>('/api/v1/auth/login/2fa', { code })
+      .pipe(tap((resposta) => resposta.user && this.definir(resposta.user)));
+  }
+
+  loginWithRecoveryCode(code: string): Observable<LoginResponse> {
+    return this.http
+      .post<LoginResponse>('/api/v1/auth/login/recovery', { code })
+      .pipe(tap((resposta) => resposta.user && this.definir(resposta.user)));
+  }
+
+  setupTwoFactor(): Observable<TwoFactorSetup> {
+    return this.http.post<TwoFactorSetup>('/api/v1/auth/2fa/setup', {});
+  }
+
+  enableTwoFactor(code: string): Observable<string[]> {
+    return this.http
+      .post<{ recoveryCodes: string[] }>('/api/v1/auth/2fa/enable', { code })
+      .pipe(map((resposta) => resposta.recoveryCodes));
+  }
+
+  /** Consulta o /me de novo, por exemplo depois de ativar o 2FA. */
+  refreshSession(): Observable<CurrentUser | null> {
+    this.sessaoConsultada = false;
+    return this.loadSession();
   }
 
   logout(): Observable<unknown> {

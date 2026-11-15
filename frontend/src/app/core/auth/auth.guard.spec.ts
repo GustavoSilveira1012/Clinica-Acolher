@@ -38,7 +38,46 @@ describe('authGuard', () => {
     const promessa = executarGuard('/agenda');
 
     http.expectOne('/api/v1/auth/me').flush({
-      id: 'u1', email: 'profissional@exemplo.org', roles: [], professionalId: 'p1', patientId: null,
+      id: 'u1',
+      email: 'profissional@exemplo.org',
+      roles: [],
+      professionalId: 'p1',
+      patientId: null,
+      twoFactorEnabled: true,
+      mustSetupTwoFactor: false,
+    });
+
+    expect(await promessa).toBe(true);
+  });
+
+  it('leva a equipe sem 2FA para a configuração, de qualquer tela', async () => {
+    const promessa = executarGuard('/pacientes');
+
+    http.expectOne('/api/v1/auth/me').flush({
+      id: 'u1',
+      email: 'profissional@exemplo.org',
+      roles: ['Professional'],
+      professionalId: 'p1',
+      patientId: null,
+      twoFactorEnabled: false,
+      mustSetupTwoFactor: true,
+    });
+
+    const resultado = (await promessa) as UrlTree;
+    expect(resultado.toString()).toBe('/seguranca/dois-fatores');
+  });
+
+  it('permite a rota do 2FA para quem ainda precisa configurá-lo', async () => {
+    const promessa = executarGuard('/seguranca/dois-fatores');
+
+    http.expectOne('/api/v1/auth/me').flush({
+      id: 'u1',
+      email: 'profissional@exemplo.org',
+      roles: ['Professional'],
+      professionalId: 'p1',
+      patientId: null,
+      twoFactorEnabled: false,
+      mustSetupTwoFactor: true,
     });
 
     expect(await promessa).toBe(true);

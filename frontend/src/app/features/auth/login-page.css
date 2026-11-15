@@ -2,3 +2,6 @@
 form { display: grid; gap: 0.5rem; }
 .alerta { color: #b3261e; }
 .aviso { color: #8a4b00; }
+.ajuda { color: #555; font-size: 0.9rem; }
+.links { display: grid; gap: 0.25rem; margin-top: 1rem; justify-items: start; }
+.link { background: none; border: none; padding: 0; color: #2b5f8a; text-decoration: underline; cursor: pointer; }

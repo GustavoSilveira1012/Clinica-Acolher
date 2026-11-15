@@ -9,9 +9,14 @@ export const routes: Routes = [
   },
   {
     path: '',
-    canActivate: [authGuard],
+    canActivateChild: [authGuard],
     children: [
       { path: '', pathMatch: 'full', redirectTo: 'agenda' },
+      {
+        path: 'seguranca/dois-fatores',
+        title: 'Dois fatores',
+        loadComponent: () => import('./features/auth/two-factor-setup-page').then((m) => m.TwoFactorSetupPage),
+      },
       {
         path: 'agenda',
         title: 'Agenda',

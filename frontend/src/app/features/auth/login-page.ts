@@ -5,6 +5,8 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { AuthService } from '../../core/auth/auth.service';
 import { destinoSeguro } from '../../core/auth/safe-redirect';
 
+type Etapa = 'senha' | 'codigo' | 'recuperacao';
+
 @Component({
   selector: 'app-login-page',
   imports: [ReactiveFormsModule],
@@ -19,10 +21,15 @@ export class LoginPage {
   protected readonly enviando = signal(false);
   protected readonly mensagemErro = signal<string | null>(null);
   protected readonly sessaoExpirou = this.route.snapshot.queryParamMap.has('expirou');
+  protected readonly etapa = signal<Etapa>('senha');
 
   protected readonly form = new FormGroup({
     email: new FormControl('', { nonNullable: true, validators: [Validators.required, Validators.email] }),
     senha: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
+  });
+
+  protected readonly formCodigo = new FormGroup({
+    codigo: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
   });
 
   protected entrar(): void {
@@ -36,7 +43,14 @@ export class LoginPage {
     this.mensagemErro.set(null);
 
     this.auth.login(email, senha).subscribe({
-      next: () => this.router.navigateByUrl(destinoSeguro(this.route.snapshot.queryParamMap.get('voltar'))),
+      next: (resposta) => {
+        this.enviando.set(false);
+        if (resposta.requiresTwoFactor) {
+          this.etapa.set('codigo');
+          return;
+        }
+        this.irParaDestino();
+      },
       error: (erro: HttpErrorResponse) => {
         this.enviando.set(false);
         this.form.controls.senha.reset();
@@ -47,5 +61,46 @@ export class LoginPage {
         );
       },
     });
+  }
+
+  protected confirmarCodigo(): void {
+    if (this.formCodigo.invalid) {
+      this.formCodigo.markAllAsTouched();
+      return;
+    }
+
+    const codigo = this.formCodigo.controls.codigo.value.trim();
+    const chamada = this.etapa() === 'recuperacao'
+      ? this.auth.loginWithRecoveryCode(codigo)
+      : this.auth.loginWithCode(codigo);
+
+    this.enviando.set(true);
+    this.mensagemErro.set(null);
+
+    chamada.subscribe({
+      next: () => this.irParaDestino(),
+      error: () => {
+        this.enviando.set(false);
+        this.formCodigo.reset();
+        this.mensagemErro.set('Código incorreto ou expirado. Confira e tente de novo, ou volte e entre novamente.');
+      },
+    });
+  }
+
+  protected usarRecuperacao(): void {
+    this.formCodigo.reset();
+    this.mensagemErro.set(null);
+    this.etapa.set('recuperacao');
+  }
+
+  protected voltarParaSenha(): void {
+    this.formCodigo.reset();
+    this.form.controls.senha.reset();
+    this.mensagemErro.set(null);
+    this.etapa.set('senha');
+  }
+
+  private irParaDestino(): void {
+    this.router.navigateByUrl(destinoSeguro(this.route.snapshot.queryParamMap.get('voltar')));
   }
 }

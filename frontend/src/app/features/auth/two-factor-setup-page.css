@@ -1,0 +1,8 @@
+:host { display: block; max-width: 34rem; }
+form { display: grid; gap: 0.5rem; max-width: 16rem; }
+.chave { letter-spacing: 0.1em; }
+.codigos { display: grid; grid-template-columns: repeat(2, max-content); gap: 0.25rem 2rem; padding-left: 1.25rem; }
+.acoes { display: flex; gap: 0.5rem; }
+.opcao { display: flex; gap: 0.5rem; align-items: center; margin-block: 1rem; }
+.alerta { color: #b3261e; }
+.ajuda { color: #555; }

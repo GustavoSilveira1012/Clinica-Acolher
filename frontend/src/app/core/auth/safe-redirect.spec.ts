@@ -8,7 +8,9 @@ describe('destinoSeguro', () => {
   it('recusa destinos externos ou vazios', () => {
     expect(destinoSeguro(null)).toBe('/agenda');
     expect(destinoSeguro('//site-falso.com')).toBe('/agenda');
+    expect(destinoSeguro('///site-falso.com')).toBe('/agenda');
     expect(destinoSeguro('/\\site-falso.com')).toBe('/agenda');
+    expect(destinoSeguro('/agenda\\..\\//site-falso.com')).toBe('/agenda');
     expect(destinoSeguro('https://site-falso.com')).toBe('/agenda');
   });
 });
