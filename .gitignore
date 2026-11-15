@@ -3,8 +3,14 @@
 ##
 ## Get latest from `dotnet new gitignore`
 
-# dotenv files
+# Local environment files; keep the example template versioned.
 .env
+.env.*
+!.env.example
+
+# JavaScript dependencies and build output
+node_modules/
+dist/
 
 # User-specific files
 *.rsuser

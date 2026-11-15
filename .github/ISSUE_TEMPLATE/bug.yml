@@ -1,0 +1,69 @@
+name: Relatar um bug
+description: Relate um comportamento incorreto usando somente exemplos fictícios.
+title: "[Bug]: "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Não inclua nomes, contatos, prontuários, capturas de tela ou qualquer dado real de pacientes. Não publique senhas, tokens ou outros segredos. Para suspeita de vulnerabilidade, não abra uma issue pública.
+  - type: textarea
+    id: resumo
+    attributes:
+      label: O que aconteceu?
+      description: Descreva o problema de forma objetiva, sem dados pessoais ou clínicos.
+      placeholder: Ao salvar uma sessão fictícia...
+    validations:
+      required: true
+  - type: textarea
+    id: reproduzir
+    attributes:
+      label: Como reproduzir
+      description: Liste passos reproduzíveis com dados inventados.
+      placeholder: |
+        1. Entre com uma conta de teste...
+        2. Abra...
+        3. Observe...
+    validations:
+      required: true
+  - type: textarea
+    id: esperado
+    attributes:
+      label: Comportamento esperado
+    validations:
+      required: true
+  - type: textarea
+    id: observado
+    attributes:
+      label: Comportamento observado
+    validations:
+      required: true
+  - type: dropdown
+    id: area
+    attributes:
+      label: Área afetada
+      options:
+        - Agenda e sessões
+        - Pacientes e vínculos
+        - Atendimento online
+        - Financeiro
+        - Autenticação e permissões
+        - Interface e acessibilidade
+        - Infraestrutura e CI
+        - Outra
+    validations:
+      required: true
+  - type: textarea
+    id: ambiente
+    attributes:
+      label: Ambiente
+      description: Informe sistema operacional, navegador ou versão relevante. Não inclua identificadores de usuário.
+      placeholder: Windows 11, Chrome atual; frontend local
+    validations:
+      required: false
+  - type: checkboxes
+    id: privacidade
+    attributes:
+      label: Privacidade e segurança
+      options:
+        - label: Confirmei que não incluí dados reais de pacientes, credenciais, tokens ou segredos.
+          required: true
