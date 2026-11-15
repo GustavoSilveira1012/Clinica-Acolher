@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="720" height="160" viewBox="0 0 720 160" role="img" aria-labelledby="titulo descricao">
+  <title id="titulo">Clínica Acolher — logo provisório</title>
+  <desc id="descricao">Símbolo de folha arredondada ao lado do nome Clínica Acolher, em duas variações: fundo claro e fundo escuro. Logo provisório, sujeito a revisão.</desc>
+  <defs>
+    <path id="folha" d="M20 0 A20 20 0 0 1 40 20 V20.8 A19.2 19.2 0 0 1 20.8 40 H8 A8 8 0 0 1 0 32 V20 A20 20 0 0 1 20 0 Z"/>
+    <path id="broto" d="M7.5 0 A7.5 11 0 0 1 15 11 V11.4 A7.2 10.6 0 0 1 7.8 22 H3 A3 4.4 0 0 1 0 17.6 V11 A7.5 11 0 0 1 7.5 0 Z"/>
+  </defs>
+
+  <!-- Variação clara -->
+  <g>
+    <rect width="360" height="160" rx="16" fill="#f7f5f0"/>
+    <g transform="translate(40 60) rotate(-14 20 20)">
+      <use href="#folha" fill="#24564f"/>
+      <use href="#broto" fill="#d6e7dc" transform="translate(12.5 9) rotate(28 7.5 11)"/>
+    </g>
+    <text x="96" y="90" font-family="Lora, Georgia, serif" font-size="28" font-weight="600" fill="#24564f" letter-spacing="-0.5">Clínica Acolher</text>
+    <rect x="96" y="106" width="92" height="22" rx="11" fill="#fff1cc"/>
+    <text x="142" y="121" text-anchor="middle" font-family="'DM Sans', system-ui, sans-serif" font-size="12" font-weight="700" fill="#866416">provisório</text>
+  </g>
+
+  <!-- Variação escura -->
+  <g transform="translate(360 0)">
+    <rect width="360" height="160" rx="16" fill="#14211f"/>
+    <g transform="translate(40 60) rotate(-14 20 20)">
+      <use href="#folha" fill="#ffffff"/>
+      <use href="#broto" fill="#24564f" transform="translate(12.5 9) rotate(28 7.5 11)"/>
+    </g>
+    <text x="96" y="90" font-family="Lora, Georgia, serif" font-size="28" font-weight="600" fill="#ffffff" letter-spacing="-0.5">Clínica Acolher</text>
+    <rect x="96" y="106" width="92" height="22" rx="11" fill="#30423f"/>
+    <text x="142" y="121" text-anchor="middle" font-family="'DM Sans', system-ui, sans-serif" font-size="12" font-weight="700" fill="#e3c27a">provisório</text>
+  </g>
+</svg>
