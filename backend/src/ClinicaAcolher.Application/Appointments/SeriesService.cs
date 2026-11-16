@@ -8,6 +8,7 @@ public sealed class SeriesService(
     IRelationshipRepository relationships,
     ISeriesRepository series,
     IAppointmentRepository appointments,
+    AccessControl access,
     IUnitOfWork unitOfWork,
     TimeProvider clock)
 {
@@ -18,6 +19,7 @@ public sealed class SeriesService(
     {
         var relationship = await relationships.GetByIdAsync(r.RelationshipId, ct)
             ?? throw new NotFoundException("Vínculo não encontrado.");
+        access.EnsureActsFor(relationship.ProfessionalId, "Vínculo não encontrado.");
 
         var now = clock.GetUtcNow();
         var created = AppointmentSeries.Create(relationship, r.Weekday, r.LocalStartTime,
@@ -32,11 +34,11 @@ public sealed class SeriesService(
     }
 
     public async Task<SeriesResponse> GetByIdAsync(Guid id, CancellationToken ct) =>
-        SeriesResponse.From(await LoadAsync(id, ct));
+        SeriesResponse.From(await LoadForUserAsync(id, ct));
 
     public async Task<SeriesResponse> EndAsync(Guid id, EndSeriesRequest r, CancellationToken ct)
     {
-        var existing = await LoadAsync(id, ct);
+        var existing = await LoadForUserAsync(id, ct);
         var now = clock.GetUtcNow();
         existing.End(r.LastDay);
 
@@ -67,6 +69,14 @@ public sealed class SeriesService(
 
     private DateOnly WindowEnd() =>
         DateOnly.FromDateTime(clock.GetUtcNow().UtcDateTime).AddDays(WindowDays);
+
+    // Para ações de uma pessoa logada; a rotina em segundo plano usa o LoadAsync, sem usuário.
+    private async Task<AppointmentSeries> LoadForUserAsync(Guid id, CancellationToken ct)
+    {
+        var existing = await LoadAsync(id, ct);
+        access.EnsureActsFor(existing.ProfessionalId, "Série não encontrada.");
+        return existing;
+    }
 
     private async Task<AppointmentSeries> LoadAsync(Guid id, CancellationToken ct) =>
         await series.GetByIdAsync(id, ct) ?? throw new NotFoundException("Série não encontrada.");

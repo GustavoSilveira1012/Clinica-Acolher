@@ -39,6 +39,39 @@ public class RelationshipsApiTests(ApiFactory factory) : IClassFixture<ApiFactor
     }
 
     [Fact]
+    public async Task Profissional_lista_somente_os_vinculos_proprios_do_paciente()
+    {
+        var (profissionalAId, profissionalA) = await factory.CriarProfissionalComLoginAsync();
+        var (profissionalBId, profissionalB) = await factory.CriarProfissionalComLoginAsync();
+        using (profissionalA)
+        using (profissionalB)
+        {
+            var pacienteId = await _client.CriarPacienteAsync("Paciente com dois vínculos");
+            var vinculoA = await _client.IniciarVinculoAsync(pacienteId, profissionalAId);
+            var vinculoB = await _client.IniciarVinculoAsync(pacienteId, profissionalBId);
+
+            var listaA = await profissionalA.GetFromJsonAsync<List<RelationshipResponse>>(
+                $"/api/v1/patients/{pacienteId}/relationships", TestApi.Json);
+            var listaB = await profissionalB.GetFromJsonAsync<List<RelationshipResponse>>(
+                $"/api/v1/patients/{pacienteId}/relationships", TestApi.Json);
+            var listaAdmin = await _client.GetFromJsonAsync<List<RelationshipResponse>>(
+                $"/api/v1/patients/{pacienteId}/relationships", Json);
+
+            var itemA = Assert.Single(listaA!);
+            var itemB = Assert.Single(listaB!);
+            Assert.Equal(vinculoA, itemA.Id);
+            Assert.Equal(profissionalAId, itemA.ProfessionalId);
+            Assert.Equal(vinculoB, itemB.Id);
+            Assert.Equal(profissionalBId, itemB.ProfessionalId);
+            Assert.Equal(2, listaAdmin!.Count);
+
+            using var outroProfissional = await profissionalA.GetAsync(
+                $"/api/v1/professionals/{profissionalBId}/relationships/active");
+            Assert.Equal(HttpStatusCode.NotFound, outroProfissional.StatusCode);
+        }
+    }
+
+    [Fact]
     public async Task RN_VIN_01_inicia_vinculo_ativo()
     {
         var resposta = await IniciarAsync(await CriarPacienteAsync(), await CriarProfissionalAsync(aprovar: true));

@@ -2,6 +2,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { By } from '@angular/platform-browser';
+import { AuthService } from '../../core/auth/auth.service';
 import { AgendaPage } from './agenda-page';
 
 describe('AgendaPage', () => {
@@ -78,6 +79,38 @@ describe('AgendaPage', () => {
     const texto: string = fixture.nativeElement.textContent;
     expect(texto).toContain('Paciente Teste');
     expect(texto).toContain('Cobrança prevista: 100% (falta)');
+  });
+
+  it('limita o seletor ao profissional autenticado', async () => {
+    TestBed.inject(AuthService).login('profissional@exemplo.org', 'senha-de-teste').subscribe();
+    http.expectOne('/api/v1/auth/login').flush({
+      requiresTwoFactor: false,
+      user: {
+        id: 'u1',
+        email: 'profissional@exemplo.org',
+        roles: ['Professional'],
+        professionalId: 'p1',
+        patientId: null,
+        twoFactorEnabled: true,
+        mustSetupTwoFactor: false,
+      },
+    });
+
+    const fixture = TestBed.createComponent(AgendaPage);
+    fixture.detectChanges();
+
+    http.expectOne('/api/v1/professionals').flush([
+      { id: 'p1', professionalName: 'Minha agenda', canAttend: true },
+      { id: 'p2', professionalName: 'Outra agenda', canAttend: true },
+    ]);
+    http.expectOne((r) => r.url === '/api/v1/professionals/p1/agenda').flush([]);
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    const opcoes = Array.from(
+      fixture.nativeElement.querySelectorAll('#profissional option') as NodeListOf<HTMLOptionElement>,
+    );
+    expect(opcoes.map((opcao) => opcao.value)).toEqual(['p1']);
   });
 
   it('agenda uma nova sessão enviando o horário em UTC', async () => {

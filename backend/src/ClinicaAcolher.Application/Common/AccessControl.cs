@@ -21,6 +21,24 @@ public sealed class AccessControl(ICurrentUser user, IRelationshipRepository rel
             throw new ForbiddenException("Apenas a administração da clínica pode fazer isso.");
     }
 
+    // RN-PER-01: cada profissional age só sobre os próprios recursos de agenda.
+    public void EnsureActsFor(Guid professionalId, string notFoundMessage)
+    {
+        if (user.IsClinicAdmin || user.ProfessionalId == professionalId)
+            return;
+
+        throw new NotFoundException(notFoundMessage);
+    }
+
+    // RN-CAN-01: o paciente registra o próprio aceite, salvo pela administração.
+    public void EnsureIsPatientOrClinicAdmin(Guid patientId)
+    {
+        if (user.IsClinicAdmin || user.PatientId == patientId)
+            return;
+
+        throw new ForbiddenException("O aceite da política só pode ser registrado pelo próprio paciente.");
+    }
+
     // RN-PER-01: o profissional só acessa pacientes com quem tem ou teve vínculo
     public async Task EnsureCanAccessPatientAsync(Guid patientId, CancellationToken ct)
     {

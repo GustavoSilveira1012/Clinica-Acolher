@@ -6,6 +6,7 @@ import { Observable } from 'rxjs';
 import { AgendaApi } from './agenda-api';
 import { ActiveRelationship, AgendaItem, AppointmentStatus, CancellationSource, ChargeReason, ProfessionalSummary } from './agenda.models';
 import { addDays, dateKey, nextFullHour, startOfWeek, toLocalInputValue } from './week';
+import { AuthService } from '../../core/auth/auth.service';
 
 const ROTULO_STATUS: Record<AppointmentStatus, string> = {
   Scheduled: 'Agendada',
@@ -30,6 +31,7 @@ const ROTULO_COBRANCA: Record<ChargeReason, string> = {
 })
 export class AgendaPage implements OnInit {
   private readonly api = inject(AgendaApi);
+  private readonly auth = inject(AuthService);
   private readonly fusoHorario = Intl.DateTimeFormat().resolvedOptions().timeZone;
 
   protected readonly profissionais = signal<ProfessionalSummary[]>([]);
@@ -82,7 +84,13 @@ export class AgendaPage implements OnInit {
   ngOnInit(): void {
     this.api.listProfessionals().subscribe({
       next: (lista) => {
-        const aptos = lista.filter((p) => p.canAttend);
+        const usuario = this.auth.user();
+        const ehAdministracao = usuario?.roles.includes('Admin') ?? false;
+
+        // A API já protege; aqui só evitamos oferecer uma opção que daria erro.
+        const aptos = lista.filter(
+          (p) => p.canAttend && (!usuario || ehAdministracao || p.id === usuario.professionalId),
+        );
         this.profissionais.set(aptos);
         if (aptos.length > 0) {
           this.profissionalId.set(aptos[0].id);

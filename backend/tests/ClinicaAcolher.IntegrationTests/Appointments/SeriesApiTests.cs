@@ -61,6 +61,30 @@ public class SeriesApiTests(ApiFactory factory) : IClassFixture<ApiFactory>
         Assert.All(agenda, a => Assert.Equal(0, a.ChargePercent));
     }
 
+    [Fact]
+    public async Task Profissional_nao_le_nem_encerra_serie_de_outro_profissional()
+    {
+        var (profissionalAId, profissionalA) = await factory.CriarProfissionalComLoginAsync();
+        var (_, profissionalB) = await factory.CriarProfissionalComLoginAsync();
+        using (profissionalA)
+        using (profissionalB)
+        {
+            var paciente = await _client.CriarPacienteAsync();
+            var vinculo = await _client.IniciarVinculoAsync(paciente, profissionalAId);
+            var serie = await LerAsync(await CriarSerieAsync(vinculo));
+
+            using var leituraPropria = await profissionalA.GetAsync($"/api/v1/series/{serie.Id}");
+            using var leituraAlheia = await profissionalB.GetAsync($"/api/v1/series/{serie.Id}");
+            using var encerramentoAlheio = await profissionalB.PostAsJsonAsync(
+                $"/api/v1/series/{serie.Id}/end",
+                new EndSeriesRequest(new DateOnly(2026, 12, 1)), TestApi.Json);
+
+            Assert.Equal(HttpStatusCode.OK, leituraPropria.StatusCode);
+            Assert.Equal(HttpStatusCode.NotFound, leituraAlheia.StatusCode);
+            Assert.Equal(HttpStatusCode.NotFound, encerramentoAlheio.StatusCode);
+        }
+    }
+
     private Task<HttpResponseMessage> CriarSerieAsync(Guid vinculo) =>
         _client.PostAsJsonAsync("/api/v1/series", new CreateSeriesRequest(
             vinculo, DayOfWeek.Tuesday, new TimeOnly(15, 0), 50, "America/Sao_Paulo", Segunda16), TestApi.Json);
