@@ -39,4 +39,4 @@ M8 permanece responsável pela implementação das anotações e depende dos con
 
 ## Registro e pendências
 
-A decisão de incluir anotações está registrada. A aprovação da lista completa de entrada e exclusões pela cliente piloto continua pendente na issue #2, assim como a definição dos procedimentos externos e a comprovação das condições de liberação. Nenhum dado real de paciente foi utilizado neste documento.
+A decisão de incluir anotações está registrada. Em 16/11/2026, Gustavo reportou a aprovação do escopo pela cliente piloto (issue #2), sem informar a data original da conversa. A definição dos procedimentos externos segue na issue #252, e a comprovação das condições de liberação permanece pendente. Nenhum dado real de paciente foi utilizado neste documento.

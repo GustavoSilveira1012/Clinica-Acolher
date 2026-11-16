@@ -32,6 +32,7 @@ public class AuthApiTests(ApiFactory factory) : IClassFixture<ApiFactory>
     [Fact]
     public async Task RN_SEG_04_cookie_de_sessao_e_HttpOnly_Secure_e_SameSite_Strict()
     {
+        var email = await UsuarioComumAsync();
         using var semPoteDeCookies = factory.CreateClient(new WebApplicationFactoryClientOptions
         {
             BaseAddress = new Uri("https://localhost"),
@@ -39,7 +40,7 @@ public class AuthApiTests(ApiFactory factory) : IClassFixture<ApiFactory>
         });
 
         using var resposta = await semPoteDeCookies.PostAsJsonAsync("/api/v1/auth/login",
-            new { email = ApiFactory.AdminEmail, password = ApiFactory.AdminPassword });
+            new { email, password = "senha-de-teste-123" });
 
         Assert.Equal(HttpStatusCode.OK, resposta.StatusCode);
         var cookie = resposta.Headers.GetValues("Set-Cookie").Single(c => c.StartsWith("acolher.sessao="));
@@ -51,11 +52,12 @@ public class AuthApiTests(ApiFactory factory) : IClassFixture<ApiFactory>
     [Fact]
     public async Task Login_permite_saber_quem_esta_logado()
     {
-        using var client = await factory.CreateLoggedInClientAsync(ApiFactory.AdminEmail, ApiFactory.AdminPassword);
+        var email = await UsuarioComumAsync();
+        using var client = await factory.CreateLoggedInClientAsync(email, "senha-de-teste-123");
 
         var eu = await client.GetFromJsonAsync<JsonElement>("/api/v1/auth/me");
 
-        Assert.Equal(ApiFactory.AdminEmail, eu.GetProperty("email").GetString());
+        Assert.Equal(email, eu.GetProperty("email").GetString());
     }
 
     [Fact]
@@ -103,13 +105,21 @@ public class AuthApiTests(ApiFactory factory) : IClassFixture<ApiFactory>
     [Fact]
     public async Task Logout_encerra_a_sessao()
     {
-        using var client = await factory.CreateLoggedInClientAsync(ApiFactory.AdminEmail, ApiFactory.AdminPassword);
+        var email = await UsuarioComumAsync();
+        using var client = await factory.CreateLoggedInClientAsync(email, "senha-de-teste-123");
 
         using var logout = await client.PostAsync("/api/v1/auth/logout", null);
         Assert.Equal(HttpStatusCode.NoContent, logout.StatusCode);
         using var depois = await client.GetAsync("/api/v1/auth/me");
 
         Assert.Equal(HttpStatusCode.Unauthorized, depois.StatusCode);
+    }
+
+    private async Task<string> UsuarioComumAsync()
+    {
+        var email = $"comum-{Guid.NewGuid():N}@exemplo.org";
+        await factory.CreateUserAsync(email, "senha-de-teste-123");
+        return email;
     }
 
     private async Task CriarUsuarioAsync(string email, string senha)

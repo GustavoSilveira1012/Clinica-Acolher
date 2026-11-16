@@ -1,7 +1,7 @@
 # Decisão 002 — Formatos de atendimento, anotações e pagamento no piloto
 
 **Data:** 14/11/2026.  
-**Status:** direção de produto definida por Gustavo Silveira; escopo completo ainda depende da aprovação da cliente piloto na issue #2.
+**Status:** decisão mantida; aprovação do escopo pela cliente piloto reportada por Gustavo Silveira em 16/11/2026, conforme registro da issue #2.
 
 ## Decisão e contexto
 
@@ -18,6 +18,6 @@ Isso substitui a restrição anterior de vídeo exclusivamente dentro da platafo
 - As opções externas não retiram vídeo interno, anotações internas ou qualquer um dos dois meios de pagamento da lista de entrada.
 - Permanecem as regras do projeto sobre sigilo, acesso autorizado, ausência de gravação e uso de dados fictícios em desenvolvimento.
 
-## Validação pendente
+## Aprovação e detalhamento
 
-A cliente piloto deve revisar o escopo completo, inclusive o que fica fora, e confirmar os procedimentos de sua rotina. Esta decisão não comprova implementação, contratação de fornecedores ou prontidão para pacientes reais.
+A aprovação do escopo foi reportada por Gustavo em 16/11/2026; a data original da conversa não foi informada. Os procedimentos externos ainda precisam ser detalhados nas issues #251 (vídeo) e #252 (anotações). Esta decisão não comprova implementação, contratação de fornecedores ou prontidão para pacientes reais.

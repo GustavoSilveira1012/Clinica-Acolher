@@ -75,10 +75,8 @@ public class AttendancePoliciesApiTests(ApiFactory factory) : IClassFixture<ApiF
         // O tempo passa: chegamos a 20 minutos depois do início, e o paciente não apareceu
         factory.Clock.Advance(TimeSpan.FromDays(1) + TimeSpan.FromMinutes(20));
 
-        // O avanço do relógio também expira o cookie; o profissional entra novamente.
-        using var login = await _client.PostAsJsonAsync("/api/v1/auth/login",
-            new { email = ApiFactory.AdminEmail, password = ApiFactory.AdminPassword });
-        login.EnsureSuccessStatusCode();
+        // O avanço do relógio também expira o cookie; a administração entra novamente com MFA.
+        await factory.LoginAsync(_client, ApiFactory.AdminEmail, ApiFactory.AdminPassword);
 
         (await _client.PostAsync($"/api/v1/appointments/{sessao.Id}/no-show", null)).EnsureSuccessStatusCode();
 

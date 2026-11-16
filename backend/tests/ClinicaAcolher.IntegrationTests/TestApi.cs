@@ -5,6 +5,7 @@ using ClinicaAcolher.Application.Patients;
 using ClinicaAcolher.Application.Professionals;
 using ClinicaAcolher.Application.Relationships;
 using ClinicaAcolher.Domain.Professionals;
+using ClinicaAcolher.Infrastructure.Identity;
 
 namespace ClinicaAcolher.IntegrationTests;
 
@@ -33,6 +34,14 @@ public static class TestApi
 
         (await client.PostAsync($"/api/v1/professionals/{id}/approve", null)).EnsureSuccessStatusCode();
         return id;
+    }
+
+    public static async Task<(Guid Id, HttpClient Client)> CriarProfissionalComLoginAsync(this ApiFactory factory)
+    {
+        var id = await factory.AdminClient.CriarProfissionalAprovadoAsync();
+        var client = await factory.CreateStaffClientAsync(
+            $"login-{Guid.NewGuid():N}@exemplo.org", "senha-de-teste-123", Roles.Professional, id);
+        return (id, client);
     }
 
     public static async Task<Guid> IniciarVinculoAsync(this HttpClient client, Guid pacienteId, Guid profissionalId)

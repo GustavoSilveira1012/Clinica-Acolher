@@ -1,8 +1,8 @@
 # Escopo do MVP do piloto — Clínica Acolher
 
-**Versão:** 1, de 14/11/2026.  
+**Versão:** 2, de 16/11/2026 (registro da aprovação; escopo preservado).<br>
 **Tarefa:** [#2 — Definir o escopo do MVP do piloto](https://github.com/GustavoSilveira1012/Clinica-Acolher/issues/2).  
-**Situação:** proposta consolidada com as decisões do responsável pelo projeto; aprovação da lista completa pela cliente piloto pendente.
+**Situação:** aprovação da cliente piloto reportada por Gustavo Silveira em 16/11/2026. A data original da aprovação não foi informada; as pendências de detalhamento e implementação abaixo continuam separadas dessa aprovação.
 
 ## Objetivo
 
@@ -26,11 +26,11 @@ As listas abaixo definem o trabalho necessário, não funcionalidades já pronta
 | Acesso do paciente | Fluxo mínimo para informações da sessão, acesso ao atendimento, pagamento e recibo, com autenticação e permissões adequadas. | Paciente fictício conclui os caminhos de vídeo e os dois meios de pagamento sem acessar dados de terceiros. |
 | Segurança e operação | Controles exigidos nos documentos do projeto para o uso real. | Evidências da seção “Entrada no piloto” abaixo. |
 
-Vídeo e anotações nos dois formatos, mais Pix e cartão, foram confirmados **pelo responsável pelo projeto nesta conversa**. A escolha não substitui a validação da cliente piloto sobre a lista inteira. Apoiar ferramentas externas não inclui construir uma integração para todo fornecedor nem sincronizar automaticamente anotações externas.
+Vídeo e anotações nos dois formatos, mais Pix e cartão, foram definidos pelo responsável pelo projeto. Em 16/11/2026, Gustavo informou que sua mãe aprovou as decisões restantes e que encerrou as issues que não se aplicavam. Este documento registra esse relato, sem presumir contratação de fornecedores ou procedimentos ainda não descritos. Apoiar ferramentas externas não inclui construir uma integração para todo fornecedor nem sincronizar automaticamente anotações externas.
 
 ## O que fica fora deste primeiro piloto
 
-Esta lista é uma proposta para aprovação junto com a lista de entrada.
+Esta lista integra o escopo cuja aprovação foi reportada pelo responsável pelo projeto.
 
 - Venda do SaaS para outras clínicas, planos comerciais e cobrança da assinatura da plataforma.
 - Marketplace e entrada de psicólogos, prevista para a fase 2 sob condições próprias.
@@ -48,7 +48,7 @@ Gravação de sessões e uso de conteúdo clínico para marketing ou treinamento
 
 | Decisão | Situação |
 | --- | --- |
-| Aprovação da lista completa “entra” e “fica fora” pela cliente piloto | Pendente. |
+| Aprovação da lista completa “entra” e “fica fora” pela cliente piloto | Reportada por Gustavo em 16/11/2026; data original não informada. |
 | Segunda a sexta, das 9h às 18h; almoço, pausas e fuso | Informação preliminar; confirmar. |
 | Provedor de vídeo integrado e ferramenta externa permitida | Pendentes; validar acesso, privacidade, suporte e contingência de ambos. |
 | Fonte oficial das anotações e procedimento quando forem feitas fora do sistema | Pendente; definir acesso, guarda e eventual transferência, sem presumir sincronização. |
@@ -63,7 +63,7 @@ Manter as milestones temáticas existentes; M13 coordena a execução do piloto 
 
 | Milestone | Recorte necessário para este piloto |
 | --- | --- |
-| M0 · Produto e descoberta | Aprovar este escopo e resolver as decisões de produto pendentes. |
+| M0 · Produto e descoberta | Aprovação reportada; detalhar decisões operacionais que ainda não têm resultado registrado. |
 | M1 a M4 · Fundação, pacientes, profissionais e agenda | Completar a operação de uma profissional, disponibilidade e consistência dos agendamentos. |
 | M5 · Autenticação e permissões | Login, 2FA da equipe, recuperação de acesso e autorização no servidor por recurso. |
 | M6 · Atendimento online | Vídeo integrado e externo, com controles e contingência validados para ambos. |
@@ -89,15 +89,15 @@ No ensaio, verificar: cadastro e login; agendamento e conflito; atendimento inte
 
 | Registro | Valor |
 | --- | --- |
-| Versão apresentada à cliente piloto | 1 — 14/11/2026. Apresentação ainda não confirmada. |
+| Base do escopo | Versão 1 — 14/11/2026; esta revisão registra o relato de aprovação sem alterar as listas. |
 | Decisões de Gustavo Silveira | Vídeo dentro/fora, anotações dentro/fora e Pix/cartão incluídos. |
-| Aprovação da cliente piloto | Pendente. |
-| Data e ajustes solicitados pela cliente | A preencher após a conversa. |
+| Aprovação da cliente piloto | Reportada por Gustavo Silveira em 16/11/2026. |
+| Data original e ajustes solicitados pela cliente | Não informados; nenhum ajuste específico foi presumido. |
 
 - [x] Listas e impactos registrados em `docs/`, sem dados reais de pacientes.
-- [ ] Cliente piloto aprovou a versão completa das listas “entra” e “fica fora”.
+- [x] Aprovação da cliente piloto registrada por relato do responsável em 16/11/2026.
 - [x] Ajustes das milestones conferidos no GitHub.
 
-A issue deve permanecer aberta até registrar a aprovação e conferir os ajustes das milestones. Concluir a definição de escopo não significa que o MVP esteja implementado ou liberado para uso real.
+A issue #2 permanece encerrada. Concluir a definição de escopo não significa que o MVP esteja implementado ou liberado para uso real. Vídeo externo foi detalhado na [#251](https://github.com/GustavoSilveira1012/Clinica-Acolher/issues/251), e o procedimento de anotações externas na [#252](https://github.com/GustavoSilveira1012/Clinica-Acolher/issues/252). Ver a [auditoria do backlog](auditoria-backlog-2026-11-16.md).
 
 Link do prototipo do projeto: https://www.figma.com/make/oOH8Aj6ekBhKtlsY2840Ol/Prot%C3%B3tipo-da-Cl%C3%ADnica-Acolher?t=ZRvSjZ44LHLoTh4C-20&fullscreen=1

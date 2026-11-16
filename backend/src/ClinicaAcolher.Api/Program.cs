@@ -11,6 +11,7 @@ using ClinicaAcolher.Infrastructure.Identity;
 using ClinicaAcolher.Infrastructure.Persistence;
 using ClinicaAcolher.Api.Setup;
 using ClinicaAcolher.Api.Auth;
+using ClinicaAcolher.Application.Common;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Identity;
@@ -18,6 +19,9 @@ using Microsoft.AspNetCore.Identity;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddScoped<ICurrentUser, HttpCurrentUser>();
+builder.Services.AddScoped<AccessControl>();
 builder.Services.AddScoped<PatientService>();
 builder.Services.AddScoped<ProfessionalService>();
 builder.Services.AddScoped<RelationshipService>();
@@ -48,6 +52,7 @@ builder.Services
         o.Lockout.AllowedForNewUsers = true;
     })
     .AddRoles<IdentityRole<Guid>>()
+    .AddClaimsPrincipalFactory<AppClaimsPrincipalFactory>()
     .AddEntityFrameworkStores<AppDbContext>()
     .AddSignInManager()
     .AddDefaultTokenProviders();

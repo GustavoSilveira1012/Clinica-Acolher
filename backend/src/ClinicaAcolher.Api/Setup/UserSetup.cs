@@ -6,17 +6,17 @@ namespace ClinicaAcolher.Api.Setup;
 
 public static class UserSetup
 {
-    // Uso: criar-usuario <email> <Admin|Professional> [professionalId]
+    // Uso: criar-usuario <email> <Admin|Professional|Admin,Professional> [professionalId]
     public static async Task CreateUserAsync(IServiceProvider services, string[] args)
     {
-        if (args.Length < 3 || args[2] is not Roles.Admin and not Roles.Professional)
+        var requestedRoles = args.Length >= 3 ? args[2].Split(',', StringSplitOptions.TrimEntries) : [];
+        if (requestedRoles.Length == 0 || requestedRoles.Any(r => !Roles.All.Contains(r)))
         {
-            Console.WriteLine("Uso: criar-usuario <email> <Admin|Professional> [professionalId]");
+            Console.WriteLine("Uso: criar-usuario <email> <Admin|Professional|Admin,Professional> [professionalId]");
             return;
         }
 
         var email = args[1].Trim().ToLowerInvariant();
-        var role = args[2];
         Guid? professionalId = args.Length > 3 ? Guid.Parse(args[3]) : null;
 
         Console.Write("Senha (mínimo 10 caracteres): ");
@@ -48,16 +48,16 @@ public static class UserSetup
             return;
         }
 
-        var roleAssignment = await users.AddToRoleAsync(user, role);
+        var roleAssignment = await users.AddToRolesAsync(user, requestedRoles);
         if (!roleAssignment.Succeeded)
         {
-            Console.WriteLine($"Usuário criado, mas não foi possível atribuir o papel {role}:");
+            Console.WriteLine($"Usuário criado, mas não foi possível atribuir os papéis {string.Join(", ", requestedRoles)}:");
             foreach (var error in roleAssignment.Errors)
                 Console.WriteLine($"- {error.Description}");
             return;
         }
 
-        Console.WriteLine($"Usuário criado: {email} ({role})");
+        Console.WriteLine($"Usuário criado: {email} ({string.Join(", ", requestedRoles)})");
     }
 
     private static string ReadPassword()
