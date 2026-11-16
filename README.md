@@ -4,7 +4,7 @@
 
 ![CI](https://github.com/GustavoSilveira1012/Clinica-Acolher/actions/workflows/quality.yml/badge.svg)
 
-> 🚧 **Em construção.** O projeto está na fase de descoberta e fundação técnica (milestones M0 e M1). Nenhuma funcionalidade está pronta para uso real ainda. Acompanhe pelo [Project no GitHub](https://github.com/users/SEU-USUARIO/projects/NUMERO).
+> 🚧 **Em construção.** O projeto está na fase de descoberta e fundação técnica (milestones M0 e M1). Nenhuma funcionalidade está pronta para uso real ainda. Acompanhe pelo [Project no GitHub](https://github.com/users/GustavoSilveira1012/projects/3).
 
 ---
 
@@ -156,6 +156,8 @@ Set-Location ..\frontend
 npm ci
 npm test -- --watch=false
 ```
+
+No Windows, a API em execução pode bloquear as DLLs usadas pela compilação dos testes. Se ela estiver rodando em `Debug`, execute `dotnet test -c Release` dentro de `backend` para usar outra pasta de saída. Para testar em `Debug`, pare a API com `Ctrl+C` no terminal dela antes de executar `dotnet test`. Os testes de integração precisam do Docker Desktop em execução.
 
 ## Como contribuir
 

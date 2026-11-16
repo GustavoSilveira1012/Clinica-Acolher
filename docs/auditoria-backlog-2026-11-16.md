@@ -65,3 +65,17 @@ Os achados das séries são de inspeção estática, não reprodução contra pa
 - Priorizar as lacunas de autorização e proteção já abertas, os ajustes de séries e as entregas do piloto nas milestones atuais. Executar validação comercial da #253 depois do piloto.
 
 Os documentos locais desta auditoria ainda precisam entrar em um commit para que o registro atualizado da aprovação e este relatório sejam publicados no repositório.
+
+## Atualização — Parte A, 16/11/2026
+
+O estado descrito acima é o registro da auditoria inicial. Os documentos e a autorização de pacientes foram posteriormente registrados no commit `dd6d076` pelo responsável pelo projeto.
+
+Nesta etapa, `AppointmentSeries.GenerateUntil` passou a comparar o instante de cada ocorrência com `now`, sem descartar uma data local apenas porque o dia já virou em UTC. A lista de séries pendentes agora exige vínculo ativo e ordena por `GeneratedUntil` e `Id` antes do limite de 500.
+
+Foram acrescentados os testes de sessão já passada no próprio dia, sessão futura na noite local anterior ao dia UTC e exclusão de vínculo suspenso da lista de pendentes. Os testes que avançam o relógio renovam a autenticação administrativa com MFA para não depender da ordem de execução.
+
+Validação local: `dotnet test --no-restore -c Release`, com 56 testes unitários e 71 de integração aprovados (127 no total). Nenhuma migration foi necessária.
+
+O caso restante de 500 séries **ativas** com conflitos persistentes foi separado na [issue #254](https://github.com/GustavoSilveira1012/Clinica-Acolher/issues/254). A ordenação por atraso, sozinha, não garante que séries posteriores sejam atendidas quando todas as primeiras falham. Esse cenário não é apresentado como corrigido pela Parte A.
+
+O README recebeu o link correto do Project e a orientação sobre DLLs bloqueadas no Windows. O SECURITY.md foi criado com o procedimento de relato privado solicitado. A exclusão local de `cookies.txt` foi incluída em `backend/.gitignore`.

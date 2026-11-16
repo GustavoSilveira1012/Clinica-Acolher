@@ -78,15 +78,12 @@ public sealed class AppointmentSeries : Entity
         if (!relationship.AllowsScheduling)
             return [];
 
-        var today = DateOnly.FromDateTime(now.UtcDateTime);
         var from = GeneratedUntil is { } generated ? generated.AddDays(1) : StartsOn;
-        if (from < today)
-            from = today;
-
         if (from > until)
             return [];
 
         var appointments = OccurrencesBetween(from, until)
+            .Where(start => start > now) // Compara o instante exato, nunca só a data.
             .Select(start => Appointment.Schedule(relationship, start, Duration, now, Id))
             .ToList();
 

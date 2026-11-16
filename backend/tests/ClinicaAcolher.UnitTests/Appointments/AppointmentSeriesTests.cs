@@ -125,6 +125,32 @@ public class AppointmentSeriesTests
     }
 
     [Fact]
+    public void Serie_criada_as_18h_nao_gera_a_sessao_das_15h_do_mesmo_dia()
+    {
+        var vinculo = Vinculo();
+        var tercaAs18EmBrasilia = new DateTimeOffset(2026, 11, 17, 21, 0, 0, TimeSpan.Zero);
+        var serie = AppointmentSeries.Create(vinculo, DayOfWeek.Tuesday, new TimeOnly(15, 0), 50,
+            SaoPaulo, new DateOnly(2026, 11, 17), tercaAs18EmBrasilia);
+
+        var primeira = serie.GenerateUntil(vinculo, new DateOnly(2026, 12, 7), tercaAs18EmBrasilia).First();
+
+        Assert.Equal(new DateTimeOffset(2026, 11, 24, 18, 0, 0, TimeSpan.Zero), primeira.StartsAt);
+    }
+
+    [Fact]
+    public void Sessao_das_22h_ainda_e_gerada_quando_em_UTC_ja_e_o_dia_seguinte()
+    {
+        var vinculo = Vinculo();
+        var tercaAs21EmBrasilia = new DateTimeOffset(2026, 11, 18, 0, 0, 0, TimeSpan.Zero);
+        var serie = AppointmentSeries.Create(vinculo, DayOfWeek.Tuesday, new TimeOnly(22, 0), 50,
+            SaoPaulo, new DateOnly(2026, 11, 17), tercaAs21EmBrasilia);
+
+        var primeira = serie.GenerateUntil(vinculo, new DateOnly(2026, 12, 7), tercaAs21EmBrasilia).First();
+
+        Assert.Equal(new DateTimeOffset(2026, 11, 18, 1, 0, 0, TimeSpan.Zero), primeira.StartsAt);
+    }
+
+    [Fact]
     public void Serie_encerrada_nao_gera_sessoes_depois_do_ultimo_dia()
     {
         var serie = TercasAs15(Vinculo(), Segunda16);
