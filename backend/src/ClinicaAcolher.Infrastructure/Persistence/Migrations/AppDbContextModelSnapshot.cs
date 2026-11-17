@@ -434,6 +434,48 @@ namespace ClinicaAcolher.Infrastructure.Persistence.Migrations
                     b.ToTable("therapeutic_relationships", (string)null);
                 });
 
+            modelBuilder.Entity("ClinicaAcolher.Infrastructure.Auditing.AuditEntry", b =>
+                {
+                    b.Property<long>("Sequence")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("Action")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
+
+                    b.Property<Guid?>("ActorUserId")
+                        .HasColumnType("uuid");
+
+                    b.Property<byte[]>("Hash")
+                        .IsRequired()
+                        .HasColumnType("bytea");
+
+                    b.Property<DateTimeOffset>("OccurredAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid?>("PatientId")
+                        .HasColumnType("uuid");
+
+                    b.Property<byte[]>("PreviousHash")
+                        .IsRequired()
+                        .HasColumnType("bytea");
+
+                    b.Property<Guid>("ResourceId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("ResourceType")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
+
+                    b.HasKey("Sequence");
+
+                    b.HasIndex("PatientId");
+
+                    b.ToTable("audit_log", (string)null);
+                });
+
             modelBuilder.Entity("ClinicaAcolher.Infrastructure.Identity.ApplicationUser", b =>
                 {
                     b.Property<Guid>("Id")

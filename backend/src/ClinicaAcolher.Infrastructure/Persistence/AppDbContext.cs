@@ -4,6 +4,7 @@ using ClinicaAcolher.Domain.ClinicalNotes;
 using ClinicaAcolher.Domain.Patients;
 using ClinicaAcolher.Domain.Professionals;
 using ClinicaAcolher.Domain.Relationships;
+using ClinicaAcolher.Infrastructure.Auditing;
 using ClinicaAcolher.Infrastructure.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity;
@@ -22,6 +23,7 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options)
     public DbSet<AttendancePolicy> AttendancePolicies => Set<AttendancePolicy>();
     public DbSet<AttendancePolicyAcceptance> AttendancePolicyAcceptances => Set<AttendancePolicyAcceptance>();
     public DbSet<ClinicalNote> ClinicalNotes => Set<ClinicalNote>();
+    public DbSet<AuditEntry> AuditEntries => Set<AuditEntry>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

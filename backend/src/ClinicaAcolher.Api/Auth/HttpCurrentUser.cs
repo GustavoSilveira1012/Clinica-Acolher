@@ -9,6 +9,7 @@ public sealed class HttpCurrentUser(IHttpContextAccessor accessor) : ICurrentUse
     private ClaimsPrincipal? Principal => accessor.HttpContext?.User;
 
     public bool IsClinicAdmin => Principal?.IsInRole(Roles.Admin) == true;
+    public Guid? UserId => ReadGuid(ClaimTypes.NameIdentifier);
     public Guid? ProfessionalId => ReadGuid(AppClaims.ProfessionalId);
     public Guid? PatientId => ReadGuid(AppClaims.PatientId);
 

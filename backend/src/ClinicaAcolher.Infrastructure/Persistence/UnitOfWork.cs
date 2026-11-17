@@ -1,10 +1,11 @@
 using ClinicaAcolher.Application.Common;
+using ClinicaAcolher.Infrastructure.Auditing;
 using Microsoft.EntityFrameworkCore;
 using Npgsql;
 
 namespace ClinicaAcolher.Infrastructure.Persistence;
 
-internal sealed class UnitOfWork(AppDbContext db) : IUnitOfWork
+internal sealed class UnitOfWork(AppDbContext db, AuditTrail audit) : IUnitOfWork
 {
     // Cada restrição de unicidade ou exclusão mapeada corresponde a uma regra de negócio
     private static readonly Dictionary<string, (string Rule, string Message)> UniqueIndexRules = new()
@@ -29,6 +30,8 @@ internal sealed class UnitOfWork(AppDbContext db) : IUnitOfWork
     {
         await using var transaction = await db.Database.BeginTransactionAsync(ct);
         await work();
+        if (audit.HasPending)
+            await SaveChangesAsync(ct);
         await transaction.CommitAsync(ct);
     }
 
@@ -36,7 +39,10 @@ internal sealed class UnitOfWork(AppDbContext db) : IUnitOfWork
     {
         try
         {
-            await db.SaveChangesAsync(ct);
+            if (audit.HasPending)
+                await SaveWithAuditAsync(ct);
+            else
+                await db.SaveChangesAsync(ct);
         }
         catch (DbUpdateException e) when (
             e.InnerException is PostgresException
@@ -48,5 +54,18 @@ internal sealed class UnitOfWork(AppDbContext db) : IUnitOfWork
         {
             throw new ConflictException(rule.Rule, rule.Message);
         }
+    }
+
+    private async Task SaveWithAuditAsync(CancellationToken ct)
+    {
+        // Se já existe uma transação (por exemplo, na remarcação), a auditoria entra nela
+        var ownTransaction = db.Database.CurrentTransaction is null;
+        await using var transaction = ownTransaction ? await db.Database.BeginTransactionAsync(ct) : null;
+
+        await audit.ChainPendingAsync(ct);
+        await db.SaveChangesAsync(ct);
+
+        if (transaction is not null)
+            await transaction.CommitAsync(ct);
     }
 }

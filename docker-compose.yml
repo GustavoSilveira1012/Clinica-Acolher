@@ -24,6 +24,7 @@ services:
       ConnectionStrings__Default: "Host=postgres;Port=5432;Database=${POSTGRES_DB};Username=${POSTGRES_USER};Password=${POSTGRES_PASSWORD}"
       Encryption__ActiveKeyId: dev1
       Encryption__Keys__dev1: ${ENCRYPTION_KEY_DEV1}
+      Audit__HmacKey: ${AUDIT_HMAC_KEY}
     depends_on:
       postgres:
         condition: service_healthy

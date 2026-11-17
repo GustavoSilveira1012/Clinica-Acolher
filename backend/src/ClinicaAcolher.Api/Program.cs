@@ -10,6 +10,7 @@ using ClinicaAcolher.Api.Workers;
 using ClinicaAcolher.Infrastructure.Identity;
 using ClinicaAcolher.Infrastructure.Persistence;
 using ClinicaAcolher.Infrastructure.Security;
+using ClinicaAcolher.Infrastructure.Auditing;
 using ClinicaAcolher.Api.Setup;
 using ClinicaAcolher.Api.Auth;
 using ClinicaAcolher.Application.Common;
@@ -25,6 +26,10 @@ builder.Services.AddOptions<EncryptionOptions>()
     .Bind(builder.Configuration.GetSection(EncryptionOptions.Section))
     .Validate(o => o.IsValid(),
         "Configuração de criptografia inválida: defina Encryption:ActiveKeyId e Encryption:Keys com chaves de 32 bytes em Base64.")
+    .ValidateOnStart();
+builder.Services.AddOptions<AuditOptions>()
+    .Bind(builder.Configuration.GetSection(AuditOptions.Section))
+    .Validate(o => o.IsValid(), "Configuração de auditoria inválida: defina Audit:HmacKey com pelo menos 32 bytes em Base64.")
     .ValidateOnStart();
 builder.Services.AddScoped<ICurrentUser, HttpCurrentUser>();
 builder.Services.AddScoped<AccessControl>();

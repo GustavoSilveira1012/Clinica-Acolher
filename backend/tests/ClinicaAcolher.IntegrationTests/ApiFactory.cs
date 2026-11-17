@@ -23,6 +23,8 @@ public sealed class ApiFactory : WebApplicationFactory<Program>, IAsyncLifetime
 
     private static readonly string TestEncryptionKey =
         Convert.ToBase64String(RandomNumberGenerator.GetBytes(32));
+    private static readonly string TestAuditKey =
+        Convert.ToBase64String(RandomNumberGenerator.GetBytes(32));
 
     public HttpClient AdminClient { get; private set; } = null!;
 
@@ -41,6 +43,7 @@ public sealed class ApiFactory : WebApplicationFactory<Program>, IAsyncLifetime
         builder.UseSetting("Workers:SeriesGeneration", "false");
         builder.UseSetting("Encryption:ActiveKeyId", "teste");
         builder.UseSetting("Encryption:Keys:teste", TestEncryptionKey);
+        builder.UseSetting("Audit:HmacKey", TestAuditKey);
 
         builder.ConfigureTestServices(services =>
         {
