@@ -9,6 +9,7 @@ using ClinicaAcolher.Application.Attendance;
 using ClinicaAcolher.Api.Workers;
 using ClinicaAcolher.Infrastructure.Identity;
 using ClinicaAcolher.Infrastructure.Persistence;
+using ClinicaAcolher.Infrastructure.Security;
 using ClinicaAcolher.Api.Setup;
 using ClinicaAcolher.Api.Auth;
 using ClinicaAcolher.Application.Common;
@@ -20,6 +21,11 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddHttpContextAccessor();
+builder.Services.AddOptions<EncryptionOptions>()
+    .Bind(builder.Configuration.GetSection(EncryptionOptions.Section))
+    .Validate(o => o.IsValid(),
+        "Configuração de criptografia inválida: defina Encryption:ActiveKeyId e Encryption:Keys com chaves de 32 bytes em Base64.")
+    .ValidateOnStart();
 builder.Services.AddScoped<ICurrentUser, HttpCurrentUser>();
 builder.Services.AddScoped<AccessControl>();
 builder.Services.AddScoped<PatientService>();

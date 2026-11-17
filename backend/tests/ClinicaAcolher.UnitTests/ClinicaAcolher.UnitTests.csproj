@@ -20,6 +20,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\ClinicaAcolher.Domain\ClinicaAcolher.Domain.csproj" />
+    <ProjectReference Include="..\..\src\ClinicaAcolher.Infrastructure\ClinicaAcolher.Infrastructure.csproj" />
   </ItemGroup>
 
 </Project>

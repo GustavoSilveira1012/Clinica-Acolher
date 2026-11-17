@@ -8,6 +8,7 @@ using ClinicaAcolher.Application.Relationships;
 using ClinicaAcolher.Application.Appointments;
 using ClinicaAcolher.Application.Attendance;
 using ClinicaAcolher.Infrastructure.Persistence.Repositories;
+using ClinicaAcolher.Infrastructure.Security;
 
 namespace ClinicaAcolher.Infrastructure;
 
@@ -23,6 +24,7 @@ public static class DependencyInjection
         services.AddScoped<IAppointmentRepository, AppointmentRepository>();
         services.AddScoped<ISeriesRepository, SeriesRepository>();
         services.AddScoped<IAttendancePolicyRepository, AttendancePolicyRepository>();
+        services.AddSingleton<IFieldEncryptor, AesGcmFieldEncryptor>();
         return services;
     }
 }

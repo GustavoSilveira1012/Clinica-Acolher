@@ -1,3 +1,4 @@
+using System.Security.Cryptography;
 using System.Net.Http.Json;
 using System.Text.Json;
 using ClinicaAcolher.Infrastructure.Identity;
@@ -20,6 +21,9 @@ public sealed class ApiFactory : WebApplicationFactory<Program>, IAsyncLifetime
     public const string AdminEmail = "admin@exemplo.org";
     public const string AdminPassword = "senha-de-teste-123";
 
+    private static readonly string TestEncryptionKey =
+        Convert.ToBase64String(RandomNumberGenerator.GetBytes(32));
+
     public HttpClient AdminClient { get; private set; } = null!;
 
     public ApiFactory() => ClientOptions.BaseAddress = new Uri("https://localhost");
@@ -35,6 +39,8 @@ public sealed class ApiFactory : WebApplicationFactory<Program>, IAsyncLifetime
         builder.UseEnvironment("Testing");
         builder.UseSetting("ConnectionStrings:Default", _database.GetConnectionString());
         builder.UseSetting("Workers:SeriesGeneration", "false");
+        builder.UseSetting("Encryption:ActiveKeyId", "teste");
+        builder.UseSetting("Encryption:Keys:teste", TestEncryptionKey);
 
         builder.ConfigureTestServices(services =>
         {
