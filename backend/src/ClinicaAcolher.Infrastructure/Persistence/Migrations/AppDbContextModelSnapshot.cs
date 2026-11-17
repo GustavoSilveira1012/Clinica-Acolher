@@ -210,6 +210,99 @@ namespace ClinicaAcolher.Infrastructure.Persistence.Migrations
                     b.ToTable("attendance_policy_acceptances", (string)null);
                 });
 
+            modelBuilder.Entity("ClinicaAcolher.Domain.ClinicalNotes.ClinicalNote", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid?>("AppointmentId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTimeOffset?>("FinalizedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("PatientId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("ProfessionalId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("RelationshipId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AppointmentId");
+
+                    b.HasIndex("PatientId");
+
+                    b.HasIndex("RelationshipId");
+
+                    b.HasIndex("ProfessionalId", "PatientId");
+
+                    b.ToTable("clinical_notes", (string)null);
+                });
+
+            modelBuilder.Entity("ClinicaAcolher.Domain.ClinicalNotes.ClinicalNoteAddendum", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<byte[]>("EncryptedContent")
+                        .IsRequired()
+                        .HasColumnType("bytea");
+
+                    b.Property<Guid>("NoteId")
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("Number")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("NoteId", "Number")
+                        .IsUnique();
+
+                    b.ToTable("clinical_note_addenda", (string)null);
+                });
+
+            modelBuilder.Entity("ClinicaAcolher.Domain.ClinicalNotes.ClinicalNoteRevision", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid");
+
+                    b.Property<byte[]>("EncryptedContent")
+                        .IsRequired()
+                        .HasColumnType("bytea");
+
+                    b.Property<Guid>("NoteId")
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("Number")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTimeOffset>("SavedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("NoteId", "Number")
+                        .IsUnique();
+
+                    b.ToTable("clinical_note_revisions", (string)null);
+                });
+
             modelBuilder.Entity("ClinicaAcolher.Domain.Patients.Patient", b =>
                 {
                     b.Property<Guid>("Id")
@@ -630,6 +723,50 @@ namespace ClinicaAcolher.Infrastructure.Persistence.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("ClinicaAcolher.Domain.ClinicalNotes.ClinicalNote", b =>
+                {
+                    b.HasOne("ClinicaAcolher.Domain.Appointments.Appointment", null)
+                        .WithMany()
+                        .HasForeignKey("AppointmentId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("ClinicaAcolher.Domain.Patients.Patient", null)
+                        .WithMany()
+                        .HasForeignKey("PatientId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("ClinicaAcolher.Domain.Professionals.Professional", null)
+                        .WithMany()
+                        .HasForeignKey("ProfessionalId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("ClinicaAcolher.Domain.Relationships.TherapeuticRelationship", null)
+                        .WithMany()
+                        .HasForeignKey("RelationshipId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("ClinicaAcolher.Domain.ClinicalNotes.ClinicalNoteAddendum", b =>
+                {
+                    b.HasOne("ClinicaAcolher.Domain.ClinicalNotes.ClinicalNote", null)
+                        .WithMany("Addenda")
+                        .HasForeignKey("NoteId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("ClinicaAcolher.Domain.ClinicalNotes.ClinicalNoteRevision", b =>
+                {
+                    b.HasOne("ClinicaAcolher.Domain.ClinicalNotes.ClinicalNote", null)
+                        .WithMany("Revisions")
+                        .HasForeignKey("NoteId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("ClinicaAcolher.Domain.Relationships.TherapeuticRelationship", b =>
                 {
                     b.HasOne("ClinicaAcolher.Domain.Patients.Patient", null)
@@ -707,6 +844,13 @@ namespace ClinicaAcolher.Infrastructure.Persistence.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("ClinicaAcolher.Domain.ClinicalNotes.ClinicalNote", b =>
+                {
+                    b.Navigation("Addenda");
+
+                    b.Navigation("Revisions");
                 });
 #pragma warning restore 612, 618
         }

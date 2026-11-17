@@ -231,6 +231,7 @@ As anotações são o dado mais sensível da plataforma: ficam cifradas, só o p
 - `RN-PRT-07` Se o paciente pedir acesso às próprias anotações, o pedido segue a seção 11 e passa pela análise do profissional (há debate jurídico e ético sobre notas pessoais do analista; definir com advogado).
 - `RN-PRT-08` **Psicólogos:** o CFP exige registro documental dos atendimentos e guarda por no mínimo 5 anos (Resolução CFP nº 1/2009, conferir texto vigente). **Psicanalistas** não têm norma legal específica; a plataforma aplica o mesmo padrão de guarda por segurança.
 - `RN-PRT-09` Anotações nunca aparecem em notificações, e-mails, relatórios administrativos, logs técnicos ou painéis da clínica.
+- `RN-PRT-10` Uma anotação ou adendo precisa ter texto e no máximo 20 mil caracteres. A validação acontece antes da cifragem.
 
 ## 11. LGPD
 
