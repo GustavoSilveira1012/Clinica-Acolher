@@ -1,0 +1,35 @@
+:host { display: block; }
+.voltar { color: #327067; text-decoration: none; }
+.cabecalho { margin-block: 0.75rem 1rem; }
+.cabecalho h1 { margin: 0; color: #173f3a; }
+.suave { color: #5f6f6c; font-size: 0.9rem; margin: 0.25rem 0; }
+.alerta { color: #8b3f39; background: #fff4f2; padding: 0.5rem 0.75rem; border-radius: 6px; }
+.aviso { color: #866416; background: #fff1cc; padding: 0.5rem 0.75rem; border-radius: 6px; }
+.status:empty { display: none; }
+.status { color: #2e6a58; }
+
+.grade { display: grid; gap: 1rem; grid-template-columns: minmax(14rem, 1fr) 2.5fr; }
+@media (max-width: 760px) { .grade { grid-template-columns: 1fr; } }
+
+.painel { background: #fff; border: 1px solid #dfe7e4; border-radius: 12px; padding: 1rem; }
+.painel-topo { display: flex; justify-content: space-between; align-items: center; gap: 0.5rem; }
+.painel h2 { font-size: 1.05rem; margin: 0 0 0.5rem; color: #173f3a; }
+.vazio { color: #5f6f6c; }
+
+.linha-do-tempo { list-style: none; padding: 0; margin: 0.5rem 0 0; display: grid; gap: 0.25rem; }
+.linha-do-tempo button {
+  width: 100%; text-align: left; display: grid; gap: 0.15rem;
+  background: none; border: 1px solid transparent; border-radius: 8px; padding: 0.5rem; cursor: pointer;
+}
+.linha-do-tempo button:hover, .linha-do-tempo button[aria-current='true'] { background: #edf5f2; border-color: #dcebe7; }
+
+.etiqueta { justify-self: start; font-size: 0.8rem; padding: 0.1rem 0.5rem; border-radius: 999px; background: #e4f2eb; color: #2e6a58; }
+.etiqueta.rascunho { background: #fff1cc; color: #866416; }
+
+textarea { width: 100%; box-sizing: border-box; font: inherit; line-height: 1.5; padding: 0.5rem; border: 1px solid #83918e; border-radius: 8px; }
+.texto-final { white-space: pre-wrap; line-height: 1.6; padding: 0.75rem; background: #f7f5f0; border-radius: 8px; }
+.adendo { margin-top: 1rem; border-left: 3px solid #dcebe7; padding-left: 0.75rem; }
+.acoes { display: flex; gap: 0.5rem; margin-top: 0.5rem; flex-wrap: wrap; }
+.botao-primario { background: #24564f; color: #fff; border: none; border-radius: 8px; padding: 0.5rem 1rem; cursor: pointer; }
+.botao-primario:disabled { opacity: 0.6; cursor: default; }
+.confirmacao { margin-top: 0.75rem; padding: 0.75rem; border: 1px solid #b64a4a; border-radius: 8px; }

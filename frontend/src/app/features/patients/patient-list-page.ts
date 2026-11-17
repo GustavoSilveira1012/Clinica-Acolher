@@ -1,6 +1,7 @@
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
+import { AuthService } from '../../core/auth/auth.service';
 import { PatientsApi } from './patients-api';
 import { PagedResult, PatientListItem } from './patient.models';
 
@@ -14,7 +15,10 @@ type Filtro = 'ativos' | 'inativos' | 'todos';
 })
 export class PatientListPage implements OnInit {
   private readonly api = inject(PatientsApi);
+  private readonly auth = inject(AuthService);
   private readonly pageSize = 20;
+
+  protected readonly podeVerAnotacoes = computed(() => !!this.auth.user()?.professionalId);
 
   protected readonly form = new FormGroup({
     busca: new FormControl('', { nonNullable: true }),

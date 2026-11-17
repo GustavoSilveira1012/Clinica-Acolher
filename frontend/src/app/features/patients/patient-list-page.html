@@ -42,7 +42,12 @@
                             <td>{{ p.email ?? '—' }}</td>
                             <td>{{ p.phone ?? '—' }}</td>
                             <td>{{ p.active ? 'Ativo' : 'Inativo' }}</td>
-                            <td><a [routerLink]="['/pacientes', p.id]">Editar</a></td>
+                            <td>
+                                <a [routerLink]="['/pacientes', p.id]">Editar</a>
+                                @if (podeVerAnotacoes()) {
+                                    <a [routerLink]="['/pacientes', p.id, 'acompanhamento']">Acompanhamento</a>
+                                }
+                            </td>
                         </tr>
                     }
                 </tbody>

@@ -28,6 +28,11 @@ export const routes: Routes = [
         loadComponent: () => import('./features/patients/patient-form-page').then((m) => m.PatientFormPage),
       },
       {
+        path: 'pacientes/:id/acompanhamento',
+        title: 'Acompanhamento',
+        loadComponent: () => import('./features/clinical-notes/clinical-notes-page').then((m) => m.ClinicalNotesPage),
+      },
+      {
         path: 'pacientes/:id',
         title: 'Editar paciente',
         loadComponent: () => import('./features/patients/patient-form-page').then((m) => m.PatientFormPage),
