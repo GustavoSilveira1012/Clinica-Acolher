@@ -24,6 +24,10 @@ internal sealed class UnitOfWork(AppDbContext db, AuditTrail audit) : IUnitOfWor
             ("RN-CAN-01", "Outra versão da política foi publicada ao mesmo tempo. Tente de novo."),
         ["IX_attendance_policy_acceptances_PatientId_PolicyId"] =
             ("RN-CAN-01", "Este aceite já foi registrado."),
+        ["IX_clinical_note_revisions_NoteId_Number"] =
+            ("RN-PRT-04", "A anotação foi salva em outra janela. Recarregue para ver a versão mais recente."),
+        ["IX_clinical_note_addenda_NoteId_Number"] =
+            ("RN-PRT-03", "Outro adendo foi acrescentado ao mesmo tempo. Recarregue e tente de novo."),
     };
 
     public async Task ExecuteInTransactionAsync(Func<Task> work, CancellationToken ct)

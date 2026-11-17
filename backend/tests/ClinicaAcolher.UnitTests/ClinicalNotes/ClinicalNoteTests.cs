@@ -63,6 +63,30 @@ public class ClinicalNoteTests
     }
 
     [Fact]
+    public void Cada_versao_e_cifrada_com_um_contexto_proprio()
+    {
+        var contextos = new List<string>();
+        byte[] Selar(string contexto)
+        {
+            contextos.Add(contexto);
+            return Conteudo1;
+        }
+
+        var nota = ClinicalNote.Start(Vinculo(), null, Selar, Agora);
+        nota.SaveDraft(Selar, Agora.AddMinutes(1));
+        nota.FinalizeNote(Agora.AddMinutes(2));
+        nota.AddAddendum(Selar, Agora.AddMinutes(3));
+
+        Assert.Equal(
+            [
+                ClinicalNote.RevisionContext(nota.Id, 1),
+                ClinicalNote.RevisionContext(nota.Id, 2),
+                ClinicalNote.AddendumContext(nota.Id, 1),
+            ],
+            contextos);
+    }
+
+    [Fact]
     public void Adendo_so_existe_em_anotacao_finalizada()
     {
         var nota = ClinicalNote.Start(Vinculo(), null, Conteudo1, Agora);

@@ -21,6 +21,11 @@ public sealed class AccessControl(ICurrentUser user, IRelationshipRepository rel
             throw new ForbiddenException("Apenas a administração da clínica pode fazer isso.");
     }
 
+    // RN-PRT-01: anotação clínica é só do profissional que a escreveu.
+    // O papel de administração NÃO dá acesso, nem para quem também é profissional.
+    public Guid RequireClinicalAuthor() =>
+        user.ProfessionalId ?? throw new ForbiddenException("A administração da clínica não acessa anotações clínicas.");
+
     // RN-PER-01: cada profissional age só sobre os próprios recursos de agenda.
     public void EnsureActsFor(Guid professionalId, string notFoundMessage)
     {

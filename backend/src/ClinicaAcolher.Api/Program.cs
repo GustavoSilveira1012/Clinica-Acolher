@@ -1,6 +1,7 @@
 using ClinicaAcolher.Infrastructure;
 using ClinicaAcolher.Api.Errors;
 using ClinicaAcolher.Application.Patients;
+using ClinicaAcolher.Application.ClinicalNotes;
 using System.Text.Json.Serialization;
 using ClinicaAcolher.Application.Professionals;
 using ClinicaAcolher.Application.Relationships;
@@ -39,6 +40,7 @@ builder.Services.AddScoped<RelationshipService>();
 builder.Services.AddScoped<AppointmentService>();
 builder.Services.AddScoped<SeriesService>();
 builder.Services.AddScoped<AttendancePolicyService>();
+builder.Services.AddScoped<ClinicalNoteService>();
 if (builder.Configuration.GetValue("Workers:SeriesGeneration", true))
     builder.Services.AddHostedService<SeriesGenerationWorker>();
 builder.Services.AddProblemDetails();

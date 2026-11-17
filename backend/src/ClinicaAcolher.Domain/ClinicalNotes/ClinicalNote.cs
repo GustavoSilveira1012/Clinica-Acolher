@@ -7,6 +7,9 @@ public sealed class ClinicalNote : Entity
 {
     public const int MaxContentLength = 20_000;
 
+    public static string RevisionContext(Guid noteId, int number) => $"clinical-note:{noteId}:revision:{number}";
+    public static string AddendumContext(Guid noteId, int number) => $"clinical-note:{noteId}:addendum:{number}";
+
     private readonly List<ClinicalNoteRevision> _revisions = [];
     private readonly List<ClinicalNoteAddendum> _addenda = [];
 
@@ -29,7 +32,7 @@ public sealed class ClinicalNote : Entity
 
     // RN-PRT-01: a anotação pertence ao vínculo paciente ↔ profissional, nunca à clínica
     public static ClinicalNote Start(
-        TherapeuticRelationship relationship, Guid? appointmentId, byte[] encryptedContent, DateTimeOffset now)
+        TherapeuticRelationship relationship, Guid? appointmentId, Func<string, byte[]> seal, DateTimeOffset now)
     {
         // RN-PER-04: com o vínculo encerrado, o profissional só lê o que já escreveu
         if (relationship.Status == RelationshipStatus.Ended)
@@ -43,19 +46,25 @@ public sealed class ClinicalNote : Entity
             AppointmentId = appointmentId,
             CreatedAt = now,
         };
-        note.AddRevision(encryptedContent, now);
+        note.AddRevision(seal, now);
         return note;
     }
 
+    public static ClinicalNote Start(
+        TherapeuticRelationship relationship, Guid? appointmentId, byte[] encryptedContent, DateTimeOffset now) =>
+        Start(relationship, appointmentId, _ => encryptedContent, now);
+
     // RN-PRT-04: cada salvamento explícito do rascunho cria uma versão nova
-    public void SaveDraft(byte[] encryptedContent, DateTimeOffset now)
+    public void SaveDraft(Func<string, byte[]> seal, DateTimeOffset now)
     {
         if (Status == ClinicalNoteStatus.Finalized)
             throw new DomainException("RN-PRT-03",
                 "Uma anotação finalizada não pode ser alterada. Para corrigir, acrescente um adendo.");
 
-        AddRevision(encryptedContent, now);
+        AddRevision(seal, now);
     }
+
+    public void SaveDraft(byte[] encryptedContent, DateTimeOffset now) => SaveDraft(_ => encryptedContent, now);
 
     // RN-PRT-03: depois de finalizada, a anotação é imutável
     public void FinalizeNote(DateTimeOffset now)
@@ -68,14 +77,17 @@ public sealed class ClinicalNote : Entity
     }
 
     // RN-PRT-03: correção depois da finalização, sem alterar o original
-    public void AddAddendum(byte[] encryptedContent, DateTimeOffset now)
+    public void AddAddendum(Func<string, byte[]> seal, DateTimeOffset now)
     {
         if (Status != ClinicalNoteStatus.Finalized)
             throw new DomainException("RN-PRT-03",
                 "Adendos só existem em anotações finalizadas. Enquanto for rascunho, edite o próprio texto.");
 
-        _addenda.Add(new ClinicalNoteAddendum(Id, NextAddendumNumber, encryptedContent, now));
+        var number = NextAddendumNumber;
+        _addenda.Add(new ClinicalNoteAddendum(Id, number, seal(AddendumContext(Id, number)), now));
     }
+
+    public void AddAddendum(byte[] encryptedContent, DateTimeOffset now) => AddAddendum(_ => encryptedContent, now);
 
     // RN-PRT-10: validado antes de cifrar, porque depois o texto deixa de ser legível
     public static void EnsureValidContent(string plaintext)
@@ -87,6 +99,9 @@ public sealed class ClinicalNote : Entity
             throw new DomainException("RN-PRT-10", $"A anotação pode ter no máximo {MaxContentLength} caracteres.");
     }
 
-    private void AddRevision(byte[] encryptedContent, DateTimeOffset now) =>
-        _revisions.Add(new ClinicalNoteRevision(Id, NextRevisionNumber, encryptedContent, now));
+    private void AddRevision(Func<string, byte[]> seal, DateTimeOffset now)
+    {
+        var number = NextRevisionNumber;
+        _revisions.Add(new ClinicalNoteRevision(Id, number, seal(RevisionContext(Id, number)), now));
+    }
 }

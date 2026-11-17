@@ -9,6 +9,9 @@ using ClinicaAcolher.Infrastructure.Identity;
 
 namespace ClinicaAcolher.IntegrationTests;
 
+public sealed record ProfissionalComPaciente(
+    Guid ProfissionalId, HttpClient Client, Guid PacienteId, Guid VinculoId);
+
 public static class TestApi
 {
     public static readonly JsonSerializerOptions Json = new(JsonSerializerDefaults.Web)
@@ -42,6 +45,21 @@ public static class TestApi
         var client = await factory.CreateStaffClientAsync(
             $"login-{Guid.NewGuid():N}@exemplo.org", "senha-de-teste-123", Roles.Professional, id);
         return (id, client);
+    }
+
+    public static async Task<ProfissionalComPaciente> CriarProfissionalComPacienteAsync(this ApiFactory factory)
+    {
+        var (profissionalId, client) = await factory.CriarProfissionalComLoginAsync();
+
+        using var cadastro = await client.PostAsJsonAsync("/api/v1/patients",
+            new CreatePatientRequest("Paciente Teste", new DateOnly(1990, 5, 20), null, null, null), Json);
+        cadastro.EnsureSuccessStatusCode();
+        var pacienteId = (await cadastro.Content.ReadFromJsonAsync<PatientResponse>(Json))!.Id;
+
+        var vinculos = await client.GetFromJsonAsync<List<ActiveRelationshipResponse>>(
+            $"/api/v1/professionals/{profissionalId}/relationships/active", Json);
+
+        return new ProfissionalComPaciente(profissionalId, client, pacienteId, vinculos!.Single().RelationshipId);
     }
 
     public static async Task<Guid> IniciarVinculoAsync(this HttpClient client, Guid pacienteId, Guid profissionalId)
