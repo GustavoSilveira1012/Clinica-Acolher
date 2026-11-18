@@ -2,11 +2,11 @@
   <h1 id="login-titulo">Entrar na Clínica Acolher</h1>
 
   @if (sessaoExpirou && !mensagemErro()) {
-    <p class="aviso" role="status">Sua sessão terminou por inatividade. Entre novamente para continuar.</p>
+    <p class="mensagem mensagem-atencao" role="status">Sua sessão terminou por inatividade. Entre novamente para continuar.</p>
   }
 
   @if (mensagemErro(); as msg) {
-    <p class="alerta" role="alert">{{ msg }}</p>
+    <p class="mensagem mensagem-erro" role="alert">{{ msg }}</p>
   }
 
   @if (etapa() === 'senha') {
@@ -18,10 +18,10 @@
       <input id="senha" type="password" formControlName="senha" autocomplete="current-password" />
 
       @if (form.invalid && form.touched) {
-        <p class="alerta">Informe o e-mail e a senha.</p>
+        <p class="mensagem mensagem-erro">Informe o e-mail e a senha.</p>
       }
 
-      <button type="submit" [disabled]="enviando()">{{ enviando() ? 'Entrando…' : 'Entrar' }}</button>
+      <button type="submit" class="botao botao-secundario" [disabled]="enviando()">{{ enviando() ? 'Entrando…' : 'Entrar' }}</button>
     </form>
   } @else {
     <form [formGroup]="formCodigo" (ngSubmit)="confirmarCodigo()" novalidate>
@@ -34,14 +34,14 @@
         <input id="codigo" formControlName="codigo" autocomplete="off" />
         <p class="ajuda">Cada código de recuperação funciona uma única vez.</p>
       }
-      <button type="submit" [disabled]="enviando()">Confirmar</button>
+      <button type="submit" class="botao botao-secundario" [disabled]="enviando()">Confirmar</button>
     </form>
 
     <div class="links">
       @if (etapa() === 'codigo') {
-        <button type="button" class="link" (click)="usarRecuperacao()">Estou sem o celular: usar um código de recuperação</button>
+        <button type="button" class="botao botao-texto" (click)="usarRecuperacao()">Estou sem o celular: usar um código de recuperação</button>
       }
-      <button type="button" class="link" (click)="voltarParaSenha()">Voltar</button>
+      <button type="button" class="botao botao-texto" (click)="voltarParaSenha()">Voltar</button>
     </div>
   }
 </section>

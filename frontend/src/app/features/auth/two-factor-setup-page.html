@@ -6,7 +6,7 @@
   }
 
   @case ('erro') {
-    <p role="alert" class="alerta">Não foi possível preparar a configuração. Recarregue a página para tentar de novo.</p>
+    <p role="alert" class="mensagem mensagem-erro">Não foi possível preparar a configuração. Recarregue a página para tentar de novo.</p>
   }
 
   @case ('ja-ativo') {
@@ -34,13 +34,13 @@
       </p>
 
       @if (mensagemErro(); as msg) {
-        <p role="alert" class="alerta">{{ msg }}</p>
+        <p role="alert" class="mensagem mensagem-erro">{{ msg }}</p>
       }
 
       <form [formGroup]="formCodigo" (ngSubmit)="ativar()" novalidate>
         <label for="codigo">Código do aplicativo</label>
         <input id="codigo" formControlName="codigo" inputmode="numeric" autocomplete="one-time-code" maxlength="7" />
-        <button type="submit" [disabled]="enviando()">Ativar</button>
+        <button type="submit" class="botao botao-secundario" [disabled]="enviando()">Ativar</button>
       </form>
     }
   }
@@ -60,8 +60,8 @@
       </ul>
 
       <div class="acoes">
-        <button type="button" (click)="copiar()">{{ copiado() ? 'Copiado!' : 'Copiar' }}</button>
-        <button type="button" (click)="baixar()">Baixar como arquivo</button>
+        <button type="button" class="botao botao-secundario" (click)="copiar()">{{ copiado() ? 'Copiado!' : 'Copiar' }}</button>
+        <button type="button" class="botao botao-secundario" (click)="baixar()">Baixar como arquivo</button>
       </div>
 
       <p class="ajuda">Guarde impresso ou num gerenciador de senhas. Não envie por WhatsApp nem por e-mail.</p>
@@ -70,7 +70,7 @@
         <input id="guardou" type="checkbox" [formControl]="guardou" />
         Guardei os códigos em um lugar seguro
       </label>
-      <button type="button" [disabled]="!guardou.value" (click)="concluir()">Concluir</button>
+      <button type="button" class="botao botao-secundario" [disabled]="!guardou.value" (click)="concluir()">Concluir</button>
     </section>
   }
 }

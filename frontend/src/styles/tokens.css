@@ -1,0 +1,112 @@
+/*
+ * Tokens de design da Clínica Acolher.
+ * Fonte dos valores: docs/design-tokens.json (v0.1.0). Ao mudar um valor, mude lá também.
+ */
+:root {
+  color-scheme: light;
+
+  /* Superfícies */
+  --cor-fundo: #f7f5f0;
+  --cor-superficie: #ffffff;
+  --cor-superficie-lateral: #fbfcfa;
+  --cor-superficie-suave: #edf5f2;
+  --cor-superficie-destaque: #dcebe7;
+
+  /* Marca */
+  --cor-primaria: #24564f;
+  --cor-primaria-forte: #173f3a;
+  --cor-primaria-media: #327067;
+  --cor-sobre-primaria: #ffffff;
+
+  /* Texto, bordas e foco */
+  --cor-texto: #20302e;
+  --cor-texto-suave: #5f6f6c;
+  --cor-texto-rotulo: #40524f;
+  --cor-borda: #dfe7e4;
+  --cor-borda-campo: #83918e;
+  --cor-foco: #327067;
+
+  /* Acentos: só decorativos, nunca o único sinal de algo */
+  --cor-acento-lilas: #ebe8f4;
+  --cor-acento-pessego: #f6e8dd;
+  --cor-acento-amarelo: #fff4d8;
+
+  /* Ações e estados */
+  --cor-perigo: #b64a4a;
+  --cor-sobre-perigo: #ffffff;
+  --cor-sucesso-texto: #2e6a58;
+  --cor-sucesso-fundo: #e4f2eb;
+  --cor-atencao-texto: #866416;
+  --cor-atencao-fundo: #fff1cc;
+  --cor-erro-texto: #8b3f39;
+  --cor-erro-fundo: #fff4f2;
+  --cor-informacao-texto: #4a7189;
+  --cor-informacao-fundo: #e7f0f6;
+  --cor-neutro-texto: #596d68;
+  --cor-neutro-fundo: #edf2f0;
+
+  /* Tipografia: peso, tamanho/altura da linha e família */
+  --fonte-texto: "DM Sans", system-ui, sans-serif;
+  --fonte-titulo: "Lora", Georgia, serif;
+  --texto-titulo-pagina: 600 30px/1.15 var(--fonte-titulo);
+  --texto-titulo-secao: 600 20px/1.25 var(--fonte-titulo);
+  --texto-titulo-bloco: 600 17px/1.3 var(--fonte-titulo);
+  --texto-corpo: 400 14px/1.5 var(--fonte-texto);
+  --texto-rotulo: 700 13px/1.4 var(--fonte-texto);
+  --texto-pequeno: 400 12px/1.5 var(--fonte-texto);
+
+  /* Forma e espaçamento */
+  --raio-campo: 8px;
+  --raio-painel: 12px;
+  --raio-etiqueta: 999px;
+  --sombra-painel: 0 10px 30px rgb(34 69 63 / 7%);
+  --espaco-1: 4px;
+  --espaco-2: 8px;
+  --espaco-3: 12px;
+  --espaco-4: 16px;
+  --espaco-6: 24px;
+  --espaco-8: 32px;
+}
+
+/* Tema escuro, seguindo a preferência do sistema operacional */
+@media (prefers-color-scheme: dark) {
+  :root {
+    color-scheme: dark;
+
+    --cor-fundo: #14211f;
+    --cor-superficie: #263b37;
+    --cor-superficie-lateral: #1b2b28; /* derivado na implementação */
+    --cor-superficie-suave: #30423f;
+    --cor-superficie-destaque: #30423f;
+
+    --cor-primaria: #79c4b1;
+    --cor-primaria-forte: #ffffff; /* derivado: títulos usam o texto principal */
+    --cor-primaria-media: #9ccdc4; /* derivado: o mesmo tom do foco */
+    --cor-sobre-primaria: #14211f;
+
+    --cor-texto: #ffffff;
+    --cor-texto-suave: #cfdfdc;
+    --cor-texto-rotulo: #cfdfdc;
+    --cor-borda: #30423f;
+    --cor-borda-campo: #6f8a85;
+    --cor-foco: #9ccdc4;
+
+    --cor-acento-lilas: #30423f;
+    --cor-acento-pessego: #30423f;
+    --cor-acento-amarelo: #30423f;
+
+    --cor-perigo: #b24b4b;
+    --cor-sucesso-texto: #8fc9a8;
+    --cor-sucesso-fundo: #30423f;
+    --cor-atencao-texto: #e3c27a;
+    --cor-atencao-fundo: #30423f;
+    --cor-erro-texto: #e9a5a5;
+    --cor-erro-fundo: #30423f;
+    --cor-informacao-texto: #8fb8d1;
+    --cor-informacao-fundo: #30423f;
+    --cor-neutro-texto: #cfdfdc;
+    --cor-neutro-fundo: #30423f;
+
+    --sombra-painel: none;
+  }
+}

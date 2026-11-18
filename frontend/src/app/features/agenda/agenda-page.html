@@ -1,7 +1,7 @@
 <h1>Agenda</h1>
 
 @if (mensagemErro(); as msg) {
-  <p role="alert" class="alerta">{{ msg }}</p>
+  <p role="alert" class="mensagem mensagem-erro">{{ msg }}</p>
 }
 
 @if (profissionais().length === 0) {
@@ -16,11 +16,11 @@
     </select>
 
     <nav aria-label="Navegação entre semanas" class="navegacao">
-      <button type="button" (click)="mudarSemana(-1)">← Semana anterior</button>
-      <button type="button" (click)="irParaHoje()">Esta semana</button>
-      <button type="button" (click)="mudarSemana(1)">Próxima semana →</button>
+      <button type="button" class="botao botao-secundario" (click)="mudarSemana(-1)">← Semana anterior</button>
+      <button type="button" class="botao botao-secundario" (click)="irParaHoje()">Esta semana</button>
+      <button type="button" class="botao botao-secundario" (click)="mudarSemana(1)">Próxima semana →</button>
     </nav>
-    <button type="button" class="principal" (click)="abrirAgendamento()">Nova sessão</button>
+    <button type="button" class="botao botao-primario" (click)="abrirAgendamento()">Nova sessão</button>
   </div>
 
   <p class="periodo" aria-live="polite">
@@ -36,7 +36,7 @@
 
       @if (vinculos().length === 0) {
         <p>Este profissional ainda não tem pacientes com vínculo ativo.</p>
-        <button type="button" (click)="fecharPaineis()">Voltar</button>
+        <button type="button" class="botao botao-secundario" (click)="fecharPaineis()">Voltar</button>
       } @else {
         <form class="agendamento" [formGroup]="formAgendamento" (ngSubmit)="confirmarAgendamento()">
           <label for="vinculo">Paciente</label>
@@ -62,12 +62,12 @@
           }
 
           @if (formAgendamento.invalid && formAgendamento.touched) {
-            <p class="alerta">Escolha o paciente, a data e a hora, e uma duração entre 15 e 180 minutos.</p>
+            <p class="mensagem mensagem-erro">Escolha o paciente, a data e a hora, e uma duração entre 15 e 180 minutos.</p>
           }
 
           <div class="acoes">
-            <button type="submit">Agendar</button>
-            <button type="button" (click)="fecharPaineis()">Voltar</button>
+            <button type="submit" class="botao botao-secundario">Agendar</button>
+            <button type="button" class="botao botao-secundario" (click)="fecharPaineis()">Voltar</button>
           </div>
         </form>
       }
@@ -87,12 +87,12 @@
         <input id="nova-duracao" type="number" min="15" max="180" step="5" formControlName="duracao" />
 
         @if (formRemarcacao.invalid && formRemarcacao.touched) {
-          <p class="alerta">Informe a nova data e hora, e uma duração entre 15 e 180 minutos.</p>
+          <p class="mensagem mensagem-erro">Informe a nova data e hora, e uma duração entre 15 e 180 minutos.</p>
         }
 
         <div class="acoes">
-          <button type="submit">Remarcar</button>
-          <button type="button" (click)="fecharPaineis()">Voltar</button>
+          <button type="submit" class="botao botao-secundario">Remarcar</button>
+          <button type="button" class="botao botao-secundario" (click)="fecharPaineis()">Voltar</button>
         </div>
       </form>
     </section>
@@ -115,8 +115,8 @@
         <p id="motivo-ajuda" class="ajuda">Use um motivo administrativo. Não registre informações clínicas aqui.</p>
 
         <div class="acoes">
-          <button type="submit">Confirmar cancelamento</button>
-          <button type="button" (click)="desistirCancelamento()">Voltar</button>
+          <button type="submit" class="botao botao-secundario">Confirmar cancelamento</button>
+          <button type="button" class="botao botao-secundario" (click)="desistirCancelamento()">Voltar</button>
         </div>
       </form>
     </section>
@@ -130,8 +130,8 @@
         sem cobrança para o paciente.
       </p>
       <div class="acoes">
-        <button type="button" (click)="confirmarEncerramentoSerie()">Encerrar a série</button>
-        <button type="button" (click)="fecharPaineis()">Voltar</button>
+        <button type="button" class="botao botao-secundario" (click)="confirmarEncerramentoSerie()">Encerrar a série</button>
+        <button type="button" class="botao botao-secundario" (click)="fecharPaineis()">Voltar</button>
       </div>
     </section>
   }
@@ -157,22 +157,22 @@
             @if (ativa(item)) {
               <div class="acoes">
                 @if (item.status === 'Scheduled') {
-                  <button type="button" (click)="confirmar(item)"
+                  <button type="button" class="botao botao-secundario" (click)="confirmar(item)"
                           [attr.aria-label]="'Confirmar a sessão de ' + item.patientDisplayName">Confirmar</button>
                 }
                 @if (jaComecou(item)) {
-                  <button type="button" (click)="registrarRealizada(item)"
+                  <button type="button" class="botao botao-secundario" (click)="registrarRealizada(item)"
                           [attr.aria-label]="'Registrar a sessão de ' + item.patientDisplayName + ' como realizada'">Realizada</button>
-                  <button type="button" (click)="registrarFalta(item)"
+                  <button type="button" class="botao botao-secundario" (click)="registrarFalta(item)"
                           [attr.aria-label]="'Registrar falta de ' + item.patientDisplayName">Falta</button>
                 }
-                <button type="button" (click)="abrirRemarcacao(item)"
+                <button type="button" class="botao botao-secundario" (click)="abrirRemarcacao(item)"
                         [attr.aria-label]="'Remarcar a sessão de ' + item.patientDisplayName">Remarcar</button>
                 @if (item.seriesId) {
-                  <button type="button" (click)="abrirEncerramentoSerie(item)"
+                  <button type="button" class="botao botao-secundario" (click)="abrirEncerramentoSerie(item)"
                           [attr.aria-label]="'Encerrar a série semanal de ' + item.patientDisplayName">Encerrar série</button>
                 }
-                <button type="button" (click)="iniciarCancelamento(item)"
+                <button type="button" class="botao botao-secundario" (click)="iniciarCancelamento(item)"
                         [attr.aria-label]="'Cancelar a sessão de ' + item.patientDisplayName">Cancelar</button>
               </div>
             }
