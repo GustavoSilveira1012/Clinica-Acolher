@@ -1,16 +1,50 @@
+<a class="pular" href="#conteudo">Pular para o conteúdo</a>
+
 @if (auth.user(); as usuario) {
-  <header class="topo">
-    <nav aria-label="Principal">
-      <a routerLink="/agenda">Agenda</a> ·
-      <a routerLink="/pacientes">Pacientes</a> ·
-      <a routerLink="/status">Status da API</a>
+  <aside class="lateral">
+    <app-marca />
+    <nav aria-label="Navegação principal">
+      @for (item of menu; track item.rota) {
+        <a [routerLink]="item.rota" routerLinkActive="ativo" ariaCurrentWhenActive="page">
+          <app-icone [nome]="item.icone" />
+          <span>{{ item.rotulo }}</span>
+        </a>
+      }
     </nav>
-    <div class="usuario">
-      <span>{{ usuario.email }}</span>
-      <button type="button" class="botao botao-secundario" (click)="sair()">Sair</button>
+    <div class="perfil">
+      <span class="avatar" aria-hidden="true">{{ inicial() }}</span>
+      <span class="perfil-texto">
+        <strong>{{ usuario.email }}</strong>
+        <small>{{ papel() }}</small>
+      </span>
     </div>
-  </header>
+  </aside>
+
+  <div class="corpo">
+    <header class="topo">
+      <span class="marca-celular"><app-marca /></span>
+      <button type="button" class="botao botao-secundario" (click)="sair()">
+        <app-icone nome="sair" [tamanho]="18" />
+        <span>Sair</span>
+      </button>
+    </header>
+    <main id="conteudo" tabindex="-1">
+      <router-outlet />
+    </main>
+  </div>
+
+  <nav class="nav-celular" aria-label="Navegação principal">
+    @for (item of menu; track item.rota) {
+      <a [routerLink]="item.rota" routerLinkActive="ativo" ariaCurrentWhenActive="page">
+        <app-icone [nome]="item.icone" />
+        <span>{{ item.rotulo }}</span>
+      </a>
+    }
+  </nav>
+} @else {
+  <main id="conteudo" tabindex="-1">
+    <router-outlet />
+  </main>
 }
-<main>
-  <router-outlet />
-</main>
+
+<app-avisos />

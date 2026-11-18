@@ -98,43 +98,41 @@
     </section>
   }
 
+<app-dialogo titulo="Cancelar sessão" [aberto]="!!cancelando()" (fechar)="fecharPaineis()">
   @if (cancelando(); as alvo) {
-    <section class="painel" aria-labelledby="cancelamento-titulo">
-      <h2 id="cancelamento-titulo">
-        Cancelar a sessão de {{ alvo.patientDisplayName }}, {{ alvo.startsAt | date: "dd/MM 'às' HH:mm" }}
-      </h2>
-      <form [formGroup]="formCancelamento" (ngSubmit)="confirmarCancelamento()">
-        <fieldset>
-          <legend>Quem pediu o cancelamento?</legend>
-          <label><input type="radio" formControlName="quem" value="Patient" /> O paciente</label>
-          <label><input type="radio" formControlName="quem" value="Professional" /> O profissional</label>
-        </fieldset>
-
-        <label for="motivo">Motivo (obrigatório)</label>
-        <textarea id="motivo" rows="2" formControlName="motivo" aria-describedby="motivo-ajuda"></textarea>
-        <p id="motivo-ajuda" class="ajuda">Use um motivo administrativo. Não registre informações clínicas aqui.</p>
-
-        <div class="acoes">
-          <button type="submit" class="botao botao-secundario">Confirmar cancelamento</button>
-          <button type="button" class="botao botao-secundario" (click)="desistirCancelamento()">Voltar</button>
-        </div>
-      </form>
-    </section>
+    <p>
+      A sessão de <strong>{{ alvo.patientDisplayName }}</strong>,
+      {{ alvo.startsAt | date: "dd/MM 'às' HH:mm" }}, será cancelada.
+    </p>
+    <form id="form-cancelamento" [formGroup]="formCancelamento" (ngSubmit)="confirmarCancelamento()">
+      <fieldset>
+        <legend>Quem pediu o cancelamento?</legend>
+        <label class="opcao"><input type="radio" formControlName="quem" value="Patient" /> O paciente</label>
+        <label class="opcao"><input type="radio" formControlName="quem" value="Professional" /> O profissional</label>
+      </fieldset>
+      <label for="motivo">Motivo (obrigatório)</label>
+      <textarea id="motivo" rows="2" formControlName="motivo" aria-describedby="motivo-ajuda"></textarea>
+      <p id="motivo-ajuda" class="texto-suave">Use um motivo administrativo. Não registre informações clínicas aqui.</p>
+    </form>
   }
+  <div acoes class="acoes">
+    <button type="button" class="botao botao-secundario" (click)="fecharPaineis()">Voltar</button>
+    <button type="submit" form="form-cancelamento" class="botao botao-perigo">Confirmar cancelamento</button>
+  </div>
+</app-dialogo>
 
+<app-dialogo titulo="Encerrar série semanal" [aberto]="!!encerrandoSerie()" (fechar)="fecharPaineis()">
   @if (encerrandoSerie(); as alvo) {
-    <section class="painel" aria-labelledby="encerramento-titulo">
-      <h2 id="encerramento-titulo">Encerrar a série semanal de {{ alvo.patientDisplayName }}</h2>
-      <p>
-        As sessões desta série a partir de {{ alvo.startsAt | date: 'dd/MM' }}, inclusive, serão canceladas,
-        sem cobrança para o paciente.
-      </p>
-      <div class="acoes">
-        <button type="button" class="botao botao-secundario" (click)="confirmarEncerramentoSerie()">Encerrar a série</button>
-        <button type="button" class="botao botao-secundario" (click)="fecharPaineis()">Voltar</button>
-      </div>
-    </section>
+    <p>
+      As sessões da série de <strong>{{ alvo.patientDisplayName }}</strong> a partir de
+      {{ alvo.startsAt | date: 'dd/MM' }}, inclusive, serão canceladas, sem cobrança para o paciente.
+    </p>
   }
+  <div acoes class="acoes">
+    <button type="button" class="botao botao-secundario" (click)="fecharPaineis()">Voltar</button>
+    <button type="button" class="botao botao-perigo" (click)="confirmarEncerramentoSerie()">Encerrar a série</button>
+  </div>
+</app-dialogo>
 
   <div class="semana">
     @for (dia of dias(); track dia.chave) {

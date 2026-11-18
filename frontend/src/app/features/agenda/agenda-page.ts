@@ -7,6 +7,8 @@ import { AgendaApi } from './agenda-api';
 import { ActiveRelationship, AgendaItem, AppointmentStatus, CancellationSource, ChargeReason, ProfessionalSummary } from './agenda.models';
 import { addDays, dateKey, nextFullHour, startOfWeek, toLocalInputValue } from './week';
 import { AuthService } from '../../core/auth/auth.service';
+import { AvisoService } from '../../shared/avisos/aviso.service';
+import { Dialogo } from '../../shared/dialogo/dialogo';
 
 const ROTULO_STATUS: Record<AppointmentStatus, string> = {
   Scheduled: 'Agendada',
@@ -25,13 +27,14 @@ const ROTULO_COBRANCA: Record<ChargeReason, string> = {
 
 @Component({
   selector: 'app-agenda-page',
-  imports: [DatePipe, ReactiveFormsModule],
+  imports: [DatePipe, ReactiveFormsModule, Dialogo],
   templateUrl: './agenda-page.html',
   styleUrl: './agenda-page.css',
 })
 export class AgendaPage implements OnInit {
   private readonly api = inject(AgendaApi);
   private readonly auth = inject(AuthService);
+  private readonly avisos = inject(AvisoService);
   private readonly fusoHorario = Intl.DateTimeFormat().resolvedOptions().timeZone;
 
   protected readonly profissionais = signal<ProfessionalSummary[]>([]);
@@ -133,15 +136,15 @@ export class AgendaPage implements OnInit {
   }
 
   protected confirmar(item: AgendaItem): void {
-    this.executar(this.api.confirm(item.id));
+    this.executar(this.api.confirm(item.id), () => this.avisos.mostrar('Sessão confirmada.'));
   }
 
   protected registrarRealizada(item: AgendaItem): void {
-    this.executar(this.api.complete(item.id));
+    this.executar(this.api.complete(item.id), () => this.avisos.mostrar('Sessão registrada como realizada.'));
   }
 
   protected registrarFalta(item: AgendaItem): void {
-    this.executar(this.api.noShow(item.id));
+    this.executar(this.api.noShow(item.id), () => this.avisos.mostrar('Falta registrada.'));
   }
 
   protected abrirAgendamento(): void {
@@ -175,7 +178,10 @@ export class AgendaPage implements OnInit {
       ? this.api.createSeries(vinculoId, data, duracao, this.fusoHorario)
       : this.api.schedule(vinculoId, data, duracao);
 
-    this.executar(chamada, () => this.fecharPaineis());
+    this.executar(chamada, () => {
+      this.fecharPaineis();
+      this.avisos.mostrar(repetir ? 'Série criada: as próximas 12 semanas foram agendadas.' : 'Sessão agendada.');
+    });
   }
 
   protected abrirRemarcacao(item: AgendaItem): void {
@@ -194,7 +200,10 @@ export class AgendaPage implements OnInit {
       return;
     }
     const { inicio, duracao } = this.formRemarcacao.getRawValue();
-    this.executar(this.api.reschedule(item.id, new Date(inicio), duracao), () => this.fecharPaineis());
+    this.executar(this.api.reschedule(item.id, new Date(inicio), duracao), () => {
+      this.fecharPaineis();
+      this.avisos.mostrar('Sessão remarcada.');
+    });
   }
 
   protected fecharPaineis(): void {
@@ -215,7 +224,10 @@ export class AgendaPage implements OnInit {
 
     // O último dia da série é a véspera desta sessão, no fuso de quem vê
     const ultimoDia = dateKey(addDays(new Date(item.startsAt), -1));
-    this.executar(this.api.endSeries(item.seriesId, ultimoDia), () => this.fecharPaineis());
+    this.executar(this.api.endSeries(item.seriesId, ultimoDia), () => {
+      this.fecharPaineis();
+      this.avisos.mostrar('Série encerrada.');
+    });
   }
 
   protected iniciarCancelamento(item: AgendaItem): void {
@@ -236,7 +248,10 @@ export class AgendaPage implements OnInit {
       this.formCancelamento.markAllAsTouched();
       return;
     }
-    this.executar(this.api.cancel(item.id, quem, motivo.trim()), () => this.fecharPaineis());
+    this.executar(this.api.cancel(item.id, quem, motivo.trim()), () => {
+      this.fecharPaineis();
+      this.avisos.mostrar('Sessão cancelada.');
+    });
   }
 
   private carregar(): void {

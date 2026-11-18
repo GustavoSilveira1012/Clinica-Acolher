@@ -33,6 +33,8 @@
 
 .botao-perigo { background: var(--cor-perigo); color: var(--cor-sobre-perigo); }
 
+.acoes { display: flex; flex-wrap: wrap; gap: var(--espaco-2); justify-content: flex-end; }
+
 /* Painel: o bloco branco com borda e sombra do protótipo */
 .painel {
   background: var(--cor-superficie);

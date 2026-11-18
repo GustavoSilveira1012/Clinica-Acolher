@@ -11,6 +11,7 @@
   --cor-superficie-lateral: #fbfcfa;
   --cor-superficie-suave: #edf5f2;
   --cor-superficie-destaque: #dcebe7;
+  --cor-veu: rgb(14 33 30 / 48%);
 
   /* Marca */
   --cor-primaria: #24564f;
@@ -78,6 +79,7 @@
     --cor-superficie-lateral: #1b2b28; /* derivado na implementação */
     --cor-superficie-suave: #30423f;
     --cor-superficie-destaque: #30423f;
+    --cor-veu: rgb(0 0 0 / 60%);
 
     --cor-primaria: #79c4b1;
     --cor-primaria-forte: #ffffff; /* derivado: títulos usam o texto principal */
