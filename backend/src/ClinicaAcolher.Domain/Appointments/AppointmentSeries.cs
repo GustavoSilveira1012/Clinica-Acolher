@@ -32,7 +32,7 @@ public sealed class AppointmentSeries : Entity
         if (duration < Appointment.MinDuration || duration > Appointment.MaxDuration)
             throw new DomainException("RN-AGD-01", "A duração da sessão precisa ficar entre 15 minutos e 3 horas.");
 
-        FindTimeZone(timeZoneId); // valida o fuso agora, para não descobrir o erro só na geração
+        TimeZones.Find(timeZoneId); // valida o fuso agora, para não descobrir o erro só na geração
 
         return new AppointmentSeries
         {
@@ -51,7 +51,7 @@ public sealed class AppointmentSeries : Entity
     // RN-AGD-12: cada ocorrência mantém a hora local e é convertida para UTC na própria data
     public IEnumerable<DateTimeOffset> OccurrencesBetween(DateOnly from, DateOnly until)
     {
-        var timeZone = FindTimeZone(TimeZoneId);
+        var timeZone = TimeZones.Find(TimeZoneId);
         var first = from > StartsOn ? from : StartsOn;
         var last = EndsOn is { } end && end < until ? end : until;
 
@@ -104,19 +104,7 @@ public sealed class AppointmentSeries : Entity
         if (EndsOn is not { } end)
             return false;
 
-        var local = TimeZoneInfo.ConvertTime(startsAt, FindTimeZone(TimeZoneId));
+        var local = TimeZoneInfo.ConvertTime(startsAt, TimeZones.Find(TimeZoneId));
         return DateOnly.FromDateTime(local.DateTime) > end;
-    }
-
-    private static TimeZoneInfo FindTimeZone(string timeZoneId)
-    {
-        try
-        {
-            return TimeZoneInfo.FindSystemTimeZoneById(timeZoneId);
-        }
-        catch (Exception e) when (e is TimeZoneNotFoundException or InvalidTimeZoneException)
-        {
-            throw new DomainException("RN-AGD-09", $"Fuso horário desconhecido: {timeZoneId}.");
-        }
     }
 }

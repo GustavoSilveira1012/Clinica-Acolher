@@ -130,6 +130,8 @@ A agenda gira em torno do **horário fixo semanal**, que é o padrão da psican�
 - `RN-AGD-09` Todos os horários são gravados em UTC e exibidos no fuso de quem está vendo. Paciente em outro fuso vê o horário convertido, com o fuso indicado.
 - `RN-AGD-10` Toda sessão é online, por vídeo integrado à plataforma ou por ferramenta externa definida e validada para o piloto. Não existe sessão presencial, e a interface não oferece essa opção.
 - `RN-AGD-11` Uma sessão só pode ser registrada como realizada ou como falta a partir do horário de início dela.
+- `RN-AGD-13` A disponibilidade define os horários oferecidos ao paciente no autoagendamento. A profissional pode agendar fora dela: o sistema avisa, mas não impede.
+- `RN-AGD-14` Um bloqueio não cancela as sessões já marcadas no período: o sistema informa quantas são, para a profissional revê-las uma a uma.
 
 ## 6. Atendimento online
 
