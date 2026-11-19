@@ -2,7 +2,7 @@ import { Component, computed, inject } from '@angular/core';
 import { Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { AuthService } from './core/auth/auth.service';
 import { Avisos } from './shared/avisos/avisos';
-import { Icone } from './shared/icone/icone';
+import { Icone, NomeIcone } from './shared/icone/icone';
 import { Marca } from './shared/marca/marca';
 
 @Component({
@@ -15,11 +15,16 @@ export class App {
   protected readonly auth = inject(AuthService);
   private readonly router = inject(Router);
 
-  // O menu mostra só o que já existe: o Financeiro entra com a M7
-  protected readonly menu = [
-    { rota: '/agenda', rotulo: 'Agenda', icone: 'agenda' },
-    { rota: '/pacientes', rotulo: 'Pacientes', icone: 'pessoas' },
-  ] as const;
+  // O menu mostra só o que existe para quem está logado: o Financeiro entra com a M7
+  protected readonly menu = computed(() => {
+    const itens: { rota: string; rotulo: string; icone: NomeIcone }[] = [
+      { rota: '/agenda', rotulo: 'Agenda', icone: 'agenda' },
+      { rota: '/pacientes', rotulo: 'Pacientes', icone: 'pessoas' },
+    ];
+    if (this.auth.user()?.professionalId)
+      itens.push({ rota: '/horarios', rotulo: 'Horários', icone: 'relogio' });
+    return itens;
+  });
 
   protected readonly papel = computed(() => {
     const papeis = this.auth.user()?.roles ?? [];

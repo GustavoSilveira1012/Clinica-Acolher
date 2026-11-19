@@ -43,6 +43,11 @@ export const routes: Routes = [
         loadComponent: () => import('./features/patients/patient-list-page').then((m) => m.PatientListPage),
       },
       {
+        path: 'horarios',
+        title: 'Horários de atendimento',
+        loadComponent: () => import('./features/availability/availability-page').then((m) => m.AvailabilityPage),
+      },
+      {
         path: 'status',
         title: 'Status da API',
         loadComponent: () => import('./features/status/status-page/status-page').then((m) => m.StatusPage),

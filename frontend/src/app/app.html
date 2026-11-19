@@ -4,7 +4,7 @@
   <aside class="lateral">
     <app-marca />
     <nav aria-label="Navegação principal">
-      @for (item of menu; track item.rota) {
+      @for (item of menu(); track item.rota) {
         <a [routerLink]="item.rota" routerLinkActive="ativo" ariaCurrentWhenActive="page">
           <app-icone [nome]="item.icone" />
           <span>{{ item.rotulo }}</span>
@@ -34,7 +34,7 @@
   </div>
 
   <nav class="nav-celular" aria-label="Navegação principal">
-    @for (item of menu; track item.rota) {
+    @for (item of menu(); track item.rota) {
       <a [routerLink]="item.rota" routerLinkActive="ativo" ariaCurrentWhenActive="page">
         <app-icone [nome]="item.icone" />
         <span>{{ item.rotulo }}</span>

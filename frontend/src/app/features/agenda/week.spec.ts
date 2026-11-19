@@ -1,4 +1,12 @@
-import { addDays, dateKey, nextFullHour, startOfWeek, toLocalInputValue, toSeriesSchedule } from './week';
+import {
+  addDays,
+  dateKey,
+  fromDateKey,
+  nextFullHour,
+  startOfWeek,
+  toLocalInputValue,
+  toSeriesSchedule,
+} from './week';
 
 describe('week', () => {
   // Atenção: no construtor de Date, o mês começa em 0. new Date(2026, 10, 18) é 18 de NOVEMBRO
@@ -24,6 +32,13 @@ describe('week', () => {
 
     expect(valor).toBe('2026-11-20T09:05');
     expect(new Date(valor).getHours()).toBe(9);
+  });
+
+  it('lê uma data do campo de data como meia-noite local, sem voltar um dia', () => {
+    const data = fromDateKey('2026-12-21');
+
+    expect(dateKey(data)).toBe('2026-12-21');
+    expect(data.getHours()).toBe(0);
   });
 
   it('a próxima hora cheia vira o dia quando necessário', () => {

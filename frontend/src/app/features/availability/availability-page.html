@@ -1,0 +1,99 @@
+<h1>Horários de atendimento</h1>
+<p class="texto-suave">
+  Estes horários são os oferecidos aos pacientes. Você continua podendo agendar fora deles quando precisar.
+</p>
+
+@if (erro(); as msg) {
+  <p role="alert" class="mensagem mensagem-erro">{{ msg }}</p>
+}
+
+@if (carregado()) {
+  <section class="painel" aria-labelledby="atendimento-titulo">
+    <h2 id="atendimento-titulo">Atendimento</h2>
+
+    <div class="linha-campos">
+      <label for="duracao">Duração da sessão (minutos)</label>
+      <input id="duracao" type="number" min="15" max="180" step="5" [formControl]="form.controls.duracao" />
+
+      <label for="intervalo">Intervalo entre sessões (minutos)</label>
+      <input id="intervalo" type="number" min="0" max="60" step="5" [formControl]="form.controls.intervalo" />
+    </div>
+
+    @for (dia of dias; track dia.valor) {
+      <fieldset class="dia">
+        <legend>{{ dia.nome }}</legend>
+        @for (p of periodosDoDia(dia.valor); track p.controle) {
+          <div class="periodo">
+            <label>Início <input type="time" [formControl]="p.controle.controls.inicio" /></label>
+            <label>Fim <input type="time" [formControl]="p.controle.controls.fim" /></label>
+            <button type="button" class="botao botao-texto" (click)="removerPeriodo(p.indice)"
+                    [attr.aria-label]="'Remover o período de ' + dia.nome + ' das ' + p.controle.value.inicio + ' às ' + p.controle.value.fim">
+              Remover
+            </button>
+          </div>
+        } @empty {
+          <span class="texto-suave">Sem atendimento</span>
+        }
+        <button type="button" class="botao botao-texto" (click)="adicionarPeriodo(dia.valor)">+ Adicionar período</button>
+      </fieldset>
+    }
+
+    <p class="texto-suave">Fuso dos horários: {{ fuso() }}</p>
+
+    <div class="acoes">
+      <button type="button" class="botao botao-secundario" (click)="copiarSegunda()">Copiar segunda para terça a sexta</button>
+      <button type="button" class="botao botao-primario" (click)="salvar()" [disabled]="salvando()">Salvar</button>
+    </div>
+  </section>
+
+  <section class="painel" aria-labelledby="bloqueios-titulo">
+    <h2 id="bloqueios-titulo">Bloqueios</h2>
+    <p class="texto-suave">Férias, feriados e congressos. Um bloqueio não cancela as sessões já marcadas.</p>
+
+    @if (erroBloqueio(); as msg) {
+      <p role="alert" class="mensagem mensagem-erro">{{ msg }}</p>
+    }
+    @if (sessoesAfetadas() > 0) {
+      <p role="status" class="mensagem mensagem-atencao">
+        {{ sessoesAfetadas() }} {{ sessoesAfetadas() === 1 ? 'sessão já marcada cai' : 'sessões já marcadas caem' }}
+        neste período. Reveja-as na agenda: elas continuam marcadas até você remarcar ou cancelar.
+      </p>
+    }
+
+    <form class="linha-campos" [formGroup]="formBloqueio" (ngSubmit)="criarBloqueio()">
+      <label for="bloqueio-inicio">De</label>
+      <input id="bloqueio-inicio" type="date" formControlName="inicio" />
+      <label for="bloqueio-fim">Até</label>
+      <input id="bloqueio-fim" type="date" formControlName="fim" />
+      <label for="bloqueio-motivo">Motivo (opcional)</label>
+      <input id="bloqueio-motivo" formControlName="motivo" maxlength="120" placeholder="Ex.: Férias" />
+      <button type="submit" class="botao botao-primario">Bloquear</button>
+    </form>
+
+    <ul class="bloqueios">
+      @for (b of bloqueios(); track b.id) {
+        <li>
+          <span>
+            <strong>{{ b.startsAt | date: 'dd/MM/yyyy' }} a {{ ultimoDia(b) | date: 'dd/MM/yyyy' }}</strong>
+            @if (b.reason) {
+              · {{ b.reason }}
+            }
+          </span>
+          <button type="button" class="botao botao-texto" (click)="removendo.set(b)">Remover</button>
+        </li>
+      } @empty {
+        <li class="texto-suave">Nenhum bloqueio nos próximos meses.</li>
+      }
+    </ul>
+  </section>
+}
+
+<app-dialogo titulo="Remover bloqueio" [aberto]="!!removendo()" (fechar)="removendo.set(null)">
+  @if (removendo(); as b) {
+    <p>O período de {{ b.startsAt | date: 'dd/MM/yyyy' }} a {{ ultimoDia(b) | date: 'dd/MM/yyyy' }} volta a ficar disponível.</p>
+  }
+  <div acoes class="acoes">
+    <button type="button" class="botao botao-secundario" (click)="removendo.set(null)">Voltar</button>
+    <button type="button" class="botao botao-perigo" (click)="confirmarRemocao()">Remover bloqueio</button>
+  </div>
+</app-dialogo>

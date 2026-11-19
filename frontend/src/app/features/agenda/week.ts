@@ -16,6 +16,12 @@ export function dateKey(date: Date): string {
   return `${date.getFullYear()}-${mes}-${dia}`;
 }
 
+/** "aaaa-mm-dd" → meia-noite LOCAL daquele dia. (Um new Date("aaaa-mm-dd") daria meia-noite em UTC.) */
+export function fromDateKey(chave: string): Date {
+  const [ano, mes, dia] = chave.split('-').map(Number);
+  return new Date(ano, mes - 1, dia);
+}
+
 /** Valor para <input type="datetime-local">, no fuso local: "aaaa-mm-ddThh:mm". */
 export function toLocalInputValue(date: Date): string {
   const hora = String(date.getHours()).padStart(2, '0');

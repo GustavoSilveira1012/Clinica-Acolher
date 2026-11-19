@@ -1,6 +1,6 @@
 import { Component, computed, input } from '@angular/core';
 
-export type NomeIcone = 'agenda' | 'pessoas' | 'sair' | 'x' | 'check' | 'alerta';
+export type NomeIcone = 'agenda' | 'pessoas' | 'sair' | 'x' | 'check' | 'alerta' | 'relogio';
 
 // Desenhos do protótipo, num quadro de 24 × 24
 const CAMINHOS: Record<NomeIcone, string[]> = {
@@ -21,6 +21,7 @@ const CAMINHOS: Record<NomeIcone, string[]> = {
     'M10.3 3.5 2.4 18a2 2 0 0 0 1.8 3h15.6a2 2 0 0 0 1.8-3L13.7 3.5a2 2 0 0 0-3.4 0',
     'M12 9v4M12 17h.01',
   ],
+  relogio: ['M3 12a9 9 0 1 0 18 0a9 9 0 1 0-18 0', 'M12 7v5l3 2'],
 };
 
 @Component({
