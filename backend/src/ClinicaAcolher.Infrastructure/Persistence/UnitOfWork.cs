@@ -20,6 +20,8 @@ internal sealed class UnitOfWork(AppDbContext db, AuditTrail audit) : IUnitOfWor
             ("RN-AGD-04", "O paciente já tem uma sessão neste horário."),
         ["IX_appointments_SeriesId_StartsAt"] =
             ("RN-AGD-05", "Esta sessão da série já foi gerada."),
+        ["IX_professional_availabilities_ProfessionalId"] =
+            ("RN-AGD-01", "A disponibilidade foi salva em outra janela ao mesmo tempo. Recarregue e tente de novo."),
         ["IX_attendance_policies_ProfessionalId_Version"] =
             ("RN-CAN-01", "Outra versão da política foi publicada ao mesmo tempo. Tente de novo."),
         ["IX_attendance_policy_acceptances_PatientId_PolicyId"] =

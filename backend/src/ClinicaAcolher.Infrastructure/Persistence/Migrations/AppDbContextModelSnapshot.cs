@@ -210,6 +210,67 @@ namespace ClinicaAcolher.Infrastructure.Persistence.Migrations
                     b.ToTable("attendance_policy_acceptances", (string)null);
                 });
 
+            modelBuilder.Entity("ClinicaAcolher.Domain.Availability.AvailabilityBlock", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTimeOffset>("EndsAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("ProfessionalId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Reason")
+                        .HasMaxLength(120)
+                        .HasColumnType("character varying(120)");
+
+                    b.Property<DateTimeOffset>("StartsAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ProfessionalId", "StartsAt");
+
+                    b.ToTable("availability_blocks", null, t =>
+                        {
+                            t.HasCheckConstraint("ck_availability_blocks_period", "\"EndsAt\" > \"StartsAt\"");
+                        });
+                });
+
+            modelBuilder.Entity("ClinicaAcolher.Domain.Availability.ProfessionalAvailability", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("BreakMinutes")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("DefaultSessionMinutes")
+                        .HasColumnType("integer");
+
+                    b.Property<Guid>("ProfessionalId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("TimeZoneId")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
+
+                    b.Property<DateTimeOffset>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ProfessionalId")
+                        .IsUnique();
+
+                    b.ToTable("professional_availabilities", (string)null);
+                });
+
             modelBuilder.Entity("ClinicaAcolher.Domain.ClinicalNotes.ClinicalNote", b =>
                 {
                     b.Property<Guid>("Id")
@@ -763,6 +824,58 @@ namespace ClinicaAcolher.Infrastructure.Persistence.Migrations
                         .HasForeignKey("ProfessionalId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("ClinicaAcolher.Domain.Availability.AvailabilityBlock", b =>
+                {
+                    b.HasOne("ClinicaAcolher.Domain.Professionals.Professional", null)
+                        .WithMany()
+                        .HasForeignKey("ProfessionalId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("ClinicaAcolher.Domain.Availability.ProfessionalAvailability", b =>
+                {
+                    b.HasOne("ClinicaAcolher.Domain.Professionals.Professional", null)
+                        .WithMany()
+                        .HasForeignKey("ProfessionalId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.OwnsMany("ClinicaAcolher.Domain.Availability.AvailabilityWindow", "Windows", b1 =>
+                        {
+                            b1.Property<int>("Id")
+                                .ValueGeneratedOnAdd()
+                                .HasColumnType("integer");
+
+                            NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b1.Property<int>("Id"));
+
+                            b1.Property<Guid>("AvailabilityId")
+                                .HasColumnType("uuid");
+
+                            b1.Property<TimeOnly>("End")
+                                .HasColumnType("time without time zone");
+
+                            b1.Property<TimeOnly>("Start")
+                                .HasColumnType("time without time zone");
+
+                            b1.Property<string>("Weekday")
+                                .IsRequired()
+                                .HasMaxLength(10)
+                                .HasColumnType("character varying(10)");
+
+                            b1.HasKey("Id");
+
+                            b1.HasIndex("AvailabilityId");
+
+                            b1.ToTable("availability_windows", (string)null);
+
+                            b1.WithOwner()
+                                .HasForeignKey("AvailabilityId");
+                        });
+
+                    b.Navigation("Windows");
                 });
 
             modelBuilder.Entity("ClinicaAcolher.Domain.ClinicalNotes.ClinicalNote", b =>

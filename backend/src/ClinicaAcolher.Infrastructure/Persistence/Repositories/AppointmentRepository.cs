@@ -34,5 +34,12 @@ internal sealed class AppointmentRepository(AppDbContext db) : IAppointmentRepos
                      && (a.Status == AppointmentStatus.Scheduled || a.Status == AppointmentStatus.Confirmed))
             .ToListAsync(ct);
 
+    public Task<int> CountActiveInPeriodAsync(
+        Guid professionalId, DateTimeOffset from, DateTimeOffset to, CancellationToken ct) =>
+        db.Appointments.CountAsync(a =>
+            a.ProfessionalId == professionalId
+            && a.StartsAt < to && a.EndsAt > from
+            && (a.Status == AppointmentStatus.Scheduled || a.Status == AppointmentStatus.Confirmed), ct);
+
     public void Add(Appointment appointment) => db.Appointments.Add(appointment);
 }

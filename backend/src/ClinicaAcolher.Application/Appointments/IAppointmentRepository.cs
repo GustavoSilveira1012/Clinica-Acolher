@@ -8,5 +8,6 @@ public interface IAppointmentRepository
     Task<IReadOnlyList<Appointment>> ListActiveBySeriesAfterAsync(Guid seriesId, DateTimeOffset after, CancellationToken ct);
     Task<IReadOnlyList<AgendaEntry>> ListAgendaAsync(
     Guid professionalId, DateTimeOffset from, DateTimeOffset to, CancellationToken ct);
+    Task<int> CountActiveInPeriodAsync(Guid professionalId, DateTimeOffset from, DateTimeOffset to, CancellationToken ct);
     void Add(Appointment appointment);
 }

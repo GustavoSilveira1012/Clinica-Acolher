@@ -7,6 +7,7 @@ using ClinicaAcolher.Application.Professionals;
 using ClinicaAcolher.Application.Relationships;
 using ClinicaAcolher.Application.Appointments;
 using ClinicaAcolher.Application.Attendance;
+using ClinicaAcolher.Application.Availability;
 using ClinicaAcolher.Api.Workers;
 using ClinicaAcolher.Infrastructure.Identity;
 using ClinicaAcolher.Infrastructure.Persistence;
@@ -40,6 +41,7 @@ builder.Services.AddScoped<RelationshipService>();
 builder.Services.AddScoped<AppointmentService>();
 builder.Services.AddScoped<SeriesService>();
 builder.Services.AddScoped<AttendancePolicyService>();
+builder.Services.AddScoped<AvailabilityService>();
 builder.Services.AddScoped<ClinicalNoteService>();
 if (builder.Configuration.GetValue("Workers:SeriesGeneration", true))
     builder.Services.AddHostedService<SeriesGenerationWorker>();
