@@ -15,6 +15,11 @@ internal sealed class RelationshipRepository(AppDbContext db) : IRelationshipRep
             r.ProfessionalId == professionalId &&
             r.Status != RelationshipStatus.Ended, ct);
 
+    // RN-PER-01: vínculos encerrados também permitem acesso ao histórico do paciente.
+    public Task<bool> ExistsAsync(Guid professionalId, Guid patientId, CancellationToken ct) =>
+        db.TherapeuticRelationships.AnyAsync(r =>
+            r.ProfessionalId == professionalId && r.PatientId == patientId, ct);
+
     public async Task<IReadOnlyList<TherapeuticRelationship>> ListByPatientAsync(Guid patientId, CancellationToken ct) =>
         await db.TherapeuticRelationships
             .AsNoTracking()

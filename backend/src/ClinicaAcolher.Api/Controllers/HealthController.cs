@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ClinicaAcolher.Api.Controllers;
@@ -5,6 +6,7 @@ namespace ClinicaAcolher.Api.Controllers;
 public sealed record HealthResponse(string Status, string Service, DateTimeOffset Timestamp);
 
 [ApiController]
+[AllowAnonymous]
 [Route("api/health")]
 public sealed class HealthController(TimeProvider clock) : ControllerBase
 {

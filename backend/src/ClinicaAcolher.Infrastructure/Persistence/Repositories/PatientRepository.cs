@@ -1,4 +1,3 @@
-using System.Reflection.Metadata.Ecma335;
 using ClinicaAcolher.Application.Patients;
 using ClinicaAcolher.Domain.Patients;
 using Microsoft.EntityFrameworkCore;
@@ -13,12 +12,16 @@ internal sealed class PatientRepository(AppDbContext db) : IPatientRepository
     public void Add(Patient patient) => db.Patients.Add(patient);
 
     public async Task<(IReadOnlyList<Patient> Items, int Total)> SearchAsync(
-    string? search, bool? active, int skip, int take, CancellationToken ct)
+    string? search, bool? active, Guid? professionalId, int skip, int take, CancellationToken ct)
 {
     var query = db.Patients.AsNoTracking();
 
     if (active is not null)
         query = query.Where(p => p.Active == active);
+
+    if (professionalId is { } scope)
+        query = query.Where(p => db.TherapeuticRelationships.Any(r =>
+            r.PatientId == p.Id && r.ProfessionalId == scope));
 
     if (!string.IsNullOrWhiteSpace(search))
     {

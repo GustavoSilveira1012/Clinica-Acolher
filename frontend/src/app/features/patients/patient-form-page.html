@@ -1,7 +1,7 @@
 <h1>{{ editando() ? 'Editar paciente' : 'Novo paciente' }}</h1>
 
 @if (mensagemErro(); as msg) {
-  <p role="alert" class="alerta">{{ msg }}</p>
+  <p role="alert" class="mensagem mensagem-erro">{{ msg }}</p>
 }
 
 <form [formGroup]="form" (ngSubmit)="salvar()" novalidate>
@@ -44,7 +44,7 @@
   </div>
 
   <div class="acoes">
-    <button type="submit" [disabled]="salvando()">{{ salvando() ? 'Salvando…' : 'Salvar' }}</button>
+    <button type="submit" class="botao botao-secundario" [disabled]="salvando()">{{ salvando() ? 'Salvando…' : 'Salvar' }}</button>
     <a routerLink="/pacientes">Cancelar</a>
   </div>
 </form>
@@ -67,14 +67,14 @@
           }
         </div>
         <div class="acoes">
-          <button type="button" (click)="confirmarDesativacao()" [disabled]="salvando()">Confirmar desativação</button>
-          <button type="button" (click)="cancelarDesativacao()">Cancelar</button>
+          <button type="button" class="botao botao-secundario" (click)="confirmarDesativacao()" [disabled]="salvando()">Confirmar desativação</button>
+          <button type="button" class="botao botao-secundario" (click)="cancelarDesativacao()">Cancelar</button>
         </div>
       } @else {
-        <button type="button" (click)="iniciarDesativacao()">Desativar paciente</button>
+        <button type="button" class="botao botao-secundario" (click)="iniciarDesativacao()">Desativar paciente</button>
       }
     } @else {
-      <button type="button" (click)="reativar()" [disabled]="salvando()">Reativar paciente</button>
+      <button type="button" class="botao botao-secundario" (click)="reativar()" [disabled]="salvando()">Reativar paciente</button>
     }
   </section>
 }

@@ -4,3 +4,42 @@ GET {{ClinicaAcolher.Api_HostAddress}}/weatherforecast/
 Accept: application/json
 
 ###
+
+# ------------------------------------------------------------------
+# Anotação clínica de teste (somente dados fictícios)
+# Senha e código do autenticador são pedidos na hora e não ficam no arquivo.
+# ------------------------------------------------------------------
+@api = http://localhost:5080
+# Vínculo aberto do profissional no banco local de desenvolvimento
+@vinculoId = 01a1e994-277e-7cf9-9be0-df4ada48a5b3
+
+### 1. Login
+# @prompt email E-mail do seu usuário de desenvolvimento
+# @prompt senha Senha (não é salva)
+POST {{api}}/api/v1/auth/login
+Content-Type: application/json
+
+{ "email": "{{email}}", "password": "{{senha}}" }
+
+### 2. Código do autenticador (2FA)
+# @prompt codigo Código de 6 dígitos do autenticador
+POST {{api}}/api/v1/auth/login/2fa
+Content-Type: application/json
+
+{ "code": "{{codigo}}" }
+
+### 3. Criar a anotação
+# @name criar
+POST {{api}}/api/v1/clinical-notes
+Content-Type: application/json
+
+{
+  "relationshipId": "{{vinculoId}}",
+  "appointmentId": null,
+  "content": "TESTE-CIFRAGEM: paciente fictícia relata melhora do sono após ajuste da rotina."
+}
+
+### 4. Ler a anotação (a API decifra e registra a leitura na auditoria)
+GET {{api}}/api/v1/clinical-notes/{{criar.response.body.$.id}}
+
+###

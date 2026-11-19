@@ -23,7 +23,7 @@ Este documento não repete as regras de negócio: ele cita os códigos (`RN-AGD-
 
 ## 2. Produto
 
-A **Clínica Acolher** é uma clínica online para psicanalistas e, depois, outros profissionais de saúde mental. O paciente agenda, paga e faz a sessão por vídeo dentro da plataforma. O profissional gerencia agenda, financeiro e anotações no mesmo lugar. Todo atendimento é online: não há sessões presenciais (`RN-AGD-10`).
+A **Clínica Acolher** é uma clínica online para psicanalistas e, depois, outros profissionais de saúde mental. O paciente agenda, paga e faz a sessão por vídeo integrado ou por ferramenta externa definida (`RN-AGD-10`). O profissional gerencia agenda, financeiro e anotações, com rotina externa de anotações também prevista. Todo atendimento é online: não há sessões presenciais. O [escopo do piloto](escopo-piloto.md) e a [decisão 002](decisoes/002-formatos-do-piloto.md) registram o recorte de 14/11/2026, incluindo Pix e cartão e a aprovação pendente da cliente piloto.
 
 ### 2.1 Fases
 

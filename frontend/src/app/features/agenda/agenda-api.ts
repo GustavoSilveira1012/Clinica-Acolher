@@ -2,6 +2,7 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 import { ActiveRelationship, AgendaItem, CancellationSource, ProfessionalSummary } from './agenda.models';
+import { toSeriesSchedule } from './week';
 
 @Injectable({ providedIn: 'root' })
 export class AgendaApi {
@@ -26,6 +27,19 @@ export class AgendaApi {
       startsAt: startsAt.toISOString(),
       durationMinutes,
     });
+  }
+
+  createSeries(relationshipId: string, startsAt: Date, durationMinutes: number, timeZoneId: string): Observable<unknown> {
+    return this.http.post('/api/v1/series', {
+      relationshipId,
+      ...toSeriesSchedule(startsAt),
+      durationMinutes,
+      timeZoneId,
+    });
+  }
+
+  endSeries(seriesId: string, lastDay: string): Observable<unknown> {
+    return this.http.post(`/api/v1/series/${seriesId}/end`, { lastDay });
   }
 
   reschedule(id: string, startsAt: Date, durationMinutes: number): Observable<unknown> {

@@ -1,0 +1,46 @@
+<div class="rolagem">
+  <div class="grade" [style.--colunas]="dias().length" [style.--hora]="pixelsPorHora + 'px'">
+    <span aria-hidden="true"></span>
+    @for (c of colunas(); track c.chave) {
+      <div class="cabecalho" [class.hoje]="c.hoje">
+        <h3 [id]="'dia-' + c.chave">
+          <span class="dia-semana">{{ c.dia | date: 'EEE' }}</span>
+          <span class="data">{{ c.dia | date: 'dd/MM' }}</span>
+        </h3>
+        @if (c.bloqueado) {
+          <span class="etiqueta">Bloqueado</span>
+        }
+      </div>
+    }
+
+    <div class="horas" aria-hidden="true" [style.height.px]="altura()">
+      @for (h of horas(); track h) {
+        <span [style.top.px]="(h - faixa().inicio) * pixelsPorHora">{{ h }}h</span>
+      }
+    </div>
+
+    @for (c of colunas(); track c.chave) {
+      <div class="coluna" [style.height.px]="altura()">
+        @for (p of c.periodos; track $index) {
+          <div class="fundo-atendimento" aria-hidden="true" [style.top.px]="p.topo" [style.height.px]="p.altura"></div>
+        }
+        @for (b of c.bloqueios; track $index) {
+          <div class="fundo-bloqueio" [style.top.px]="b.topo" [style.height.px]="b.altura">
+            <span>{{ b.motivo || 'Bloqueado' }}</span>
+          </div>
+        }
+        <ol class="sessoes" [attr.aria-labelledby]="'dia-' + c.chave">
+          @for (s of c.sessoes; track s.item.id) {
+            <li [style.top.px]="s.topo" [style.height.px]="s.altura">
+              <button type="button" class="cartao" [attr.data-status]="s.item.status" (click)="selecionar.emit(s.item)">
+                <strong>{{ s.item.startsAt | date: 'HH:mm' }}</strong>
+                <span class="nome">{{ s.item.patientDisplayName }}</span>
+                <small>{{ rotuloStatus(s.item) }}@if (s.item.seriesId) { · Semanal }</small>
+              </button>
+            </li>
+          }
+        </ol>
+      </div>
+    }
+  </div>
+</div>

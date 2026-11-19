@@ -4,12 +4,12 @@
 <form [formGroup]="form" (ngSubmit)="buscar()" role="search">
     <label for="busca">Buscar por nome</label>
     <input id="busca" type="search" formControlName="busca" />
-    <button type="submit">Buscar</button>
+    <button type="submit" class="botao botao-secundario">Buscar</button>
 </form>
 
 <div role="group" aria-label="Filtrar por situação" class="filtros">
     @for (opcao of opcoesFiltro; track opcao.valor) {
-        <button type="button" [attr.aria-pressed]="filtro() === opcao.valor" (click)="mudarFiltro(opcao.valor)">
+        <button type="button" class="botao botao-secundario" [attr.aria-pressed]="filtro() === opcao.valor" (click)="mudarFiltro(opcao.valor)">
             {{opcao.rotulo}}
         </button>
     }
@@ -18,7 +18,7 @@
 @if (erro()) {
     <p role="alert">
         Não foi possível carregar os pacientes.
-        <button type="button" (click)="buscar()">Tentar de novo</button>
+        <button type="button" class="botao botao-secundario" (click)="buscar()">Tentar de novo</button>
     </p>
 } @else {
     @if (resultado(); as r) {
@@ -42,16 +42,21 @@
                             <td>{{ p.email ?? '—' }}</td>
                             <td>{{ p.phone ?? '—' }}</td>
                             <td>{{ p.active ? 'Ativo' : 'Inativo' }}</td>
-                            <td><a [routerLink]="['/pacientes', p.id]">Editar</a></td>
+                            <td>
+                                <a [routerLink]="['/pacientes', p.id]">Editar</a>
+                                @if (podeVerAnotacoes()) {
+                                    <a [routerLink]="['/pacientes', p.id, 'acompanhamento']">Acompanhamento</a>
+                                }
+                            </td>
                         </tr>
                     }
                 </tbody>
             </table>
 
             <nav aria-label="Paginação" class="paginacao">
-                <button type="button" [disabled]="pagina() === 1" (click)="irParaPagina(pagina() - 1)">Anterior</button>
+                <button type="button" class="botao botao-secundario" [disabled]="pagina() === 1" (click)="irParaPagina(pagina() - 1)">Anterior</button>
                 <span>Página {{ pagina() }} de {{ totalPaginas() }} · {{ r.totalCount }} pacientes</span>
-                <button type="button" [disabled]="pagina() >= totalPaginas()" (click)="irParaPagina(pagina() + 1)">Próxima</button>
+                <button type="button" class="botao botao-secundario" [disabled]="pagina() >= totalPaginas()" (click)="irParaPagina(pagina() + 1)">Próxima</button>
             </nav>
         }
     } @else {

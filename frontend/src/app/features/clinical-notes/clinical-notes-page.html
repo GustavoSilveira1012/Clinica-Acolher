@@ -1,0 +1,137 @@
+<a routerLink="/pacientes" class="voltar">← Voltar para pacientes</a>
+
+@if (paciente(); as p) {
+  <header class="cabecalho">
+    <h1>{{ nomeExibicao(p) }}</h1>
+    <p class="suave">Acompanhamento clínico · visível somente para você</p>
+  </header>
+}
+
+@if (erro(); as msg) {
+  <p role="alert" class="mensagem mensagem-erro">{{ msg }}</p>
+}
+
+@if (carregado() && !vinculoAberto()) {
+  <p class="mensagem mensagem-atencao">O vínculo com este paciente foi encerrado. As anotações ficam disponíveis só para leitura.</p>
+}
+
+<p role="status" class="status">{{ mensagem() }}</p>
+
+@if (carregado()) {
+  <div class="grade">
+    <section class="painel" aria-labelledby="linha-do-tempo">
+      <div class="painel-topo">
+        <h2 id="linha-do-tempo">Anotações</h2>
+        @if (vinculoAberto()) {
+          <button type="button" class="botao botao-primario" (click)="novaNota()">Nova anotação</button>
+        }
+      </div>
+
+      @if (notas().length === 0) {
+        <p class="vazio">Nenhuma anotação ainda.</p>
+      }
+
+      <ol class="linha-do-tempo">
+        @for (n of notas(); track n.id) {
+          <li>
+            <button type="button" (click)="abrir(n)" [attr.aria-current]="n.id === notaAberta()?.id ? 'true' : null">
+              <strong>{{ n.createdAt | date: "dd/MM/yyyy 'às' HH:mm" }}</strong>
+              <span class="etiqueta" [class.etiqueta-atencao]="n.status === 'Draft'" [class.etiqueta-sucesso]="n.status === 'Finalized'">
+                {{ n.status === 'Draft' ? 'Rascunho' : 'Finalizada' }}
+              </span>
+              <small>
+                {{ n.revisionCount }} {{ n.revisionCount === 1 ? 'versão' : 'versões' }}
+                @if (n.addendumCount > 0) {
+                  · {{ n.addendumCount }} {{ n.addendumCount === 1 ? 'adendo' : 'adendos' }}
+                }
+              </small>
+            </button>
+          </li>
+        }
+      </ol>
+    </section>
+
+    <section class="painel editor" aria-labelledby="editor-titulo">
+      @switch (modo()) {
+        @case (null) {
+          <p class="vazio">Escolha uma anotação na lista ou crie uma nova.</p>
+        }
+
+        @case ('nova') {
+          <h2 id="editor-titulo">Nova anotação</h2>
+          <ng-container *ngTemplateOutlet="campoTexto" />
+          <div class="acoes">
+            <button type="button" class="botao botao-primario" (click)="salvar()" [disabled]="salvando()">Salvar rascunho</button>
+          </div>
+        }
+
+        @case ('nota') {
+          @if (notaAberta(); as nota) {
+            <h2 id="editor-titulo">Anotação de {{ nota.createdAt | date: 'dd/MM/yyyy' }}</h2>
+            <p class="suave">
+              Versão {{ nota.revisionNumber }} · salva em {{ nota.lastSavedAt | date: "dd/MM 'às' HH:mm" }}
+              @if (nota.finalizedAt) {
+                · finalizada em {{ nota.finalizedAt | date: "dd/MM 'às' HH:mm" }}
+              }
+            </p>
+
+            @if (nota.status === 'Draft' && vinculoAberto()) {
+              <ng-container *ngTemplateOutlet="campoTexto" />
+
+              @if (confirmandoFinalizacao()) {
+                <div class="confirmacao" role="group" aria-label="Confirmar finalização">
+                  <p>
+                    Depois de finalizada, a anotação <strong>não pode mais ser alterada</strong>.
+                    Correções passam a ser feitas por adendos.
+                  </p>
+                  <div class="acoes">
+                    <button type="button" class="botao botao-primario" (click)="finalizar()" [disabled]="salvando()">Finalizar</button>
+                    <button type="button" class="botao botao-secundario" (click)="cancelarFinalizacao()">Voltar</button>
+                  </div>
+                </div>
+              } @else {
+                <div class="acoes">
+                  <button type="button" class="botao botao-primario" (click)="salvar()" [disabled]="salvando() || !alterado()">
+                    Salvar rascunho
+                  </button>
+                  <button type="button" class="botao botao-secundario" (click)="pedirFinalizacao()" [disabled]="salvando() || alterado()">Finalizar</button>
+                </div>
+                @if (alterado()) {
+                  <p class="suave">Salve as alterações antes de finalizar.</p>
+                }
+              }
+            } @else {
+              <div class="texto-final">{{ nota.content }}</div>
+
+              @for (a of nota.addenda; track a.number) {
+                <div class="adendo">
+                  <p class="suave">Adendo {{ a.number }} · {{ a.createdAt | date: "dd/MM/yyyy 'às' HH:mm" }}</p>
+                  <div class="texto-final">{{ a.content }}</div>
+                </div>
+              }
+
+              @if (nota.status === 'Finalized' && vinculoAberto()) {
+                <label for="adendo">Acrescentar adendo</label>
+                <textarea id="adendo" class="campo-longo" rows="4" [formControl]="adendo" spellcheck="false" autocomplete="off"
+                          [attr.maxlength]="limite"></textarea>
+                <div class="acoes">
+                  <button type="button" class="botao botao-secundario" (click)="acrescentarAdendo()" [disabled]="salvando()">Acrescentar adendo</button>
+                </div>
+              }
+            }
+          }
+        }
+      }
+    </section>
+  </div>
+}
+
+<ng-template #campoTexto>
+  <label for="texto">Texto da anotação</label>
+  <textarea id="texto" class="campo-longo" rows="14" [formControl]="texto" spellcheck="false" autocomplete="off"
+            [attr.maxlength]="limite" aria-describedby="texto-ajuda"></textarea>
+  <p id="texto-ajuda" class="suave">
+    {{ caracteres() }} de {{ limite }} caracteres. O corretor ortográfico fica desligado aqui: alguns navegadores
+    enviam o texto digitado para servidores externos para corrigi-lo.
+  </p>
+</ng-template>

@@ -1,0 +1,47 @@
+<section class="login" aria-labelledby="login-titulo">
+  <h1 id="login-titulo">Entrar na Clínica Acolher</h1>
+
+  @if (sessaoExpirou && !mensagemErro()) {
+    <p class="mensagem mensagem-atencao" role="status">Sua sessão terminou por inatividade. Entre novamente para continuar.</p>
+  }
+
+  @if (mensagemErro(); as msg) {
+    <p class="mensagem mensagem-erro" role="alert">{{ msg }}</p>
+  }
+
+  @if (etapa() === 'senha') {
+    <form [formGroup]="form" (ngSubmit)="entrar()" novalidate>
+      <label for="email">E-mail</label>
+      <input id="email" type="email" formControlName="email" autocomplete="username" />
+
+      <label for="senha">Senha</label>
+      <input id="senha" type="password" formControlName="senha" autocomplete="current-password" />
+
+      @if (form.invalid && form.touched) {
+        <p class="mensagem mensagem-erro">Informe o e-mail e a senha.</p>
+      }
+
+      <button type="submit" class="botao botao-secundario" [disabled]="enviando()">{{ enviando() ? 'Entrando…' : 'Entrar' }}</button>
+    </form>
+  } @else {
+    <form [formGroup]="formCodigo" (ngSubmit)="confirmarCodigo()" novalidate>
+      @if (etapa() === 'codigo') {
+        <label for="codigo">Código do aplicativo autenticador</label>
+        <input id="codigo" formControlName="codigo" inputmode="numeric" autocomplete="one-time-code" maxlength="7" />
+        <p class="ajuda">Abra o aplicativo no celular e digite os 6 números que aparecem para a Clínica Acolher.</p>
+      } @else {
+        <label for="codigo">Código de recuperação</label>
+        <input id="codigo" formControlName="codigo" autocomplete="off" />
+        <p class="ajuda">Cada código de recuperação funciona uma única vez.</p>
+      }
+      <button type="submit" class="botao botao-secundario" [disabled]="enviando()">Confirmar</button>
+    </form>
+
+    <div class="links">
+      @if (etapa() === 'codigo') {
+        <button type="button" class="botao botao-texto" (click)="usarRecuperacao()">Estou sem o celular: usar um código de recuperação</button>
+      }
+      <button type="button" class="botao botao-texto" (click)="voltarParaSenha()">Voltar</button>
+    </div>
+  }
+</section>

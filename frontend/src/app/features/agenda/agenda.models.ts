@@ -11,6 +11,7 @@ export interface AgendaItem {
   status: AppointmentStatus;
   chargePercent: number;
   chargeReason: ChargeReason;
+  seriesId: string | null;
 }
 
 export interface ProfessionalSummary {
@@ -24,3 +25,18 @@ export interface ActiveRelationship {
   patientId: string;
   patientDisplayName: string;
 }
+
+export const ROTULO_STATUS: Record<AppointmentStatus, string> = {
+  Scheduled: 'Agendada',
+  Confirmed: 'Confirmada',
+  Completed: 'Realizada',
+  NoShow: 'Falta',
+  Cancelled: 'Cancelada',
+  Rescheduled: 'Remarcada',
+};
+
+export const ROTULO_COBRANCA: Record<ChargeReason, string> = {
+  None: '',
+  LateCancellation: 'cancelamento tardio',
+  NoShow: 'falta',
+};

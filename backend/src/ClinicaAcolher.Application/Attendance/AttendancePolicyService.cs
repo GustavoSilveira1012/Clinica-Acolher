@@ -9,12 +9,15 @@ public sealed class AttendancePolicyService(
     IProfessionalRepository professionals,
     IPatientRepository patients,
     IAttendancePolicyRepository policies,
+    AccessControl access,
     IUnitOfWork unitOfWork,
     TimeProvider clock)
 {
     public async Task<AttendancePolicyResponse> PublishAsync(
         Guid professionalId, PublishAttendancePolicyRequest r, CancellationToken ct)
     {
+        access.EnsureActsFor(professionalId, "Profissional não encontrado.");
+
         var professional = await professionals.GetByIdAsync(professionalId, ct)
             ?? throw new NotFoundException("Profissional não encontrado.");
 
@@ -30,12 +33,17 @@ public sealed class AttendancePolicyService(
         return AttendancePolicyResponse.From(policy);
     }
 
-    public async Task<AttendancePolicyResponse> GetCurrentAsync(Guid professionalId, CancellationToken ct) =>
-        AttendancePolicyResponse.From(await policies.GetLatestAsync(professionalId, ct)
+    public async Task<AttendancePolicyResponse> GetCurrentAsync(Guid professionalId, CancellationToken ct)
+    {
+        access.EnsureActsFor(professionalId, "Profissional não encontrado.");
+        return AttendancePolicyResponse.From(await policies.GetLatestAsync(professionalId, ct)
             ?? throw new NotFoundException("Este profissional ainda não publicou uma política de faltas."));
+    }
 
     public async Task<PolicyAcceptanceResponse> AcceptAsync(Guid policyId, AcceptPolicyRequest r, CancellationToken ct)
     {
+        access.EnsureIsPatientOrClinicAdmin(r.PatientId);
+
         var policy = await policies.GetByIdAsync(policyId, ct)
             ?? throw new NotFoundException("Política não encontrada.");
         var patient = await patients.GetByIdAsync(r.PatientId, ct)

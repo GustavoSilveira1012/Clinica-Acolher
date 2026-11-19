@@ -4,7 +4,7 @@
 
 ![CI](https://github.com/GustavoSilveira1012/Clinica-Acolher/actions/workflows/quality.yml/badge.svg)
 
-> 🚧 **Em construção.** O projeto está na fase de descoberta e fundação técnica (milestones M0 e M1). Nenhuma funcionalidade está pronta para uso real ainda. Acompanhe pelo [Project no GitHub](https://github.com/users/SEU-USUARIO/projects/NUMERO).
+> 🚧 **Em construção.** O projeto está na fase de descoberta e fundação técnica (milestones M0 e M1). Nenhuma funcionalidade está pronta para uso real ainda. Acompanhe pelo [Project no GitHub](https://github.com/users/GustavoSilveira1012/projects/3).
 
 ---
 
@@ -38,12 +38,11 @@ O primeiro uso será um **piloto gratuito e controlado** com uma clínica de psi
 
 | Documento | Conteúdo |
 |---|---|
-| [`PROJETO.md`](./PROJETO.md) | Arquitetura, padrões técnicos, segurança, roadmap e critérios de entrada no piloto |
-| [`docs/regras-de-negocio.md`](./docs/regras-de-negocio.md) | Regras de negócio (`RN-...`) e conformidade legal (LGPD, CDC, Marco Civil e outras) |
+| [`docs/projeto.md`](./docs/projeto.md) | Arquitetura, padrões técnicos, segurança, roadmap e critérios de entrada no piloto |
+| [`docs/Regras de negocio.md`](./docs/Regras%20de%20negocio.md) | Regras de negócio (`RN-...`) e conformidade legal |
+| [`docs/glossario.md`](./docs/glossario.md) | Vocabulário comum do domínio |
 | [`docs/decisoes/`](./docs/decisoes/) | Registro de decisões (ADRs) |
-| [`CONTRIBUTING.md`](./CONTRIBUTING.md) | Como trabalhar no projeto: branches, commits e pull requests |
-| [`SECURITY.md`](./SECURITY.md) | Como relatar uma vulnerabilidade |
-| [`PILOT_FEEDBACK.md`](./PILOT_FEEDBACK.md) | Feedback do piloto, sem dados de pacientes |
+| [`CONTRIBUTING.md`](./CONTRIBUTING.md) | Convenções de branches, commits e pull requests |
 
 ## Stack
 
@@ -59,75 +58,116 @@ O primeiro uso será um **piloto gratuito e controlado** com uma clínica de psi
 
 ```text
 clinica-acolher/
-├── backend/        solução .NET (Domain, Application, Infrastructure, Api, testes)
-├── frontend/       aplicação Angular (core, features, shared)
-├── e2e/            testes de ponta a ponta
-├── docs/           regras de negócio, decisões, runbooks e documentos de LGPD
-├── .github/        workflows de CI/CD e modelos de issue e PR
+├── backend/
+│   ├── src/        API, Application, Domain e Infrastructure
+│   └── tests/      testes unitários e de integração
+├── frontend/
+│   └── src/        aplicação Angular
+├── docs/           regras, decisões, escopo e documentação do produto
+├── .github/        workflows de CI
+├── .editorconfig
+├── .gitignore
 └── docker-compose.yml
 ```
 
-Detalhes de cada pasta na seção 7 do [`PROJETO.md`](./PROJETO.md).
+Detalhes de arquitetura e organização estão em [`docs/projeto.md`](./docs/projeto.md).
 
 ## Como rodar localmente
 
-> Os comandos abaixo passam a funcionar à medida que as tarefas do milestone **M1 · Fundação técnica** forem concluídas.
-
 ### Pré-requisitos
 
-- [.NET 10 SDK](https://dotnet.microsoft.com/download)
-- [Node.js](https://nodejs.org) (versão LTS) e Angular CLI: `npm install -g @angular/cli`
-- [Docker Desktop](https://www.docker.com/products/docker-desktop/)
-- [Git](https://git-scm.com) e [GitHub CLI](https://cli.github.com)
+- Docker Desktop com Docker Compose
+- .NET 10 SDK
+- Node.js 22 e npm
 
-### Passo a passo
+### Subir o sistema com Docker
 
-```bash
-# 1. Clonar
-git clone https://github.com/SEU-USUARIO/clinica-acolher.git
-cd clinica-acolher
+No PowerShell, na raiz do repositório:
 
-# 2. Variáveis locais (troque a senha no arquivo .env)
-cp .env.example .env
-
-# 3. Banco de dados
-docker compose up -d postgres
-
-# 4. Backend: http://localhost:5080/api/health
-cd backend
-dotnet restore
-dotnet ef database update --project src/ClinicaAcolher.Infrastructure --startup-project src/ClinicaAcolher.Api
-dotnet run --project src/ClinicaAcolher.Api
-
-# 5. Frontend, em outro terminal: http://localhost:4200
-cd frontend
-npm install
-npm start
+```powershell
+if (-not (Test-Path .env)) { Copy-Item .env.example .env }
 ```
 
-Ou tudo de uma vez, com Docker:
+Edite `.env` e substitua a senha de exemplo por uma senha local forte. Não versione esse arquivo. Inicie o banco:
 
-```bash
+```powershell
+docker compose up -d postgres
+```
+
+Aplique as migrações do banco. O comando abaixo lê as configurações do `.env` sem imprimi-las no terminal:
+
+```powershell
+Set-Location backend
+$settings = @{}
+Get-Content ..\.env | ForEach-Object {
+  if ($_ -match '^\s*([^#=]+)=(.*)$') {
+    $settings[$matches[1].Trim()] = $matches[2].Trim()
+  }
+}
+$env:ConnectionStrings__Default = "Host=localhost;Port=5433;Database=$($settings['POSTGRES_DB']);Username=$($settings['POSTGRES_USER']);Password=$($settings['POSTGRES_PASSWORD'])"
+dotnet tool restore
+dotnet ef database update --project src/ClinicaAcolher.Infrastructure --startup-project src/ClinicaAcolher.Api
+Remove-Item Env:ConnectionStrings__Default
+Set-Location ..
+```
+
+Depois, suba a API e o frontend:
+
+```powershell
 docker compose up --build
 ```
 
+Abra `http://localhost:8080`. O frontend encaminha chamadas `/api` à API dentro do Compose. O PostgreSQL fica disponível localmente na porta `5433`.
+
+### Desenvolvimento com recarga automática
+
+Depois de iniciar o PostgreSQL e aplicar as migrações como acima, execute a API localmente em um terminal PowerShell:
+
+```powershell
+Set-Location backend
+$settings = @{}
+Get-Content ..\.env | ForEach-Object {
+  if ($_ -match '^\s*([^#=]+)=(.*)$') {
+    $settings[$matches[1].Trim()] = $matches[2].Trim()
+  }
+}
+$env:ConnectionStrings__Default = "Host=localhost;Port=5433;Database=$($settings['POSTGRES_DB']);Username=$($settings['POSTGRES_USER']);Password=$($settings['POSTGRES_PASSWORD'])"
+$env:ASPNETCORE_URLS = 'http://localhost:5080'
+dotnet run --project src/ClinicaAcolher.Api
+```
+
+Em outro terminal:
+
+```powershell
+Set-Location frontend
+npm ci
+npm start
+```
+
+Abra `http://localhost:4200`; o proxy Angular encaminha `/api` para `http://localhost:5080`.
+
 ### Testes
 
-```bash
-cd backend && dotnet test                 # unitários e integração (precisa do Docker)
-cd frontend && npx ng test --watch=false  # frontend
-npx playwright test                       # ponta a ponta, na pasta e2e/
+```powershell
+Set-Location backend
+dotnet test
+
+Set-Location ..\frontend
+npm ci
+npm test -- --watch=false
 ```
+
+No Windows, a API em execução pode bloquear as DLLs usadas pela compilação dos testes. Se ela estiver rodando em `Debug`, execute `dotnet test -c Release` dentro de `backend` para usar outra pasta de saída. Para testar em `Debug`, pare a API com `Ctrl+C` no terminal dela antes de executar `dotnet test`. Os testes de integração precisam do Docker Desktop em execução.
 
 ## Como contribuir
 
-1. Escolha uma issue no [Project](https://github.com/users/SEU-USUARIO/projects/NUMERO), de preferência da view **Piloto** (prioridades P0 e P1).
+1. Escolha uma [issue](https://github.com/GustavoSilveira1012/Clinica-Acolher/issues), de preferência da view **Piloto** (prioridades P0 e P1).
 2. Crie uma branch: `feat/123-nome-curto`.
 3. Faça commits no padrão Conventional Commits: `feat(agenda): impede sessões sobrepostas`.
 4. Abra um pull request com `Closes #123` e preencha o checklist de segurança.
 5. O merge só acontece com o CI verde.
 
-Mais detalhes em [`CONTRIBUTING.md`](./CONTRIBUTING.md) e na seção 27 do [`PROJETO.md`](./PROJETO.md).
+Veja o [guia de contribuição](./CONTRIBUTING.md) para detalhes e exemplos.
 
 ## Segurança e privacidade
 

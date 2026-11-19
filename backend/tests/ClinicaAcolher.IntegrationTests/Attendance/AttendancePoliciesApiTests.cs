@@ -7,7 +7,7 @@ namespace ClinicaAcolher.IntegrationTests.Attendance;
 
 public class AttendancePoliciesApiTests(ApiFactory factory) : IClassFixture<ApiFactory>
 {
-    private readonly HttpClient _client = factory.CreateClient();
+    private readonly HttpClient _client = factory.AdminClient;
 
     [Fact]
     public async Task RN_CAN_01_cada_publicacao_cria_uma_nova_versao()
@@ -74,6 +74,10 @@ public class AttendancePoliciesApiTests(ApiFactory factory) : IClassFixture<ApiF
 
         // O tempo passa: chegamos a 20 minutos depois do início, e o paciente não apareceu
         factory.Clock.Advance(TimeSpan.FromDays(1) + TimeSpan.FromMinutes(20));
+
+        // O avanço do relógio também expira o cookie; a administração entra novamente com MFA.
+        await factory.LoginAsync(_client, ApiFactory.AdminEmail, ApiFactory.AdminPassword);
+
         (await _client.PostAsync($"/api/v1/appointments/{sessao.Id}/no-show", null)).EnsureSuccessStatusCode();
 
         return (profissional, sessao);

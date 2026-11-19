@@ -1,0 +1,5 @@
+.login { max-width: 22rem; margin: 3rem auto; }
+form { display: grid; gap: 0.5rem; }
+.ajuda { color: var(--cor-texto-suave); font-size: 0.9rem; }
+.links { display: grid; gap: 0.25rem; margin-top: 1rem; justify-items: start; }
+.link { background: none; border: none; padding: 0; color: var(--cor-primaria-media); text-decoration: underline; cursor: pointer; }

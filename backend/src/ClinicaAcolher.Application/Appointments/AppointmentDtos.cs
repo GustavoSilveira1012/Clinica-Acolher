@@ -32,14 +32,44 @@ public sealed record AgendaItemResponse(
     DateTimeOffset EndsAt,
     AppointmentStatus Status,
     int ChargePercent,
-    ChargeReason ChargeReason)
+    ChargeReason ChargeReason,
+    Guid? SeriesId)
 {
     public static AgendaItemResponse From(AgendaEntry e, ChargeDecision charge) => new(
         e.Appointment.Id, e.Appointment.PatientId, e.PatientDisplayName,
         e.Appointment.StartsAt, e.Appointment.EndsAt, e.Appointment.Status,
-        charge.ChargePercent, charge.Reason);
+        charge.ChargePercent, charge.Reason, e.Appointment.SeriesId);
 }
 
 public sealed record CancelAppointmentRequest(CancellationSource By, string Reason);
 
 public sealed record RescheduleAppointmentRequest(DateTimeOffset StartsAt, int? DurationMinutes);
+
+public sealed record CreateSeriesRequest(
+    Guid RelationshipId,
+    DayOfWeek Weekday,
+    TimeOnly LocalStartTime,
+    int DurationMinutes,
+    string TimeZoneId,
+    DateOnly StartsOn);
+
+public sealed record EndSeriesRequest(DateOnly LastDay);
+
+public sealed record SeriesResponse(
+    Guid Id,
+    Guid RelationshipId,
+    Guid PatientId,
+    Guid ProfessionalId,
+    DayOfWeek Weekday,
+    TimeOnly LocalStartTime,
+    int DurationMinutes,
+    string TimeZoneId,
+    DateOnly StartsOn,
+    DateOnly? EndsOn,
+    DateOnly? GeneratedUntil,
+    bool IsActive)
+{
+    public static SeriesResponse From(AppointmentSeries s) => new(
+        s.Id, s.RelationshipId, s.PatientId, s.ProfessionalId, s.Weekday, s.LocalStartTime,
+        s.DurationMinutes, s.TimeZoneId, s.StartsOn, s.EndsOn, s.GeneratedUntil, s.IsActive);
+}

@@ -9,6 +9,7 @@ public sealed class Appointment : Entity
     public static readonly TimeSpan MaxDuration = TimeSpan.FromHours(3);
 
     public Guid RelationshipId { get; private set; }
+    public Guid? SeriesId { get; private set; }
     public Guid PatientId { get; private set; }
     public Guid ProfessionalId { get; private set; }
     public DateTimeOffset StartsAt { get; private set; }
@@ -31,7 +32,8 @@ public sealed class Appointment : Entity
     private Appointment() { }
 
     public static Appointment Schedule(
-        TherapeuticRelationship relationship, DateTimeOffset startsAt, TimeSpan duration, DateTimeOffset now)
+        TherapeuticRelationship relationship, DateTimeOffset startsAt, TimeSpan duration,
+        DateTimeOffset now, Guid? seriesId = null)
     {
         if (!relationship.AllowsScheduling)
             throw new DomainException("RN-VIN-04", "Só é possível agendar sessões para um vínculo ativo.");
@@ -44,6 +46,7 @@ public sealed class Appointment : Entity
         return new Appointment
         {
             RelationshipId = relationship.Id,
+            SeriesId = seriesId,
             PatientId = relationship.PatientId,
             ProfessionalId = relationship.ProfessionalId,
             StartsAt = start,

@@ -10,6 +10,7 @@ public sealed class AppointmentService(
     IRelationshipRepository relationships,
     IAppointmentRepository appointments,
     IAttendancePolicyRepository policies,
+    AccessControl access,
     IUnitOfWork unitOfWork,
     TimeProvider clock)
 {
@@ -17,6 +18,7 @@ public sealed class AppointmentService(
     {
         var relationship = await relationships.GetByIdAsync(r.RelationshipId, ct)
             ?? throw new NotFoundException("Vínculo não encontrado.");
+        access.EnsureActsFor(relationship.ProfessionalId, "Vínculo não encontrado.");
 
         var appointment = Appointment.Schedule(
             relationship, r.StartsAt, TimeSpan.FromMinutes(r.DurationMinutes), clock.GetUtcNow());
@@ -33,6 +35,8 @@ public sealed class AppointmentService(
     public async Task<IReadOnlyList<AgendaItemResponse>> GetAgendaAsync(
     Guid professionalId, DateTimeOffset from, DateTimeOffset to, CancellationToken ct)
 {
+    access.EnsureActsFor(professionalId, "Profissional não encontrado.");
+
     // 1. As sessões do período
     var entries = await appointments.ListAgendaAsync(
         professionalId, from.ToUniversalTime(), to.ToUniversalTime(), ct);
@@ -103,6 +107,11 @@ public sealed class AppointmentService(
         return AppointmentResponse.From(appointment);
     }
 
-    private async Task<Appointment> LoadAsync(Guid id, CancellationToken ct) =>
-        await appointments.GetByIdAsync(id, ct) ?? throw new NotFoundException("Sessão não encontrada.");
+    private async Task<Appointment> LoadAsync(Guid id, CancellationToken ct)
+    {
+        var appointment = await appointments.GetByIdAsync(id, ct)
+            ?? throw new NotFoundException("Sessão não encontrada.");
+        access.EnsureActsFor(appointment.ProfessionalId, "Sessão não encontrada.");
+        return appointment;
+    }
 }

@@ -1,4 +1,13 @@
-import { addDays, dateKey, nextFullHour, startOfWeek, toLocalInputValue } from './week';
+import {
+  addDays,
+  dateKey,
+  fromDateKey,
+  nextFullHour,
+  startOfWeek,
+  toLocalInputValue,
+  toSeriesSchedule,
+  weekdayOf,
+} from './week';
 
 describe('week', () => {
   // Atenção: no construtor de Date, o mês começa em 0. new Date(2026, 10, 18) é 18 de NOVEMBRO
@@ -26,7 +35,28 @@ describe('week', () => {
     expect(new Date(valor).getHours()).toBe(9);
   });
 
+  it('lê uma data do campo de data como meia-noite local, sem voltar um dia', () => {
+    const data = fromDateKey('2026-12-21');
+
+    expect(dateKey(data)).toBe('2026-12-21');
+    expect(data.getHours()).toBe(0);
+  });
+
   it('a próxima hora cheia vira o dia quando necessário', () => {
     expect(toLocalInputValue(nextFullHour(new Date(2026, 10, 20, 23, 40)))).toBe('2026-11-21T00:00');
+  });
+
+  it('diz o dia da semana de uma data, de domingo a sábado', () => {
+    expect(weekdayOf(new Date(2026, 10, 22))).toBe('Sunday');
+    expect(weekdayOf(new Date(2026, 10, 16))).toBe('Monday');
+    expect(weekdayOf(new Date(2026, 10, 21, 23, 59))).toBe('Saturday');
+  });
+
+  it('monta o dia da semana, a hora local e a data de início de uma série', () => {
+    expect(toSeriesSchedule(new Date(2026, 10, 17, 15, 0))).toEqual({
+      weekday: 'Tuesday',
+      localStartTime: '15:00:00',
+      startsOn: '2026-11-17',
+    });
   });
 });

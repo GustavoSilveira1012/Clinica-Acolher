@@ -1,10 +1,11 @@
 using ClinicaAcolher.Application.Common;
+using ClinicaAcolher.Infrastructure.Auditing;
 using Microsoft.EntityFrameworkCore;
 using Npgsql;
 
 namespace ClinicaAcolher.Infrastructure.Persistence;
 
-internal sealed class UnitOfWork(AppDbContext db) : IUnitOfWork
+internal sealed class UnitOfWork(AppDbContext db, AuditTrail audit) : IUnitOfWork
 {
     // Cada restrição de unicidade ou exclusão mapeada corresponde a uma regra de negócio
     private static readonly Dictionary<string, (string Rule, string Message)> UniqueIndexRules = new()
@@ -17,16 +18,26 @@ internal sealed class UnitOfWork(AppDbContext db) : IUnitOfWork
             ("RN-AGD-03", "O profissional já tem uma sessão neste horário."),
         ["ex_appointments_patient_overlap"] =
             ("RN-AGD-04", "O paciente já tem uma sessão neste horário."),
+        ["IX_appointments_SeriesId_StartsAt"] =
+            ("RN-AGD-05", "Esta sessão da série já foi gerada."),
+        ["IX_professional_availabilities_ProfessionalId"] =
+            ("RN-AGD-01", "A disponibilidade foi salva em outra janela ao mesmo tempo. Recarregue e tente de novo."),
         ["IX_attendance_policies_ProfessionalId_Version"] =
             ("RN-CAN-01", "Outra versão da política foi publicada ao mesmo tempo. Tente de novo."),
         ["IX_attendance_policy_acceptances_PatientId_PolicyId"] =
             ("RN-CAN-01", "Este aceite já foi registrado."),
+        ["IX_clinical_note_revisions_NoteId_Number"] =
+            ("RN-PRT-04", "A anotação foi salva em outra janela. Recarregue para ver a versão mais recente."),
+        ["IX_clinical_note_addenda_NoteId_Number"] =
+            ("RN-PRT-03", "Outro adendo foi acrescentado ao mesmo tempo. Recarregue e tente de novo."),
     };
 
     public async Task ExecuteInTransactionAsync(Func<Task> work, CancellationToken ct)
     {
         await using var transaction = await db.Database.BeginTransactionAsync(ct);
         await work();
+        if (audit.HasPending)
+            await SaveChangesAsync(ct);
         await transaction.CommitAsync(ct);
     }
 
@@ -34,7 +45,10 @@ internal sealed class UnitOfWork(AppDbContext db) : IUnitOfWork
     {
         try
         {
-            await db.SaveChangesAsync(ct);
+            if (audit.HasPending)
+                await SaveWithAuditAsync(ct);
+            else
+                await db.SaveChangesAsync(ct);
         }
         catch (DbUpdateException e) when (
             e.InnerException is PostgresException
@@ -46,5 +60,18 @@ internal sealed class UnitOfWork(AppDbContext db) : IUnitOfWork
         {
             throw new ConflictException(rule.Rule, rule.Message);
         }
+    }
+
+    private async Task SaveWithAuditAsync(CancellationToken ct)
+    {
+        // Se já existe uma transação (por exemplo, na remarcação), a auditoria entra nela
+        var ownTransaction = db.Database.CurrentTransaction is null;
+        await using var transaction = ownTransaction ? await db.Database.BeginTransactionAsync(ct) : null;
+
+        await audit.ChainPendingAsync(ct);
+        await db.SaveChangesAsync(ct);
+
+        if (transaction is not null)
+            await transaction.CommitAsync(ct);
     }
 }

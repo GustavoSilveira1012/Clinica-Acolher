@@ -1,0 +1,84 @@
+/* Botões */
+.botao {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--espaco-2);
+  min-height: 40px;
+  padding: 10px var(--espaco-4);
+  font: var(--texto-rotulo);
+  border: 1px solid transparent;
+  border-radius: var(--raio-campo);
+  cursor: pointer;
+  text-decoration: none;
+}
+.botao:disabled { opacity: 0.55; cursor: not-allowed; }
+
+.botao-primario { background: var(--cor-primaria); color: var(--cor-sobre-primaria); }
+.botao-primario:hover:not(:disabled) { background: var(--cor-primaria-media); }
+
+.botao-secundario {
+  background: var(--cor-superficie);
+  color: var(--cor-primaria);
+  border-color: var(--cor-borda-campo);
+}
+.botao-secundario:hover:not(:disabled) { background: var(--cor-superficie-suave); }
+
+.botao-texto {
+  background: none;
+  color: var(--cor-primaria-media);
+  padding-inline: var(--espaco-1);
+  text-decoration: underline;
+}
+
+.botao-perigo { background: var(--cor-perigo); color: var(--cor-sobre-perigo); }
+
+.acoes { display: flex; flex-wrap: wrap; gap: var(--espaco-2); justify-content: flex-end; }
+
+/* Painel: o bloco branco com borda e sombra do protótipo */
+.painel {
+  background: var(--cor-superficie);
+  border: 1px solid var(--cor-borda);
+  border-radius: var(--raio-painel);
+  box-shadow: var(--sombra-painel);
+  padding: var(--espaco-4);
+}
+
+/* Etiquetas de estado: sempre com texto, nunca só a cor */
+.etiqueta {
+  display: inline-block;
+  padding: 2px 10px;
+  font: var(--texto-pequeno);
+  font-weight: 600;
+  border-radius: var(--raio-etiqueta);
+  background: var(--cor-neutro-fundo);
+  color: var(--cor-neutro-texto);
+}
+.etiqueta-sucesso { background: var(--cor-sucesso-fundo); color: var(--cor-sucesso-texto); }
+.etiqueta-atencao { background: var(--cor-atencao-fundo); color: var(--cor-atencao-texto); }
+.etiqueta-erro { background: var(--cor-erro-fundo); color: var(--cor-erro-texto); }
+.etiqueta-informacao { background: var(--cor-informacao-fundo); color: var(--cor-informacao-texto); }
+
+/* Mensagens em bloco */
+.mensagem { padding: var(--espaco-2) var(--espaco-3); border-radius: var(--raio-campo); }
+.mensagem-sucesso { background: var(--cor-sucesso-fundo); color: var(--cor-sucesso-texto); }
+.mensagem-atencao { background: var(--cor-atencao-fundo); color: var(--cor-atencao-texto); }
+.mensagem-erro { background: var(--cor-erro-fundo); color: var(--cor-erro-texto); }
+.mensagem-informacao { background: var(--cor-informacao-fundo); color: var(--cor-informacao-texto); }
+
+/* Utilitários */
+.texto-suave { color: var(--cor-texto-suave); }
+.opcao { display: flex; gap: var(--espaco-2); align-items: center; font: var(--texto-corpo); color: var(--cor-texto); }
+
+/* Texto longo, como as anotações: letra maior e linhas mais espaçadas para ler e escrever */
+.campo-longo { width: 100%; font-size: 16px; line-height: 1.6; }
+
+/* Escondido da tela, mas lido pelos leitores de tela */
+.visualmente-oculto {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}

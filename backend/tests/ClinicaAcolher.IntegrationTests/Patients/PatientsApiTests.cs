@@ -8,7 +8,7 @@ namespace ClinicaAcolher.IntegrationTests.Patients;
 public class PatientsApiTests(ApiFactory factory) : IClassFixture<ApiFactory>
 {
     private static readonly DateOnly Nascimento = new(1990, 5, 20);
-    private readonly HttpClient _client = factory.CreateClient();
+    private readonly HttpClient _client = factory.AdminClient;
 
     [Fact]
     public async Task Cria_e_consulta_paciente()

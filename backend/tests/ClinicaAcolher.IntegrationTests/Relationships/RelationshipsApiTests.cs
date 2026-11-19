@@ -17,7 +17,7 @@ public class RelationshipsApiTests(ApiFactory factory) : IClassFixture<ApiFactor
         Converters = { new JsonStringEnumConverter() },
     };
 
-    private readonly HttpClient _client = factory.CreateClient();
+    private readonly HttpClient _client = factory.AdminClient;
 
     [Fact]
     public async Task Lista_so_os_vinculos_ativos_do_profissional()
@@ -36,6 +36,39 @@ public class RelationshipsApiTests(ApiFactory factory) : IClassFixture<ApiFactor
         var item = Assert.Single(lista!);
         Assert.Equal(ativo, item.RelationshipId);
         Assert.Equal("Paciente Ativo", item.PatientDisplayName);
+    }
+
+    [Fact]
+    public async Task Profissional_lista_somente_os_vinculos_proprios_do_paciente()
+    {
+        var (profissionalAId, profissionalA) = await factory.CriarProfissionalComLoginAsync();
+        var (profissionalBId, profissionalB) = await factory.CriarProfissionalComLoginAsync();
+        using (profissionalA)
+        using (profissionalB)
+        {
+            var pacienteId = await _client.CriarPacienteAsync("Paciente com dois vínculos");
+            var vinculoA = await _client.IniciarVinculoAsync(pacienteId, profissionalAId);
+            var vinculoB = await _client.IniciarVinculoAsync(pacienteId, profissionalBId);
+
+            var listaA = await profissionalA.GetFromJsonAsync<List<RelationshipResponse>>(
+                $"/api/v1/patients/{pacienteId}/relationships", TestApi.Json);
+            var listaB = await profissionalB.GetFromJsonAsync<List<RelationshipResponse>>(
+                $"/api/v1/patients/{pacienteId}/relationships", TestApi.Json);
+            var listaAdmin = await _client.GetFromJsonAsync<List<RelationshipResponse>>(
+                $"/api/v1/patients/{pacienteId}/relationships", Json);
+
+            var itemA = Assert.Single(listaA!);
+            var itemB = Assert.Single(listaB!);
+            Assert.Equal(vinculoA, itemA.Id);
+            Assert.Equal(profissionalAId, itemA.ProfessionalId);
+            Assert.Equal(vinculoB, itemB.Id);
+            Assert.Equal(profissionalBId, itemB.ProfessionalId);
+            Assert.Equal(2, listaAdmin!.Count);
+
+            using var outroProfissional = await profissionalA.GetAsync(
+                $"/api/v1/professionals/{profissionalBId}/relationships/active");
+            Assert.Equal(HttpStatusCode.NotFound, outroProfissional.StatusCode);
+        }
     }
 
     [Fact]

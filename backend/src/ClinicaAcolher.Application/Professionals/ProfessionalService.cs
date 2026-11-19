@@ -5,7 +5,7 @@ using ClinicaAcolher.Domain.Professionals;
 namespace ClinicaAcolher.Application.Professionals;
 
 public sealed class ProfessionalService(
-    IProfessionalRepository professionals, IUnitOfWork unitOfWork, TimeProvider clock)
+    IProfessionalRepository professionals, AccessControl access, IUnitOfWork unitOfWork, TimeProvider clock)
 {
     public async Task<ProfessionalResponse> CreateAsync(CreateProfessionalRequest r, CancellationToken ct)
     {
@@ -30,11 +30,17 @@ public sealed class ProfessionalService(
     public async Task<IReadOnlyList<ProfessionalResponse>> ListAsync(CancellationToken ct) =>
         (await professionals.ListAsync(ct)).Select(ProfessionalResponse.From).ToList();
 
-    public Task<ProfessionalResponse?> ApproveAsync(Guid id, CancellationToken ct) =>
-        ChangeAsync(id, (p, now) => p.Approve(now), ct);
+    public Task<ProfessionalResponse?> ApproveAsync(Guid id, CancellationToken ct)
+    {
+        access.EnsureClinicAdmin();
+        return ChangeAsync(id, (p, now) => p.Approve(now), ct);
+    }
 
-    public Task<ProfessionalResponse?> RejectAsync(Guid id, CancellationToken ct) =>
-        ChangeAsync(id, (p, now) => p.Reject(now), ct);
+    public Task<ProfessionalResponse?> RejectAsync(Guid id, CancellationToken ct)
+    {
+        access.EnsureClinicAdmin();
+        return ChangeAsync(id, (p, now) => p.Reject(now), ct);
+    }
 
     private async Task<ProfessionalResponse?> ChangeAsync(
         Guid id, Action<Professional, DateTimeOffset> change, CancellationToken ct)

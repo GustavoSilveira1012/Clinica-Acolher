@@ -15,6 +15,7 @@ public sealed class ProblemExceptionHandler(IProblemDetailsService problemDetail
             DomainException e => (StatusCodes.Status422UnprocessableEntity, "Regra de negócio violada", e.Rule),
             ConflictException e => (StatusCodes.Status409Conflict, "Conflito com dados existentes", e.Rule),
             NotFoundException => (StatusCodes.Status404NotFound, "Recurso não encontrado", null),
+            ForbiddenException => (StatusCodes.Status403Forbidden, "Acesso negado", null),
             _ => null,
         };
 

@@ -1,24 +1,41 @@
 using ClinicaAcolher.Domain.Patients;
 using ClinicaAcolher.Application.Common;
+using ClinicaAcolher.Application.Professionals;
+using ClinicaAcolher.Application.Relationships;
+using ClinicaAcolher.Domain.Relationships;
 
 namespace ClinicaAcolher.Application.Patients;
 
-public sealed class PatientService(IPatientRepository patients, IUnitOfWork unitOfWork, TimeProvider clock)
+public sealed class PatientService(
+    IPatientRepository patients,
+    IProfessionalRepository professionals,
+    IRelationshipRepository relationships,
+    AccessControl access,
+    IUnitOfWork unitOfWork,
+    TimeProvider clock)
 {
     public async Task<PatientResponse> CreateAsync(CreatePatientRequest request, CancellationToken ct)
     {
+        var now = clock.GetUtcNow();
         var patient = Patient.Create(
-            request.FullName, request.BirthDate, clock.GetUtcNow(),
-            request.SocialName, request.Email, request.Phone);
+            request.FullName, request.BirthDate, now, request.SocialName, request.Email, request.Phone);
+        patients.Add(patient);
 
-            patients.Add(patient);
-            await unitOfWork.SaveChangesAsync(ct);
+        // Quem cadastra como profissional já começa o vínculo com o paciente.
+        if (access.ProfessionalScope is { } professionalId)
+        {
+            var professional = await professionals.GetByIdAsync(professionalId, ct)
+                ?? throw new NotFoundException("Profissional não encontrado.");
+            relationships.Add(TherapeuticRelationship.Start(patient, professional, now));
+        }
 
+        await unitOfWork.SaveChangesAsync(ct);
         return PatientResponse.From(patient);
     }
 
     public async Task<PatientResponse?> GetByIdAsync(Guid id, CancellationToken ct)
     {
+        await access.EnsureCanAccessPatientAsync(id, ct);
         var patient = await patients.GetByIdAsync(id, ct);
         return patient is null ? null : PatientResponse.From(patient);
     }
@@ -29,7 +46,7 @@ public sealed class PatientService(IPatientRepository patients, IUnitOfWork unit
         var pageSize = Math.Clamp(request.PageSize, 1, 100);
 
         var (items, total) = await patients.SearchAsync(
-            request.Search, request.Active, (page - 1) * pageSize, pageSize, ct);
+            request.Search, request.Active, access.ProfessionalScope, (page - 1) * pageSize, pageSize, ct);
 
         return new PagedResult<PatientListItem>(
             items.Select(PatientListItem.From).ToList(), page, pageSize, total
@@ -48,6 +65,7 @@ public Task<PatientResponse?> ReactivateAsync(Guid id, CancellationToken ct) =>
 private async Task<PatientResponse?> ChangeAsync(
     Guid id, Action<Patient, DateTimeOffset> change, CancellationToken ct)
 {
+    await access.EnsureCanAccessPatientAsync(id, ct);
     var patient = await patients.GetByIdAsync(id, ct);
     if (patient is null)
         return null;

@@ -1,0 +1,76 @@
+<h1>Proteja sua conta com dois fatores</h1>
+
+@switch (etapa()) {
+  @case ('carregando') {
+    <p>Preparando a configuração…</p>
+  }
+
+  @case ('erro') {
+    <p role="alert" class="mensagem mensagem-erro">Não foi possível preparar a configuração. Recarregue a página para tentar de novo.</p>
+  }
+
+  @case ('ja-ativo') {
+    <p>A autenticação em dois fatores já está ativa nesta conta.</p>
+    <a routerLink="/agenda">Ir para a agenda</a>
+  }
+
+  @case ('configurar') {
+    @if (configuracao(); as c) {
+      <p>
+        Para proteger os dados dos pacientes, toda a equipe usa um segundo fator: além da senha,
+        um código do celular que muda a cada 30 segundos.
+      </p>
+
+      <ol>
+        <li>Instale um aplicativo autenticador no celular, como o Google Authenticator ou o Microsoft Authenticator.</li>
+        <li>No aplicativo, escolha adicionar uma conta e leia o QR code abaixo.</li>
+        <li>Digite o código de 6 números que o aplicativo mostrar.</li>
+      </ol>
+
+      <img [src]="c.qrCodeDataUri" alt="QR code para configurar o aplicativo autenticador" width="240" height="240" />
+      <p class="ajuda">
+        Não consegue ler o QR code? Digite esta chave no aplicativo:
+        <code class="chave">{{ c.manualKey }}</code>
+      </p>
+
+      @if (mensagemErro(); as msg) {
+        <p role="alert" class="mensagem mensagem-erro">{{ msg }}</p>
+      }
+
+      <form [formGroup]="formCodigo" (ngSubmit)="ativar()" novalidate>
+        <label for="codigo">Código do aplicativo</label>
+        <input id="codigo" formControlName="codigo" inputmode="numeric" autocomplete="one-time-code" maxlength="7" />
+        <button type="submit" class="botao botao-secundario" [disabled]="enviando()">Ativar</button>
+      </form>
+    }
+  }
+
+  @case ('codigos') {
+    <section aria-labelledby="codigos-titulo">
+      <h2 id="codigos-titulo">Guarde seus códigos de recuperação</h2>
+      <p>
+        Se você perder o celular, cada um destes códigos permite entrar <strong>uma única vez</strong>.
+        Eles não serão mostrados de novo.
+      </p>
+
+      <ul class="codigos">
+        @for (codigo of codigosRecuperacao(); track codigo) {
+          <li><code>{{ codigo }}</code></li>
+        }
+      </ul>
+
+      <div class="acoes">
+        <button type="button" class="botao botao-secundario" (click)="copiar()">{{ copiado() ? 'Copiado!' : 'Copiar' }}</button>
+        <button type="button" class="botao botao-secundario" (click)="baixar()">Baixar como arquivo</button>
+      </div>
+
+      <p class="ajuda">Guarde impresso ou num gerenciador de senhas. Não envie por WhatsApp nem por e-mail.</p>
+
+      <label class="opcao">
+        <input id="guardou" type="checkbox" [formControl]="guardou" />
+        Guardei os códigos em um lugar seguro
+      </label>
+      <button type="button" class="botao botao-secundario" [disabled]="!guardou.value" (click)="concluir()">Concluir</button>
+    </section>
+  }
+}

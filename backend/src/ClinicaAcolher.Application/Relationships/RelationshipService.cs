@@ -10,11 +10,16 @@ public sealed class RelationshipService(
     IPatientRepository patients,
     IProfessionalRepository professionals,
     IRelationshipRepository relationships,
+    AccessControl access,
     IUnitOfWork unitOfWork,
     TimeProvider clock)
 {
     public async Task<RelationshipResponse> StartAsync(StartRelationshipRequest r, CancellationToken ct)
     {
+        // Sem estas duas linhas, bastaria adivinhar o Id de um paciente para ganhar acesso a ele.
+        access.EnsureActsFor(r.ProfessionalId, "Profissional não encontrado.");
+        await access.EnsureCanAccessPatientAsync(r.PatientId, ct);
+
         var patient = await patients.GetByIdAsync(r.PatientId, ct)
             ?? throw new NotFoundException("Paciente não encontrado.");
 
@@ -36,13 +41,22 @@ public sealed class RelationshipService(
 
     public async Task<IReadOnlyList<RelationshipResponse>> ListByPatientAsync(Guid patientId, CancellationToken ct)
     {
+        await access.EnsureCanAccessPatientAsync(patientId, ct);
+        var scope = access.ProfessionalScope;
+
         var list = await relationships.ListByPatientAsync(patientId, ct);
-        return list.Select(RelationshipResponse.From).ToList();
+        return list
+            .Where(r => scope is null || r.ProfessionalId == scope)
+            .Select(RelationshipResponse.From)
+            .ToList();
     }
 
     public Task<IReadOnlyList<ActiveRelationshipResponse>> ListActiveByProfessionalAsync(
-        Guid professionalId, CancellationToken ct) =>
-        relationships.ListActiveByProfessionalAsync(professionalId, ct);
+        Guid professionalId, CancellationToken ct)
+    {
+        access.EnsureActsFor(professionalId, "Profissional não encontrado.");
+        return relationships.ListActiveByProfessionalAsync(professionalId, ct);
+    }
 
     public Task<RelationshipResponse> SuspendAsync(Guid id, CancellationToken ct) =>
         ChangeAsync(id, (r, _) => r.Suspend(), ct);
@@ -62,6 +76,11 @@ public sealed class RelationshipService(
         return RelationshipResponse.From(relationship);
     }
 
-    private async Task<TherapeuticRelationship> LoadAsync(Guid id, CancellationToken ct) =>
-        await relationships.GetByIdAsync(id, ct) ?? throw new NotFoundException("Vínculo não encontrado.");
+    private async Task<TherapeuticRelationship> LoadAsync(Guid id, CancellationToken ct)
+    {
+        var relationship = await relationships.GetByIdAsync(id, ct)
+            ?? throw new NotFoundException("Vínculo não encontrado.");
+        access.EnsureActsFor(relationship.ProfessionalId, "Vínculo não encontrado.");
+        return relationship;
+    }
 }
