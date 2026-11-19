@@ -1,0 +1,50 @@
+.rolagem { overflow-x: auto; }
+
+.grade {
+  display: grid;
+  grid-template-columns: 3rem repeat(var(--colunas), minmax(7.5rem, 1fr));
+  min-width: calc(3rem + var(--colunas) * 7.5rem);
+}
+
+.cabecalho {
+  display: grid; justify-items: start; gap: var(--espaco-1);
+  padding: var(--espaco-2); border-bottom: 1px solid var(--cor-borda);
+}
+.cabecalho h3 { display: grid; font: var(--texto-rotulo); }
+.dia-semana { color: var(--cor-texto-suave); text-transform: capitalize; }
+.data { font: var(--texto-titulo-bloco); color: var(--cor-texto); }
+.cabecalho.hoje .data { color: var(--cor-primaria); text-decoration: underline; }
+
+.horas { position: relative; }
+.horas span {
+  position: absolute; right: var(--espaco-2);
+  font: var(--texto-pequeno); color: var(--cor-texto-suave);
+}
+
+.coluna {
+  position: relative; overflow: hidden;
+  border-left: 1px solid var(--cor-borda);
+  background-image: repeating-linear-gradient(to bottom, var(--cor-borda) 0 1px, transparent 1px var(--hora));
+}
+
+.fundo-atendimento { position: absolute; inset-inline: 0; background: var(--cor-superficie-suave); }
+.fundo-bloqueio {
+  position: absolute; inset-inline: 0; padding: var(--espaco-1);
+  font: var(--texto-pequeno); color: var(--cor-texto-suave);
+  background: repeating-linear-gradient(45deg, var(--cor-neutro-fundo) 0 6px, transparent 6px 12px);
+}
+
+.sessoes { list-style: none; margin: 0; padding: 0; }
+.sessoes li { position: absolute; inset-inline: 4px; }
+
+.cartao {
+  width: 100%; height: 100%; overflow: hidden;
+  display: grid; align-content: start; gap: 1px; padding: 4px 6px;
+  text-align: left; font: var(--texto-pequeno); color: var(--cor-texto); cursor: pointer;
+  background: var(--cor-superficie);
+  border: 1px solid var(--cor-borda); border-left: 4px solid var(--cor-primaria); border-radius: var(--raio-campo);
+}
+.cartao .nome { font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.cartao[data-status='Confirmed'] { background: var(--cor-sucesso-fundo); border-left-color: var(--cor-sucesso-texto); }
+.cartao[data-status='Completed'] { background: var(--cor-informacao-fundo); border-left-color: var(--cor-informacao-texto); }
+.cartao[data-status='NoShow'] { background: var(--cor-atencao-fundo); border-left-color: var(--cor-atencao-texto); }

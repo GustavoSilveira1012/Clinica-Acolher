@@ -1,53 +1,66 @@
-import { Component, OnInit, computed, inject, signal } from '@angular/core';
-import { DatePipe } from '@angular/common';
+import { Component, OnInit, Signal, computed, inject, signal } from '@angular/core';
+import { DatePipe, NgTemplateOutlet } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { Observable } from 'rxjs';
-import { AgendaApi } from './agenda-api';
-import { ActiveRelationship, AgendaItem, AppointmentStatus, CancellationSource, ChargeReason, ProfessionalSummary } from './agenda.models';
-import { addDays, dateKey, nextFullHour, startOfWeek, toLocalInputValue } from './week';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { Observable, catchError, debounceTime, forkJoin, of, switchMap } from 'rxjs';
 import { AuthService } from '../../core/auth/auth.service';
 import { AvisoService } from '../../shared/avisos/aviso.service';
 import { Dialogo } from '../../shared/dialogo/dialogo';
+import { AvailabilityApi } from '../availability/availability-api';
+import { AvailabilityBlock, AvailabilityWindow } from '../availability/availability.models';
+import { AgendaApi } from './agenda-api';
+import { AgendaGrade } from './agenda-grade';
+import {
+  ActiveRelationship, AgendaItem, CancellationSource, ProfessionalSummary, ROTULO_COBRANCA, ROTULO_STATUS,
+} from './agenda.models';
+import { periodosDoDia } from './grade';
+import { addDays, dateKey, nextFullHour, startOfWeek, toLocalInputValue } from './week';
 
-const ROTULO_STATUS: Record<AppointmentStatus, string> = {
-  Scheduled: 'Agendada',
-  Confirmed: 'Confirmada',
-  Completed: 'Realizada',
-  NoShow: 'Falta',
-  Cancelled: 'Cancelada',
-  Rescheduled: 'Remarcada',
-};
+type Modo = 'semana' | 'dia';
 
-const ROTULO_COBRANCA: Record<ChargeReason, string> = {
-  None: '',
-  LateCancellation: 'cancelamento tardio',
-  NoShow: 'falta',
-};
+// O navegador simulado dos testes não tem matchMedia; sem ele, a agenda abre na semana
+function telaEstreita(): boolean {
+  return typeof window.matchMedia === 'function' && window.matchMedia('(max-width: 760px)').matches;
+}
 
 @Component({
   selector: 'app-agenda-page',
-  imports: [DatePipe, ReactiveFormsModule, Dialogo],
+  imports: [DatePipe, NgTemplateOutlet, ReactiveFormsModule, Dialogo, AgendaGrade],
   templateUrl: './agenda-page.html',
   styleUrl: './agenda-page.css',
 })
 export class AgendaPage implements OnInit {
   private readonly api = inject(AgendaApi);
+  private readonly disponibilidadeApi = inject(AvailabilityApi);
   private readonly auth = inject(AuthService);
   private readonly avisos = inject(AvisoService);
   private readonly fusoHorario = Intl.DateTimeFormat().resolvedOptions().timeZone;
 
   protected readonly profissionais = signal<ProfessionalSummary[]>([]);
   protected readonly profissionalId = signal<string | null>(null);
-  protected readonly inicioSemana = signal(startOfWeek(new Date()));
+  protected readonly modo = signal<Modo>(telaEstreita() ? 'dia' : 'semana');
+  protected readonly diaSelecionado = signal(addDays(new Date(), 0));
+  protected readonly inicioSemana = computed(() => startOfWeek(this.diaSelecionado()));
+  protected readonly fimSemana = computed(() => addDays(this.inicioSemana(), 6));
+
   protected readonly itens = signal<AgendaItem[]>([]);
+  protected readonly periodos = signal<AvailabilityWindow[]>([]);
+  protected readonly bloqueios = signal<AvailabilityBlock[]>([]);
+  private readonly duracaoPadrao = signal(50);
   protected readonly carregando = signal(false);
   protected readonly mensagemErro = signal<string | null>(null);
+
+  protected readonly selecionada = signal<AgendaItem | null>(null);
   protected readonly agendando = signal(false);
   protected readonly remarcando = signal<AgendaItem | null>(null);
-  protected readonly vinculos = signal<ActiveRelationship[]>([]);
   protected readonly cancelando = signal<AgendaItem | null>(null);
   protected readonly encerrandoSerie = signal<AgendaItem | null>(null);
+  protected readonly vinculos = signal<ActiveRelationship[]>([]);
+
+  protected readonly algumDialogoAberto = computed(
+    () => this.agendando() || !!this.selecionada() || !!this.remarcando() || !!this.cancelando() || !!this.encerrandoSerie(),
+  );
 
   protected readonly formAgendamento = new FormGroup({
     vinculoId: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
@@ -72,16 +85,23 @@ export class AgendaPage implements OnInit {
     motivo: new FormControl('', { nonNullable: true, validators: [Validators.required, Validators.maxLength(500)] }),
   });
 
-  protected readonly fimSemana = computed(() => addDays(this.inicioSemana(), 6));
+  // RN-AGD-13: o aviso aparece enquanto a profissional escolhe o horário
+  protected readonly alertaAgendamento = this.alertaDeHorario(this.formAgendamento);
+  protected readonly alertaRemarcacao = this.alertaDeHorario(this.formRemarcacao);
 
-  protected readonly dias = computed(() => {
+  protected readonly diasDaSemana = computed(() => {
     const inicio = this.inicioSemana();
-    const itens = this.itens();
-    return Array.from({ length: 7 }, (_, i) => {
-      const data = addDays(inicio, i);
-      const chave = dateKey(data);
-      return { data, chave, itens: itens.filter((item) => dateKey(new Date(item.startsAt)) === chave) };
-    });
+    // Sábado e domingo só aparecem quando têm atendimento ou sessões
+    return Array.from({ length: 7 }, (_, i) => addDays(inicio, i)).filter((dia, i) => i < 5 || this.temAlgoNoDia(dia));
+  });
+
+  protected readonly itensDaGrade = computed(() =>
+    this.itens().filter((i) => i.status !== 'Cancelled' && i.status !== 'Rescheduled'),
+  );
+
+  protected readonly itensDoDia = computed(() => {
+    const chave = dateKey(this.diaSelecionado());
+    return this.itens().filter((i) => dateKey(new Date(i.startsAt)) === chave);
   });
 
   ngOnInit(): void {
@@ -89,16 +109,11 @@ export class AgendaPage implements OnInit {
       next: (lista) => {
         const usuario = this.auth.user();
         const ehAdministracao = usuario?.roles.includes('Admin') ?? false;
-
-        // A API já protege; aqui só evitamos oferecer uma opção que daria erro.
         const aptos = lista.filter(
           (p) => p.canAttend && (!usuario || ehAdministracao || p.id === usuario.professionalId),
         );
         this.profissionais.set(aptos);
-        if (aptos.length > 0) {
-          this.profissionalId.set(aptos[0].id);
-          this.carregar();
-        }
+        if (aptos.length > 0) this.escolherProfissional(aptos[0].id);
       },
       error: () => this.mensagemErro.set('Não foi possível carregar os profissionais.'),
     });
@@ -106,17 +121,20 @@ export class AgendaPage implements OnInit {
 
   protected escolherProfissional(id: string): void {
     this.profissionalId.set(id);
+    this.carregarDisponibilidade();
     this.carregar();
   }
 
-  protected mudarSemana(semanas: number): void {
-    this.inicioSemana.update((inicio) => addDays(inicio, semanas * 7));
-    this.carregar();
+  protected navegar(passo: number): void {
+    const semanaAntes = dateKey(this.inicioSemana());
+    this.diaSelecionado.update((dia) => addDays(dia, this.modo() === 'semana' ? passo * 7 : passo));
+    if (dateKey(this.inicioSemana()) !== semanaAntes) this.carregar();
   }
 
   protected irParaHoje(): void {
-    this.inicioSemana.set(startOfWeek(new Date()));
-    this.carregar();
+    const semanaAntes = dateKey(this.inicioSemana());
+    this.diaSelecionado.set(addDays(new Date(), 0));
+    if (dateKey(this.inicioSemana()) !== semanaAntes) this.carregar();
   }
 
   protected rotuloStatus(item: AgendaItem): string {
@@ -135,52 +153,27 @@ export class AgendaPage implements OnInit {
     return new Date(item.startsAt).getTime() <= Date.now();
   }
 
-  protected confirmar(item: AgendaItem): void {
-    this.executar(this.api.confirm(item.id), () => this.avisos.mostrar('Sessão confirmada.'));
-  }
+  // Janelas
 
-  protected registrarRealizada(item: AgendaItem): void {
-    this.executar(this.api.complete(item.id), () => this.avisos.mostrar('Sessão registrada como realizada.'));
-  }
-
-  protected registrarFalta(item: AgendaItem): void {
-    this.executar(this.api.noShow(item.id), () => this.avisos.mostrar('Falta registrada.'));
+  protected selecionar(item: AgendaItem): void {
+    this.fecharPaineis();
+    this.selecionada.set(item);
   }
 
   protected abrirAgendamento(): void {
     const id = this.profissionalId();
     if (!id) return;
-
     this.fecharPaineis();
     this.formAgendamento.reset({
       vinculoId: '',
       inicio: toLocalInputValue(nextFullHour(new Date())),
-      duracao: 50,
+      duracao: this.duracaoPadrao(),
       repetir: false,
     });
     this.agendando.set(true);
-
     this.api.listActiveRelationships(id).subscribe({
       next: (lista) => this.vinculos.set(lista),
       error: () => this.mensagemErro.set('Não foi possível carregar os pacientes do profissional.'),
-    });
-  }
-
-  protected confirmarAgendamento(): void {
-    if (this.formAgendamento.invalid) {
-      this.formAgendamento.markAllAsTouched();
-      return;
-    }
-    const { vinculoId, inicio, duracao, repetir } = this.formAgendamento.getRawValue();
-    const data = new Date(inicio);
-
-    const chamada = repetir
-      ? this.api.createSeries(vinculoId, data, duracao, this.fusoHorario)
-      : this.api.schedule(vinculoId, data, duracao);
-
-    this.executar(chamada, () => {
-      this.fecharPaineis();
-      this.avisos.mostrar(repetir ? 'Série criada: as próximas 12 semanas foram agendadas.' : 'Sessão agendada.');
     });
   }
 
@@ -192,6 +185,41 @@ export class AgendaPage implements OnInit {
     this.remarcando.set(item);
   }
 
+  protected iniciarCancelamento(item: AgendaItem): void {
+    this.fecharPaineis();
+    this.formCancelamento.reset();
+    this.cancelando.set(item);
+  }
+
+  protected abrirEncerramentoSerie(item: AgendaItem): void {
+    this.fecharPaineis();
+    this.encerrandoSerie.set(item);
+  }
+
+  protected fecharPaineis(): void {
+    this.selecionada.set(null);
+    this.agendando.set(false);
+    this.remarcando.set(null);
+    this.cancelando.set(null);
+    this.encerrandoSerie.set(null);
+    this.mensagemErro.set(null);
+  }
+
+  // Ações
+
+  protected confirmarAgendamento(): void {
+    if (this.formAgendamento.invalid) {
+      this.formAgendamento.markAllAsTouched();
+      return;
+    }
+    const { vinculoId, inicio, duracao, repetir } = this.formAgendamento.getRawValue();
+    const data = new Date(inicio);
+    const chamada = repetir
+      ? this.api.createSeries(vinculoId, data, duracao, this.fusoHorario)
+      : this.api.schedule(vinculoId, data, duracao);
+    this.executar(chamada, repetir ? 'Série criada: as próximas 12 semanas foram agendadas.' : 'Sessão agendada.');
+  }
+
   protected confirmarRemarcacao(): void {
     const item = this.remarcando();
     if (!item) return;
@@ -200,44 +228,7 @@ export class AgendaPage implements OnInit {
       return;
     }
     const { inicio, duracao } = this.formRemarcacao.getRawValue();
-    this.executar(this.api.reschedule(item.id, new Date(inicio), duracao), () => {
-      this.fecharPaineis();
-      this.avisos.mostrar('Sessão remarcada.');
-    });
-  }
-
-  protected fecharPaineis(): void {
-    this.agendando.set(false);
-    this.remarcando.set(null);
-    this.cancelando.set(null);
-    this.encerrandoSerie.set(null);
-  }
-
-  protected abrirEncerramentoSerie(item: AgendaItem): void {
-    this.fecharPaineis();
-    this.encerrandoSerie.set(item);
-  }
-
-  protected confirmarEncerramentoSerie(): void {
-    const item = this.encerrandoSerie();
-    if (!item?.seriesId) return;
-
-    // O último dia da série é a véspera desta sessão, no fuso de quem vê
-    const ultimoDia = dateKey(addDays(new Date(item.startsAt), -1));
-    this.executar(this.api.endSeries(item.seriesId, ultimoDia), () => {
-      this.fecharPaineis();
-      this.avisos.mostrar('Série encerrada.');
-    });
-  }
-
-  protected iniciarCancelamento(item: AgendaItem): void {
-    this.fecharPaineis();
-    this.formCancelamento.reset();
-    this.cancelando.set(item);
-  }
-
-  protected desistirCancelamento(): void {
-    this.fecharPaineis();
+    this.executar(this.api.reschedule(item.id, new Date(inicio), duracao), 'Sessão remarcada.');
   }
 
   protected confirmarCancelamento(): void {
@@ -248,9 +239,41 @@ export class AgendaPage implements OnInit {
       this.formCancelamento.markAllAsTouched();
       return;
     }
-    this.executar(this.api.cancel(item.id, quem, motivo.trim()), () => {
-      this.fecharPaineis();
-      this.avisos.mostrar('Sessão cancelada.');
+    this.executar(this.api.cancel(item.id, quem, motivo.trim()), 'Sessão cancelada.');
+  }
+
+  protected confirmarEncerramentoSerie(): void {
+    const item = this.encerrandoSerie();
+    if (!item?.seriesId) return;
+    // O último dia da série é a véspera desta sessão, no fuso de quem vê
+    const ultimoDia = dateKey(addDays(new Date(item.startsAt), -1));
+    this.executar(this.api.endSeries(item.seriesId, ultimoDia), 'Série encerrada.');
+  }
+
+  protected confirmar(item: AgendaItem): void {
+    this.executar(this.api.confirm(item.id), 'Sessão confirmada.');
+  }
+
+  protected registrarRealizada(item: AgendaItem): void {
+    this.executar(this.api.complete(item.id), 'Sessão registrada como realizada.');
+  }
+
+  protected registrarFalta(item: AgendaItem): void {
+    this.executar(this.api.noShow(item.id), 'Falta registrada.');
+  }
+
+  // Bastidores
+
+  private executar(chamada: Observable<unknown>, aviso: string): void {
+    this.mensagemErro.set(null);
+    chamada.subscribe({
+      next: () => {
+        this.fecharPaineis();
+        this.avisos.mostrar(aviso);
+        this.carregar();
+      },
+      error: (erro: HttpErrorResponse) =>
+        this.mensagemErro.set(erro.error?.detail ?? 'Não foi possível concluir a ação.'),
     });
   }
 
@@ -259,12 +282,17 @@ export class AgendaPage implements OnInit {
     const inicio = this.inicioSemana();
     if (!id) return;
 
+    const fim = addDays(inicio, 7);
     this.carregando.set(true);
-    this.api.getAgenda(id, inicio, addDays(inicio, 7)).subscribe({
-      next: (itens) => {
-        // Uma resposta atrasada de outra semana não pode sobrescrever a semana atual
-        if (this.inicioSemana() !== inicio || this.profissionalId() !== id) return;
+    forkJoin({
+      itens: this.api.getAgenda(id, inicio, fim),
+      bloqueios: this.disponibilidadeApi.listBlocks(id, inicio, fim),
+    }).subscribe({
+      next: ({ itens, bloqueios }) => {
+        // Uma resposta atrasada de outra semana não pode sobrescrever a atual
+        if (dateKey(this.inicioSemana()) !== dateKey(inicio) || this.profissionalId() !== id) return;
         this.itens.set(itens);
+        this.bloqueios.set(bloqueios);
         this.carregando.set(false);
       },
       error: () => {
@@ -274,15 +302,52 @@ export class AgendaPage implements OnInit {
     });
   }
 
-  private executar(chamada: Observable<unknown>, depois?: () => void): void {
-    this.mensagemErro.set(null);
-    chamada.subscribe({
-      next: () => {
-        depois?.();
-        this.carregar();
+  private carregarDisponibilidade(): void {
+    const id = this.profissionalId();
+    if (!id) return;
+    this.periodos.set([]);
+    this.disponibilidadeApi.get(id).subscribe({
+      next: (d) => {
+        this.periodos.set(d.windows);
+        this.duracaoPadrao.set(d.defaultSessionMinutes);
       },
-      error: (erro: HttpErrorResponse) =>
-        this.mensagemErro.set(erro.error?.detail ?? 'Não foi possível concluir a ação.'),
+      // 404: ainda sem horários configurados; a grade fica sem fundo
+      error: () => this.periodos.set([]),
+    });
+  }
+
+  private temAlgoNoDia(dia: Date): boolean {
+    const chave = dateKey(dia);
+    return (
+      periodosDoDia(this.periodos(), dia).length > 0 ||
+      this.itens().some((i) => dateKey(new Date(i.startsAt)) === chave)
+    );
+  }
+
+  private alertaDeHorario(form: {
+    valueChanges: Observable<unknown>;
+    controls: { inicio: FormControl<string>; duracao: FormControl<number> };
+  }): Signal<string | null> {
+    const verificacao = toSignal(
+      form.valueChanges.pipe(
+        debounceTime(300),
+        switchMap(() => {
+          const id = this.profissionalId();
+          const { inicio, duracao } = { inicio: form.controls.inicio.value, duracao: form.controls.duracao.value };
+          if (!id || !inicio || duracao < 15) return of(null);
+          return this.disponibilidadeApi.check(id, new Date(inicio), duracao).pipe(catchError(() => of(null)));
+        }),
+      ),
+      { initialValue: null },
+    );
+
+    return computed(() => {
+      const v = verificacao();
+      if (!v) return null;
+      if (v.blocked) return 'Este horário cai num bloqueio da agenda (férias, feriado ou compromisso).';
+      if (v.configured && !v.withinAvailability)
+        return 'Este horário está fora dos horários de atendimento. É possível agendar mesmo assim.';
+      return null;
     });
   }
 }

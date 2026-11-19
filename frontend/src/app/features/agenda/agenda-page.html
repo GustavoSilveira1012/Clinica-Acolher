@@ -1,127 +1,211 @@
-<h1>Agenda</h1>
+<div class="barra">
+  <h1>Agenda</h1>
+  @if (profissionais().length > 0) {
+    <button type="button" class="botao botao-primario" (click)="abrirAgendamento()">Nova sessão</button>
+  }
+</div>
 
-@if (mensagemErro(); as msg) {
-  <p role="alert" class="mensagem mensagem-erro">{{ msg }}</p>
+@if (!algumDialogoAberto()) {
+  <ng-container *ngTemplateOutlet="erro" />
 }
 
 @if (profissionais().length === 0) {
   <p>Nenhum profissional aprovado ainda.</p>
 } @else {
-  <div class="barra">
-    <label for="profissional">Profissional</label>
-    <select id="profissional" #seletor (change)="escolherProfissional(seletor.value)">
-      @for (p of profissionais(); track p.id) {
-        <option [value]="p.id" [selected]="p.id === profissionalId()">{{ p.professionalName }}</option>
-      }
-    </select>
+  <div class="ferramentas">
+    @if (profissionais().length > 1) {
+      <label for="profissional">Profissional</label>
+      <select id="profissional" #seletor (change)="escolherProfissional(seletor.value)">
+        @for (p of profissionais(); track p.id) {
+          <option [value]="p.id" [selected]="p.id === profissionalId()">{{ p.professionalName }}</option>
+        }
+      </select>
+    }
 
-    <nav aria-label="Navegação entre semanas" class="navegacao">
-      <button type="button" class="botao botao-secundario" (click)="mudarSemana(-1)">← Semana anterior</button>
-      <button type="button" class="botao botao-secundario" (click)="irParaHoje()">Esta semana</button>
-      <button type="button" class="botao botao-secundario" (click)="mudarSemana(1)">Próxima semana →</button>
+    <div class="grupo" role="group" aria-label="Visualização">
+      <button type="button" class="botao" [class.botao-primario]="modo() === 'semana'"
+              [class.botao-secundario]="modo() !== 'semana'" [attr.aria-pressed]="modo() === 'semana'"
+              (click)="modo.set('semana')">Semana</button>
+      <button type="button" class="botao" [class.botao-primario]="modo() === 'dia'"
+              [class.botao-secundario]="modo() !== 'dia'" [attr.aria-pressed]="modo() === 'dia'"
+              (click)="modo.set('dia')">Dia</button>
+    </div>
+
+    <nav class="grupo" aria-label="Navegação no calendário">
+      <button type="button" class="botao botao-secundario" (click)="navegar(-1)"
+              [attr.aria-label]="modo() === 'semana' ? 'Semana anterior' : 'Dia anterior'">←</button>
+      <button type="button" class="botao botao-secundario" (click)="irParaHoje()">Hoje</button>
+      <button type="button" class="botao botao-secundario" (click)="navegar(1)"
+              [attr.aria-label]="modo() === 'semana' ? 'Próxima semana' : 'Próximo dia'">→</button>
     </nav>
-    <button type="button" class="botao botao-primario" (click)="abrirAgendamento()">Nova sessão</button>
+
+    <p class="periodo" aria-live="polite">
+      @if (modo() === 'semana') {
+        {{ inicioSemana() | date: 'dd/MM' }} a {{ fimSemana() | date: 'dd/MM/yyyy' }}
+      } @else {
+        {{ diaSelecionado() | date: "EEEE, dd 'de' MMMM" }}
+      }
+      @if (carregando()) {
+        · carregando…
+      }
+    </p>
   </div>
 
-  <p class="periodo" aria-live="polite">
-    Semana de {{ inicioSemana() | date: 'dd/MM' }} a {{ fimSemana() | date: 'dd/MM/yyyy' }}
-    @if (carregando()) {
-      · carregando…
-    }
-  </p>
-
-  @if (agendando()) {
-    <section class="painel" aria-labelledby="agendamento-titulo">
-      <h2 id="agendamento-titulo">Nova sessão</h2>
-
-      @if (vinculos().length === 0) {
-        <p>Este profissional ainda não tem pacientes com vínculo ativo.</p>
-        <button type="button" class="botao botao-secundario" (click)="fecharPaineis()">Voltar</button>
-      } @else {
-        <form class="agendamento" [formGroup]="formAgendamento" (ngSubmit)="confirmarAgendamento()">
-          <label for="vinculo">Paciente</label>
-          <select id="vinculo" formControlName="vinculoId">
-            <option value="" disabled>Escolha o paciente</option>
-            @for (v of vinculos(); track v.relationshipId) {
-              <option [value]="v.relationshipId">{{ v.patientDisplayName }}</option>
+  @if (modo() === 'semana') {
+    <app-agenda-grade [dias]="diasDaSemana()" [itens]="itensDaGrade()" [periodos]="periodos()"
+                      [bloqueios]="bloqueios()" (selecionar)="selecionar($event)" />
+    <p class="texto-suave">Sessões canceladas e remarcadas aparecem na visualização por dia.</p>
+  } @else {
+    <ol class="lista-dia">
+      @for (item of itensDoDia(); track item.id) {
+        <li>
+          <button type="button" class="linha-sessao" [class.inativa]="!ativa(item)" (click)="selecionar(item)">
+            <strong>{{ item.startsAt | date: 'HH:mm' }}–{{ item.endsAt | date: 'HH:mm' }}</strong>
+            <span>{{ item.patientDisplayName }}</span>
+            <span class="etiqueta">{{ rotuloStatus(item) }}</span>
+            @if (item.seriesId) {
+              <span class="etiqueta etiqueta-informacao">Semanal</span>
             }
-          </select>
-
-          <label for="inicio">Data e hora</label>
-          <input id="inicio" type="datetime-local" formControlName="inicio" />
-
-          <label for="duracao">Duração (minutos)</label>
-          <input id="duracao" type="number" min="15" max="180" step="5" formControlName="duracao" />
-
-          <label class="opcao">
-            <input id="repetir" type="checkbox" formControlName="repetir" />
-            Repetir toda semana neste dia e horário
-          </label>
-          @if (formAgendamento.controls.repetir.value) {
-            <p class="ajuda">As sessões das próximas 12 semanas são criadas agora, e as seguintes, automaticamente.</p>
-          }
-
-          @if (formAgendamento.invalid && formAgendamento.touched) {
-            <p class="mensagem mensagem-erro">Escolha o paciente, a data e a hora, e uma duração entre 15 e 180 minutos.</p>
-          }
-
-          <div class="acoes">
-            <button type="submit" class="botao botao-secundario">Agendar</button>
-            <button type="button" class="botao botao-secundario" (click)="fecharPaineis()">Voltar</button>
-          </div>
-        </form>
+            @if (item.chargePercent > 0) {
+              <span class="etiqueta etiqueta-atencao">Cobrança {{ item.chargePercent }}%</span>
+            }
+          </button>
+        </li>
+      } @empty {
+        <li class="texto-suave">Nenhuma sessão neste dia.</li>
       }
-    </section>
+    </ol>
   }
+}
 
-  @if (remarcando(); as alvo) {
-    <section class="painel" aria-labelledby="remarcacao-titulo">
-      <h2 id="remarcacao-titulo">
-        Remarcar a sessão de {{ alvo.patientDisplayName }}, hoje em {{ alvo.startsAt | date: "dd/MM 'às' HH:mm" }}
-      </h2>
-      <form class="remarcacao" [formGroup]="formRemarcacao" (ngSubmit)="confirmarRemarcacao()">
-        <label for="nova-data">Nova data e hora</label>
-        <input id="nova-data" type="datetime-local" formControlName="inicio" />
-
-        <label for="nova-duracao">Duração (minutos)</label>
-        <input id="nova-duracao" type="number" min="15" max="180" step="5" formControlName="duracao" />
-
-        @if (formRemarcacao.invalid && formRemarcacao.touched) {
-          <p class="mensagem mensagem-erro">Informe a nova data e hora, e uma duração entre 15 e 180 minutos.</p>
+<!-- Detalhes e ações da sessão -->
+<app-dialogo titulo="Sessão" [aberto]="!!selecionada()" (fechar)="fecharPaineis()">
+  <ng-container *ngTemplateOutlet="erro" />
+  @if (selecionada(); as item) {
+    <p><strong>{{ item.patientDisplayName }}</strong></p>
+    <p>{{ item.startsAt | date: "EEEE, dd/MM 'das' HH:mm" }} às {{ item.endsAt | date: 'HH:mm' }}</p>
+    <p>
+      <span class="etiqueta">{{ rotuloStatus(item) }}</span>
+      @if (item.seriesId) {
+        <span class="etiqueta etiqueta-informacao">Semanal</span>
+      }
+    </p>
+    @if (item.chargePercent > 0) {
+      <p class="mensagem mensagem-atencao">Cobrança prevista: {{ item.chargePercent }}% ({{ rotuloCobranca(item) }})</p>
+    }
+  }
+  <div acoes class="acoes">
+    @if (selecionada(); as item) {
+      @if (ativa(item)) {
+        @if (item.status === 'Scheduled') {
+          <button type="button" class="botao botao-secundario" (click)="confirmar(item)">Confirmar</button>
         }
+        @if (jaComecou(item)) {
+          <button type="button" class="botao botao-secundario" (click)="registrarRealizada(item)">Realizada</button>
+          <button type="button" class="botao botao-secundario" (click)="registrarFalta(item)">Falta</button>
+        }
+        <button type="button" class="botao botao-secundario" (click)="abrirRemarcacao(item)">Remarcar</button>
+        @if (item.seriesId) {
+          <button type="button" class="botao botao-secundario" (click)="abrirEncerramentoSerie(item)">Encerrar série</button>
+        }
+        <button type="button" class="botao botao-perigo" (click)="iniciarCancelamento(item)">Cancelar sessão</button>
+      }
+    }
+    <button type="button" class="botao botao-texto" (click)="fecharPaineis()">Fechar</button>
+  </div>
+</app-dialogo>
 
-        <div class="acoes">
-          <button type="submit" class="botao botao-secundario">Remarcar</button>
-          <button type="button" class="botao botao-secundario" (click)="fecharPaineis()">Voltar</button>
-        </div>
-      </form>
-    </section>
+<!-- Nova sessão -->
+<app-dialogo titulo="Nova sessão" [aberto]="agendando()" (fechar)="fecharPaineis()">
+  <ng-container *ngTemplateOutlet="erro" />
+  @if (vinculos().length === 0) {
+    <p>Este profissional ainda não tem pacientes com vínculo ativo.</p>
+  } @else {
+    <form id="form-agendamento" class="agendamento formulario" [formGroup]="formAgendamento" (ngSubmit)="confirmarAgendamento()">
+      <label for="vinculo">Paciente</label>
+      <select id="vinculo" formControlName="vinculoId">
+        <option value="" disabled>Escolha o paciente</option>
+        @for (v of vinculos(); track v.relationshipId) {
+          <option [value]="v.relationshipId">{{ v.patientDisplayName }}</option>
+        }
+      </select>
+
+      <label for="inicio">Data e hora</label>
+      <input id="inicio" type="datetime-local" formControlName="inicio" />
+
+      <label for="duracao">Duração (minutos)</label>
+      <input id="duracao" type="number" min="15" max="180" step="5" formControlName="duracao" />
+
+      <label class="opcao">
+        <input id="repetir" type="checkbox" formControlName="repetir" />
+        Repetir toda semana neste dia e horário
+      </label>
+
+      @if (alertaAgendamento(); as alerta) {
+        <p role="status" class="mensagem mensagem-atencao">{{ alerta }}</p>
+      }
+      @if (formAgendamento.invalid && formAgendamento.touched) {
+        <p class="mensagem mensagem-erro">Escolha o paciente, a data e a hora, e uma duração entre 15 e 180 minutos.</p>
+      }
+    </form>
   }
+  <div acoes class="acoes">
+    <button type="button" class="botao botao-secundario" (click)="fecharPaineis()">Voltar</button>
+    @if (vinculos().length > 0) {
+      <button type="submit" form="form-agendamento" class="botao botao-primario">Agendar</button>
+    }
+  </div>
+</app-dialogo>
 
+<!-- Remarcar -->
+<app-dialogo titulo="Remarcar sessão" [aberto]="!!remarcando()" (fechar)="fecharPaineis()">
+  <ng-container *ngTemplateOutlet="erro" />
+  @if (remarcando(); as alvo) {
+    <p>Hoje marcada para {{ alvo.startsAt | date: "dd/MM 'às' HH:mm" }}.</p>
+  }
+  <form id="form-remarcacao" class="formulario" [formGroup]="formRemarcacao" (ngSubmit)="confirmarRemarcacao()">
+    <label for="nova-data">Nova data e hora</label>
+    <input id="nova-data" type="datetime-local" formControlName="inicio" />
+    <label for="nova-duracao">Duração (minutos)</label>
+    <input id="nova-duracao" type="number" min="15" max="180" step="5" formControlName="duracao" />
+    @if (alertaRemarcacao(); as alerta) {
+      <p role="status" class="mensagem mensagem-atencao">{{ alerta }}</p>
+    }
+  </form>
+  <div acoes class="acoes">
+    <button type="button" class="botao botao-secundario" (click)="fecharPaineis()">Voltar</button>
+    <button type="submit" form="form-remarcacao" class="botao botao-primario">Remarcar</button>
+  </div>
+</app-dialogo>
+
+<!-- Cancelar -->
 <app-dialogo titulo="Cancelar sessão" [aberto]="!!cancelando()" (fechar)="fecharPaineis()">
+  <ng-container *ngTemplateOutlet="erro" />
   @if (cancelando(); as alvo) {
     <p>
       A sessão de <strong>{{ alvo.patientDisplayName }}</strong>,
       {{ alvo.startsAt | date: "dd/MM 'às' HH:mm" }}, será cancelada.
     </p>
-    <form id="form-cancelamento" [formGroup]="formCancelamento" (ngSubmit)="confirmarCancelamento()">
-      <fieldset>
-        <legend>Quem pediu o cancelamento?</legend>
-        <label class="opcao"><input type="radio" formControlName="quem" value="Patient" /> O paciente</label>
-        <label class="opcao"><input type="radio" formControlName="quem" value="Professional" /> O profissional</label>
-      </fieldset>
-      <label for="motivo">Motivo (obrigatório)</label>
-      <textarea id="motivo" rows="2" formControlName="motivo" aria-describedby="motivo-ajuda"></textarea>
-      <p id="motivo-ajuda" class="texto-suave">Use um motivo administrativo. Não registre informações clínicas aqui.</p>
-    </form>
   }
+  <form id="form-cancelamento" class="formulario" [formGroup]="formCancelamento" (ngSubmit)="confirmarCancelamento()">
+    <fieldset>
+      <legend>Quem pediu o cancelamento?</legend>
+      <label class="opcao"><input type="radio" formControlName="quem" value="Patient" /> O paciente</label>
+      <label class="opcao"><input type="radio" formControlName="quem" value="Professional" /> O profissional</label>
+    </fieldset>
+    <label for="motivo">Motivo (obrigatório)</label>
+    <textarea id="motivo" rows="2" formControlName="motivo" aria-describedby="motivo-ajuda"></textarea>
+    <p id="motivo-ajuda" class="texto-suave">Use um motivo administrativo. Não registre informações clínicas aqui.</p>
+  </form>
   <div acoes class="acoes">
     <button type="button" class="botao botao-secundario" (click)="fecharPaineis()">Voltar</button>
     <button type="submit" form="form-cancelamento" class="botao botao-perigo">Confirmar cancelamento</button>
   </div>
 </app-dialogo>
 
+<!-- Encerrar série -->
 <app-dialogo titulo="Encerrar série semanal" [aberto]="!!encerrandoSerie()" (fechar)="fecharPaineis()">
+  <ng-container *ngTemplateOutlet="erro" />
   @if (encerrandoSerie(); as alvo) {
     <p>
       As sessões da série de <strong>{{ alvo.patientDisplayName }}</strong> a partir de
@@ -134,51 +218,8 @@
   </div>
 </app-dialogo>
 
-  <div class="semana">
-    @for (dia of dias(); track dia.chave) {
-      <section class="dia" [attr.aria-labelledby]="'dia-' + dia.chave">
-        <h2 [id]="'dia-' + dia.chave">{{ dia.data | date: 'EEEE, dd/MM' }}</h2>
-
-        @for (item of dia.itens; track item.id) {
-          <article class="sessao" [class.inativa]="!ativa(item)">
-            <p class="horario">{{ item.startsAt | date: 'HH:mm' }}–{{ item.endsAt | date: 'HH:mm' }}</p>
-            <p class="paciente">{{ item.patientDisplayName }}</p>
-            <p class="status">{{ rotuloStatus(item) }}</p>
-            @if (item.seriesId) {
-              <p class="serie">Semanal</p>
-            }
-
-            @if (item.chargePercent > 0) {
-              <p class="cobranca">Cobrança prevista: {{ item.chargePercent }}% ({{ rotuloCobranca(item) }})</p>
-            }
-
-            @if (ativa(item)) {
-              <div class="acoes">
-                @if (item.status === 'Scheduled') {
-                  <button type="button" class="botao botao-secundario" (click)="confirmar(item)"
-                          [attr.aria-label]="'Confirmar a sessão de ' + item.patientDisplayName">Confirmar</button>
-                }
-                @if (jaComecou(item)) {
-                  <button type="button" class="botao botao-secundario" (click)="registrarRealizada(item)"
-                          [attr.aria-label]="'Registrar a sessão de ' + item.patientDisplayName + ' como realizada'">Realizada</button>
-                  <button type="button" class="botao botao-secundario" (click)="registrarFalta(item)"
-                          [attr.aria-label]="'Registrar falta de ' + item.patientDisplayName">Falta</button>
-                }
-                <button type="button" class="botao botao-secundario" (click)="abrirRemarcacao(item)"
-                        [attr.aria-label]="'Remarcar a sessão de ' + item.patientDisplayName">Remarcar</button>
-                @if (item.seriesId) {
-                  <button type="button" class="botao botao-secundario" (click)="abrirEncerramentoSerie(item)"
-                          [attr.aria-label]="'Encerrar a série semanal de ' + item.patientDisplayName">Encerrar série</button>
-                }
-                <button type="button" class="botao botao-secundario" (click)="iniciarCancelamento(item)"
-                        [attr.aria-label]="'Cancelar a sessão de ' + item.patientDisplayName">Cancelar</button>
-              </div>
-            }
-          </article>
-        } @empty {
-          <p class="vazio">Sem sessões.</p>
-        }
-      </section>
-    }
-  </div>
-}
+<ng-template #erro>
+  @if (mensagemErro(); as msg) {
+    <p role="alert" class="mensagem mensagem-erro">{{ msg }}</p>
+  }
+</ng-template>

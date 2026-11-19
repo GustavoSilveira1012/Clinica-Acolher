@@ -6,6 +6,7 @@ import {
   startOfWeek,
   toLocalInputValue,
   toSeriesSchedule,
+  weekdayOf,
 } from './week';
 
 describe('week', () => {
@@ -43,6 +44,12 @@ describe('week', () => {
 
   it('a próxima hora cheia vira o dia quando necessário', () => {
     expect(toLocalInputValue(nextFullHour(new Date(2026, 10, 20, 23, 40)))).toBe('2026-11-21T00:00');
+  });
+
+  it('diz o dia da semana de uma data, de domingo a sábado', () => {
+    expect(weekdayOf(new Date(2026, 10, 22))).toBe('Sunday');
+    expect(weekdayOf(new Date(2026, 10, 16))).toBe('Monday');
+    expect(weekdayOf(new Date(2026, 10, 21, 23, 59))).toBe('Saturday');
   });
 
   it('monta o dia da semana, a hora local e a data de início de uma série', () => {

@@ -7,7 +7,7 @@ let contador = 0;
   selector: 'app-dialogo',
   imports: [Icone],
   template: `
-    <dialog #dialogo class="dialogo" [attr.aria-labelledby]="idTitulo" (close)="fechar.emit()">
+    <dialog #dialogo class="dialogo" [attr.aria-labelledby]="idTitulo" (close)="aoFecharNativo()">
       <header>
         <h2 [id]="idTitulo">{{ titulo() }}</h2>
         <button type="button" class="fechar" (click)="fechar.emit()" aria-label="Fechar">
@@ -52,8 +52,25 @@ export class Dialogo {
   constructor() {
     effect(() => {
       const elemento = this.dialogo().nativeElement;
-      if (this.aberto() && !elemento.open) elemento.showModal();
-      if (!this.aberto() && elemento.open) elemento.close();
+      const aberto = elemento.hasAttribute('open');
+
+      if (this.aberto() && !aberto) {
+        // Ambientes sem suporte ao <dialog> (como o navegador simulado dos testes) só ganham o atributo
+        if (typeof elemento.showModal === 'function') elemento.showModal();
+        else elemento.setAttribute('open', '');
+      }
+
+      if (!this.aberto() && aberto) {
+        if (typeof elemento.close === 'function') elemento.close();
+        else elemento.removeAttribute('open');
+      }
     });
+  }
+
+  // O evento close chega depois, também quando a própria tela fechou a janela (ex.: ao abrir
+  // "Remarcar" a partir de "Sessão"). Só o fechamento pelo usuário (Esc) deve ser avisado;
+  // senão o aviso atrasado desfaria a janela que acabou de abrir.
+  protected aoFecharNativo(): void {
+    if (this.aberto()) this.fechar.emit();
   }
 }
