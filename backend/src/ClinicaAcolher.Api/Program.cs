@@ -10,6 +10,7 @@ using ClinicaAcolher.Application.Relationships;
 using ClinicaAcolher.Application.Appointments;
 using ClinicaAcolher.Application.Attendance;
 using ClinicaAcolher.Application.Availability;
+using ClinicaAcolher.Application.Portal;
 using ClinicaAcolher.Api.Workers;
 using ClinicaAcolher.Infrastructure.Identity;
 using ClinicaAcolher.Infrastructure.Persistence;
@@ -48,6 +49,7 @@ builder.Services.AddScoped<SeriesService>();
 builder.Services.AddScoped<AttendancePolicyService>();
 builder.Services.AddScoped<AvailabilityService>();
 builder.Services.AddScoped<ClinicalNoteService>();
+builder.Services.AddScoped<PortalService>();
 if (builder.Configuration.GetValue("Workers:SeriesGeneration", true))
     builder.Services.AddHostedService<SeriesGenerationWorker>();
 builder.Services.AddProblemDetails();

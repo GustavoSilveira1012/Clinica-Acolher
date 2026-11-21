@@ -1,6 +1,4 @@
 using ClinicaAcolher.Application.Attendance;
-using ClinicaAcolher.Api.Auth;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ClinicaAcolher.Api.Controllers;
@@ -20,8 +18,8 @@ public sealed class AttendancePoliciesController(AttendancePolicyService service
     public async Task<ActionResult<AttendancePolicyResponse>> Current(Guid professionalId, CancellationToken ct) =>
         Ok(await service.GetCurrentAsync(professionalId, ct));
 
+    // Só equipe (política padrão): registro de aceites feitos em papel. O paciente aceita pelo portal.
     [HttpPost("/api/v1/attendance-policies/{policyId:guid}/acceptances")]
-    [Authorize(Policy = Policies.StaffOrPatient)]
     public async Task<ActionResult<PolicyAcceptanceResponse>> Accept(
         Guid policyId, AcceptPolicyRequest request, CancellationToken ct) =>
         Ok(await service.AcceptAsync(policyId, request, ct));

@@ -1,4 +1,5 @@
 using ClinicaAcolher.Application.Appointments;
+using ClinicaAcolher.Application.Portal;
 using ClinicaAcolher.Domain.Appointments;
 using Microsoft.EntityFrameworkCore;
 
@@ -40,6 +41,18 @@ internal sealed class AppointmentRepository(AppDbContext db) : IAppointmentRepos
             a.ProfessionalId == professionalId
             && a.StartsAt < to && a.EndsAt > from
             && (a.Status == AppointmentStatus.Scheduled || a.Status == AppointmentStatus.Confirmed), ct);
+
+    public async Task<IReadOnlyList<PortalAppointment>> ListForPatientAsync(
+        Guid patientId, DateTimeOffset @from, DateTimeOffset to, CancellationToken ct) =>
+        await (
+            from a in db.Appointments.AsNoTracking()
+            join p in db.Professionals on a.ProfessionalId equals p.Id
+            where a.PatientId == patientId
+               && a.StartsAt >= @from && a.StartsAt < to
+               && a.Status != AppointmentStatus.Rescheduled
+            orderby a.StartsAt
+            select new PortalAppointment(a.Id, a.StartsAt, a.EndsAt, a.Status, p.ProfessionalName)
+        ).ToListAsync(ct);
 
     public void Add(Appointment appointment) => db.Appointments.Add(appointment);
 }

@@ -29,10 +29,9 @@ public class AuthorizationPoliciesTests(ApiFactory factory) : IClassFixture<ApiF
     }
 
     [Fact]
-    public async Task Paciente_sem_MFA_aceita_apenas_em_seu_proprio_nome()
+    public async Task Paciente_nao_usa_a_rota_de_aceite_da_equipe_nem_em_seu_proprio_nome()
     {
         var patientId = await factory.AdminClient.CriarPacienteAsync();
-        var otherId = await factory.AdminClient.CriarPacienteAsync();
         var professionalId = await factory.AdminClient.CriarProfissionalAprovadoAsync();
         using var published = await factory.AdminClient.PostAsJsonAsync(
             $"/api/v1/professionals/{professionalId}/attendance-policies",
@@ -43,14 +42,9 @@ public class AuthorizationPoliciesTests(ApiFactory factory) : IClassFixture<ApiF
 
         using var own = await client.PostAsJsonAsync($"/api/v1/attendance-policies/{policy.Id}/acceptances",
             new AcceptPolicyRequest(patientId));
-        using var other = await client.PostAsJsonAsync($"/api/v1/attendance-policies/{policy.Id}/acceptances",
-            new AcceptPolicyRequest(otherId));
 
-        Assert.Equal(HttpStatusCode.OK, own.StatusCode);
-        var acceptance = (await own.Content.ReadFromJsonAsync<PolicyAcceptanceResponse>())!;
-        Assert.Equal(patientId, acceptance.PatientId);
-        Assert.Equal(policy.Id, acceptance.PolicyId);
-        Assert.Equal(HttpStatusCode.Forbidden, other.StatusCode);
+        // O paciente aceita pelo portal, que lê a identidade da sessão (RN-POR-04)
+        Assert.Equal(HttpStatusCode.Forbidden, own.StatusCode);
     }
 
     [Theory]

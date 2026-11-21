@@ -44,6 +44,10 @@ public sealed class AccessControl(ICurrentUser user, IRelationshipRepository rel
         throw new ForbiddenException("O aceite da política só pode ser registrado pelo próprio paciente.");
     }
 
+    // RN-POR-04: no portal, o paciente é sempre quem está logado, nunca quem o pedido diz ser
+    public Guid RequirePatient() =>
+        user.PatientId ?? throw new ForbiddenException("Esta área é exclusiva do paciente.");
+
     // RN-PER-01: o profissional só acessa pacientes com quem tem ou teve vínculo
     public async Task EnsureCanAccessPatientAsync(Guid patientId, CancellationToken ct)
     {
