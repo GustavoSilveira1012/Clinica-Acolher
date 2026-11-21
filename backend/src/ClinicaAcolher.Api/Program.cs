@@ -1,8 +1,10 @@
 using ClinicaAcolher.Infrastructure;
 using ClinicaAcolher.Api.Errors;
 using ClinicaAcolher.Application.Patients;
+using ClinicaAcolher.Application.PatientAccess;
 using ClinicaAcolher.Application.ClinicalNotes;
 using System.Text.Json.Serialization;
+using System.Threading.RateLimiting;
 using ClinicaAcolher.Application.Professionals;
 using ClinicaAcolher.Application.Relationships;
 using ClinicaAcolher.Application.Appointments;
@@ -19,6 +21,7 @@ using ClinicaAcolher.Application.Common;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.RateLimiting;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -36,6 +39,8 @@ builder.Services.AddOptions<AuditOptions>()
 builder.Services.AddScoped<ICurrentUser, HttpCurrentUser>();
 builder.Services.AddScoped<AccessControl>();
 builder.Services.AddScoped<PatientService>();
+builder.Services.AddScoped<IPatientAccounts, IdentityPatientAccounts>();
+builder.Services.AddScoped<PatientInvitationService>();
 builder.Services.AddScoped<ProfessionalService>();
 builder.Services.AddScoped<RelationshipService>();
 builder.Services.AddScoped<AppointmentService>();
@@ -110,15 +115,29 @@ builder.Services.Configure<CookieAuthenticationOptions>(IdentityConstants.TwoFac
     o.ExpireTimeSpan = TimeSpan.FromMinutes(5);
 });
 
-// Seguro por padrão: toda rota exige login, a não ser que diga o contrário
 builder.Services.AddSingleton<IAuthorizationHandler, StaffMfaHandler>();
 
 builder.Services.AddAuthorizationBuilder()
+    // Seguro por padrão: toda rota é da equipe, com 2FA, a não ser que diga o contrário
     .SetFallbackPolicy(new AuthorizationPolicyBuilder()
         .RequireAuthenticatedUser()
+        .RequireRole(Roles.Admin, Roles.Professional)
         .AddRequirements(new StaffMfaRequirement())
         .Build())
-    .AddPolicy(Policies.LoggedIn, policy => policy.RequireAuthenticatedUser());
+    .AddPolicy(Policies.LoggedIn, policy => policy.RequireAuthenticatedUser())
+    .AddPolicy(Policies.Patient, policy => policy.RequireAuthenticatedUser().RequireRole(Roles.Patient))
+    .AddPolicy(Policies.StaffOrPatient, policy => policy
+        .RequireAuthenticatedUser()
+        .RequireRole(Roles.Admin, Roles.Professional, Roles.Patient)
+        .AddRequirements(new StaffMfaRequirement()));
+
+builder.Services.AddRateLimiter(options =>
+{
+    options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+    options.AddPolicy("convites", context => RateLimitPartition.GetFixedWindowLimiter(
+        context.Connection.RemoteIpAddress?.ToString() ?? "desconhecido",
+        _ => new FixedWindowRateLimiterOptions { PermitLimit = 10, Window = TimeSpan.FromMinutes(1) }));
+});
 
 var connectionString = builder.Configuration.GetConnectionString("Default")
     ?? throw new InvalidOperationException("A connection string 'Default' não foi configurada.");
@@ -150,6 +169,7 @@ else
 
 app.UseAuthentication();
 app.UseAuthorization();
+app.UseRateLimiter();
 
 app.MapControllers();
 

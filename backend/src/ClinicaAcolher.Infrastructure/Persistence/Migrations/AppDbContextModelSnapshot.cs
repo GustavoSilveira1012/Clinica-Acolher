@@ -364,6 +364,40 @@ namespace ClinicaAcolher.Infrastructure.Persistence.Migrations
                     b.ToTable("clinical_note_revisions", (string)null);
                 });
 
+            modelBuilder.Entity("ClinicaAcolher.Domain.PatientAccess.PatientInvitation", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTimeOffset>("ExpiresAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("PatientId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset?>("RevokedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<byte[]>("TokenHash")
+                        .IsRequired()
+                        .HasColumnType("bytea");
+
+                    b.Property<DateTimeOffset?>("UsedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PatientId");
+
+                    b.HasIndex("TokenHash")
+                        .IsUnique();
+
+                    b.ToTable("patient_invitations", (string)null);
+                });
+
             modelBuilder.Entity("ClinicaAcolher.Domain.Patients.Patient", b =>
                 {
                     b.Property<Guid>("Id")
@@ -918,6 +952,15 @@ namespace ClinicaAcolher.Infrastructure.Persistence.Migrations
                     b.HasOne("ClinicaAcolher.Domain.ClinicalNotes.ClinicalNote", null)
                         .WithMany("Revisions")
                         .HasForeignKey("NoteId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("ClinicaAcolher.Domain.PatientAccess.PatientInvitation", b =>
+                {
+                    b.HasOne("ClinicaAcolher.Domain.Patients.Patient", null)
+                        .WithMany()
+                        .HasForeignKey("PatientId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
                 });

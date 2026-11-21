@@ -2,6 +2,7 @@ using ClinicaAcolher.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using ClinicaAcolher.Application.Patients;
+using ClinicaAcolher.Application.PatientAccess;
 using ClinicaAcolher.Application.Common;
 using ClinicaAcolher.Application.Professionals;
 using ClinicaAcolher.Application.Relationships;
@@ -21,6 +22,7 @@ public static class DependencyInjection
     {
         services.AddDbContext<AppDbContext>(options => options.UseNpgsql(connectionString));
         services.AddScoped<IPatientRepository, PatientRepository>();
+        services.AddScoped<IPatientInvitationRepository, PatientInvitationRepository>();
         services.AddScoped<IClinicalNoteRepository, ClinicalNoteRepository>();
         services.AddScoped<AuditTrail>();
         services.AddScoped<IAuditTrail>(provider => provider.GetRequiredService<AuditTrail>());

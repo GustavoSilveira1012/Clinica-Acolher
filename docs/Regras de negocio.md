@@ -98,6 +98,15 @@ Coletamos o mínimo de dados necessário para cada finalidade, e pedimos mais s�
 - `RN-PAC-06` Ao completar 18 anos, o paciente passa a controlar a própria conta e o responsável perde o acesso automaticamente, com aviso a ambos.
 - `RN-PAC-07` Nome social é respeitado em todas as telas, recibos e comunicações; o nome civil aparece apenas onde a lei exigir.
 
+**Portal do paciente**
+
+O portal é a área em que o paciente acompanha a própria relação administrativa com a clínica. O acesso nasce de um convite, e o portal mostra só o que é do próprio paciente (`RN-PER-01`).
+
+- `RN-POR-01` O paciente só acessa o portal por convite do profissional: um link de uso único, válido por 72 horas. Um convite novo invalida o anterior.
+- `RN-POR-02` Só recebe convite o paciente ativo, maior de idade e com e-mail cadastrado. O acesso de menores será feito pelo responsável legal.
+- `RN-POR-03` O código do convite nunca é guardado nem registrado em logs: o banco guarda só o hash, e o código viaja no fragmento da URL, que o navegador não envia ao servidor.
+- `RN-POR-04` No portal, o paciente vê apenas os próprios dados administrativos (sessões, cobranças, recibos), nunca anotações clínicas nem dados da clínica.
+
 ## 5. Agenda e sessões
 
 A agenda gira em torno do **horário fixo semanal**, que é o padrão da psicanálise, com sessões avulsas como exceção.

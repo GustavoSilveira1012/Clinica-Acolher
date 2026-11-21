@@ -8,6 +8,12 @@ public static class Policies
 {
     /// <summary>Só exige login, sem exigir 2FA. Para as telas de configurar o 2FA, "quem sou eu" e sair.</summary>
     public const string LoggedIn = "LoggedIn";
+
+    /// <summary>Rotas do portal do paciente (RN-POR-04).</summary>
+    public const string Patient = "Patient";
+
+    /// <summary>Rotas usadas pela equipe e pelo paciente, como o aceite da política de faltas.</summary>
+    public const string StaffOrPatient = "StaffOrPatient";
 }
 
 //RN-SEG-03 e RN-PRO-07: a equipe só acessa dados depois de passar pelo segundo fator

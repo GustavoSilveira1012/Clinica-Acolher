@@ -2,6 +2,7 @@ using ClinicaAcolher.Domain.Appointments;
 using ClinicaAcolher.Domain.Attendance;
 using ClinicaAcolher.Domain.Availability;
 using ClinicaAcolher.Domain.ClinicalNotes;
+using ClinicaAcolher.Domain.PatientAccess;
 using ClinicaAcolher.Domain.Patients;
 using ClinicaAcolher.Domain.Professionals;
 using ClinicaAcolher.Domain.Relationships;
@@ -17,6 +18,7 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options)
     : IdentityDbContext<ApplicationUser, IdentityRole<Guid>, Guid>(options)
 {
     public DbSet<Patient> Patients => Set<Patient>();
+    public DbSet<PatientInvitation> PatientInvitations => Set<PatientInvitation>();
     public DbSet<Professional> Professionals => Set<Professional>();
     public DbSet<TherapeuticRelationship> TherapeuticRelationships => Set<TherapeuticRelationship>();
     public DbSet<Appointment> Appointments => Set<Appointment>();
