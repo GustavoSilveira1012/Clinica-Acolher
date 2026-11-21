@@ -1,0 +1,2 @@
+.convite { max-width: 26rem; margin: 3rem auto; display: grid; gap: var(--espaco-3); padding: 0 var(--espaco-4); }
+form { display: grid; gap: var(--espaco-2); }

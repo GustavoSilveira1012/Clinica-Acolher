@@ -1,0 +1,45 @@
+<section class="convite" aria-labelledby="convite-titulo">
+  <app-marca />
+  <h1 id="convite-titulo">Crie seu acesso</h1>
+
+  @if (semCodigo()) {
+    <p role="alert" class="mensagem mensagem-erro">
+      Este link está incompleto. Abra o link exatamente como você o recebeu, ou peça um novo ao seu profissional.
+    </p>
+  } @else {
+    <p>Você recebeu um convite para o portal da Clínica Acolher, onde vai acompanhar as suas sessões.</p>
+
+    @if (erro(); as msg) {
+      <p role="alert" class="mensagem mensagem-erro">{{ msg }}</p>
+    }
+
+    <form [formGroup]="form" (ngSubmit)="criarAcesso()" novalidate>
+      <label for="senha">Crie uma senha</label>
+      <input id="senha" [type]="mostrarSenha() ? 'text' : 'password'" formControlName="senha"
+             autocomplete="new-password" aria-describedby="senha-ajuda" />
+      <p id="senha-ajuda" class="texto-suave">
+        Pelo menos 10 caracteres. Uma frase que só você conhece funciona muito bem.
+      </p>
+
+      <label for="confirmacao">Repita a senha</label>
+      <input id="confirmacao" [type]="mostrarSenha() ? 'text' : 'password'" formControlName="confirmacao"
+             autocomplete="new-password" />
+
+      <label class="opcao">
+        <input type="checkbox" (change)="mostrarSenha.set(!mostrarSenha())" />
+        Mostrar a senha
+      </label>
+
+      @if (form.touched && form.controls.senha.hasError('minlength')) {
+        <p class="mensagem mensagem-erro">A senha precisa ter pelo menos 10 caracteres.</p>
+      }
+      @if (form.touched && form.hasError('senhasDiferentes')) {
+        <p class="mensagem mensagem-erro">As senhas não conferem.</p>
+      }
+
+      <button type="submit" class="botao botao-primario" [disabled]="enviando()">
+        {{ enviando() ? 'Criando acesso…' : 'Criar acesso' }}
+      </button>
+    </form>
+  }
+</section>

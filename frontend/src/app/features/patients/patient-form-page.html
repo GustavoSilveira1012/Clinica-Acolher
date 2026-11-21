@@ -77,4 +77,8 @@
       <button type="button" class="botao botao-secundario" (click)="reativar()" [disabled]="salvando()">Reativar paciente</button>
     }
   </section>
+
+  @if (id(); as pacienteId) {
+    <app-convite-portal [pacienteId]="pacienteId" />
+  }
 }

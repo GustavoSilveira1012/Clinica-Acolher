@@ -5,12 +5,13 @@ import { Router, RouterLink } from '@angular/router';
 import { Observable } from 'rxjs';
 import { PatientsApi } from './patients-api';
 import { PatientRequest, PatientResponse } from './patient.models';
+import { ConvitePortal } from '../patient-access/convite-portal';
 
 type Campo = 'fullName' | 'socialName' | 'birthDate' | 'email' | 'phone';
 
 @Component({
   selector: 'app-patient-form-page',
-  imports: [ReactiveFormsModule, RouterLink],
+  imports: [ReactiveFormsModule, RouterLink, ConvitePortal],
   templateUrl: './patient-form-page.html',
   styleUrl: './patient-form-page.css',
 })

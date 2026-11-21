@@ -8,6 +8,11 @@ export const routes: Routes = [
     loadComponent: () => import('./features/auth/login-page').then((m) => m.LoginPage),
   },
   {
+    path: 'convite',
+    title: 'Criar acesso',
+    loadComponent: () => import('./features/patient-access/invitation-page').then((m) => m.InvitationPage),
+  },
+  {
     path: '',
     canActivateChild: [authGuard],
     children: [
@@ -46,6 +51,11 @@ export const routes: Routes = [
         path: 'horarios',
         title: 'Horários de atendimento',
         loadComponent: () => import('./features/availability/availability-page').then((m) => m.AvailabilityPage),
+      },
+      {
+        path: 'portal',
+        title: 'Meu espaço',
+        loadComponent: () => import('./features/portal/portal-page').then((m) => m.PortalPage),
       },
       {
         path: 'status',
