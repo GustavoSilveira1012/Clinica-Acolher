@@ -43,3 +43,30 @@ Content-Type: application/json
 GET {{api}}/api/v1/clinical-notes/{{criar.response.body.$.id}}
 
 ###
+
+# ------------------------------------------------------------------
+# Política de faltas e cancelamentos (valores de teste)
+# Rode antes o login (1) e o 2FA (2) acima.
+# Cada publicação cria uma nova versão; as anteriores continuam guardadas.
+# ------------------------------------------------------------------
+
+### 5. Quem sou eu (traz o professionalId do usuário logado)
+# @name eu
+GET {{api}}/api/v1/auth/me
+
+### 6. Publicar a política
+# Antecedência: 0 a 168 h. Percentuais: 0 a 100.
+# @name politica
+POST {{api}}/api/v1/professionals/{{eu.response.body.$.professionalId}}/attendance-policies
+Content-Type: application/json
+
+{
+  "minimumNoticeHours": 24,
+  "lateCancellationChargePercent": 50,
+  "noShowChargePercent": 100
+}
+
+### 7. Conferir a política vigente
+GET {{api}}/api/v1/professionals/{{eu.response.body.$.professionalId}}/attendance-policies/current
+
+###

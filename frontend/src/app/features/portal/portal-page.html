@@ -1,0 +1,65 @@
+<h1>Seu espaço</h1>
+
+@if (erro(); as msg) {
+  <p role="alert" class="mensagem mensagem-erro">{{ msg }}</p>
+}
+
+@for (p of pendentes(); track p.policyId) {
+  <section class="painel politica" [attr.aria-labelledby]="'politica-' + p.policyId">
+    <h2 [id]="'politica-' + p.policyId">Política de faltas e cancelamentos</h2>
+    <p class="texto-suave">
+      De {{ p.professionalName }} · versão {{ p.version }}, publicada em {{ p.publishedAt | date: 'dd/MM/yyyy' }}
+    </p>
+    <ul>
+      @for (frase of descrever(p); track frase) {
+        <li>{{ frase }}</li>
+      }
+    </ul>
+    <label class="opcao">
+      <input type="checkbox" [checked]="!!concordou()[p.policyId]"
+             (change)="marcarConcordancia(p.policyId, $any($event.target).checked)" />
+      Li e concordo com esta política
+    </label>
+    <div>
+      <button type="button" class="botao botao-primario" [disabled]="!concordou()[p.policyId]" (click)="aceitar(p)">
+        Aceitar a política
+      </button>
+    </div>
+  </section>
+}
+
+<section class="painel" aria-labelledby="proximas-titulo">
+  <h2 id="proximas-titulo">Próximas sessões</h2>
+  <ul class="sessoes">
+    @for (s of agenda()?.upcoming ?? []; track s.id) {
+      <li [class.cancelada]="s.status === 'Cancelled'">
+        <strong>{{ s.startsAt | date: "EEEE, dd 'de' MMMM" }}</strong>
+        <span>{{ s.startsAt | date: 'HH:mm' }} às {{ s.endsAt | date: 'HH:mm' }} · {{ s.professionalName }}</span>
+        <span class="etiqueta">{{ rotuloStatus(s.status) }}</span>
+      </li>
+    } @empty {
+      <li class="texto-suave">Nenhuma sessão marcada.</li>
+    }
+  </ul>
+</section>
+
+@if (agenda()?.recent?.length) {
+  <details class="painel">
+    <summary>Sessões dos últimos 90 dias ({{ agenda()!.recent.length }})</summary>
+    <ul class="sessoes">
+      @for (s of agenda()!.recent; track s.id) {
+        <li>
+          <span>{{ s.startsAt | date: "dd/MM/yyyy 'às' HH:mm" }} · {{ s.professionalName }}</span>
+          <span class="etiqueta">{{ rotuloStatus(s.status) }}</span>
+        </li>
+      }
+    </ul>
+  </details>
+}
+
+@for (p of aceitas(); track p.policyId) {
+  <p class="texto-suave">
+    Você aceitou a política de faltas de {{ p.professionalName }} (versão {{ p.version }})
+    em {{ p.acceptedAt | date: "dd/MM/yyyy 'às' HH:mm" }}.
+  </p>
+}

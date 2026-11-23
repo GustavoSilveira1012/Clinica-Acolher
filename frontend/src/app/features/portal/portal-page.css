@@ -1,0 +1,8 @@
+:host { display: grid; gap: var(--espaco-4); max-width: 46rem; }
+.politica { border-color: var(--cor-atencao-texto); display: grid; gap: var(--espaco-2); }
+.politica ul { margin: 0; padding-left: 1.25rem; display: grid; gap: var(--espaco-1); }
+.sessoes { list-style: none; padding: 0; margin: var(--espaco-2) 0 0; display: grid; gap: var(--espaco-2); }
+.sessoes li { display: flex; flex-wrap: wrap; align-items: center; gap: var(--espaco-2); }
+.sessoes strong::first-letter { text-transform: uppercase; }
+.cancelada { opacity: 0.65; }
+summary { cursor: pointer; font: var(--texto-rotulo); }

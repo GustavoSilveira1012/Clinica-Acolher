@@ -6,6 +6,9 @@ using ClinicaAcolher.Application.PatientAccess;
 using ClinicaAcolher.Application.Patients;
 using ClinicaAcolher.Application.Portal;
 using ClinicaAcolher.Application.Relationships;
+using ClinicaAcolher.Infrastructure.Persistence;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace ClinicaAcolher.IntegrationTests.PatientAccess;
 
@@ -90,6 +93,44 @@ public class PortalApiTests(ApiFactory factory) : IClassFixture<ApiFactory>
         var resposta = await c.Paciente.PostAsync($"/api/v1/portal/attendance-policies/{politicaAlheia.Id}/accept", null);
 
         Assert.Equal(HttpStatusCode.NotFound, resposta.StatusCode);
+    }
+
+    [Fact]
+    public async Task RN_CAN_02_nova_versao_fica_pendente_apos_aceite_da_anterior()
+    {
+        var c = await CenarioAsync();
+        var v1 = await PublicarAsync(c.Profissional, c.ProfissionalId);
+        (await c.Paciente.PostAsync($"/api/v1/portal/attendance-policies/{v1.Id}/accept", null))
+            .EnsureSuccessStatusCode();
+        Assert.True(Assert.Single(await PoliticasAsync(c.Paciente)).Accepted);
+
+        var v2 = await PublicarAsync(c.Profissional, c.ProfissionalId);
+        var pendente = Assert.Single(await PoliticasAsync(c.Paciente));
+
+        Assert.Equal(v2.Id, pendente.PolicyId);
+        Assert.Equal(2, pendente.Version);
+        Assert.False(pendente.Accepted);
+        Assert.Null(pendente.AcceptedAt);
+    }
+
+    [Fact]
+    public async Task Aceite_no_portal_registra_auditoria_do_paciente()
+    {
+        var c = await CenarioAsync();
+        var politica = await PublicarAsync(c.Profissional, c.ProfissionalId);
+        (await c.Paciente.PostAsync($"/api/v1/portal/attendance-policies/{politica.Id}/accept", null))
+            .EnsureSuccessStatusCode();
+
+        using var scope = factory.Services.CreateScope();
+        var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+        var vinculo = await db.TherapeuticRelationships.SingleAsync(r => r.Id == c.VinculoId);
+        var registro = await db.AuditEntries.SingleAsync(e =>
+            e.Action == "AttendancePolicy.Accepted" && e.ResourceId == politica.Id);
+
+        Assert.Equal("AttendancePolicy", registro.ResourceType);
+        Assert.Equal(vinculo.PatientId, registro.PatientId);
+        Assert.NotNull(registro.ActorUserId);
+        Assert.NotNull(Assert.Single(await PoliticasAsync(c.Paciente)).AcceptedAt);
     }
 
     private sealed record Cenario(Guid ProfissionalId, HttpClient Profissional, Guid VinculoId, HttpClient Paciente);
